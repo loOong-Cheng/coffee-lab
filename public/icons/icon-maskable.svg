@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <!-- Maskable variant: full-bleed background, artwork inside the 80% safe zone. Original artwork. -->
+  <rect width="512" height="512" fill="#8c4a1f"/>
+  <g transform="translate(256 256) scale(0.74) translate(-256 -246)">
+    <g fill="none" stroke="#f7e7cc" stroke-width="18" stroke-linecap="round">
+      <path d="M196 84c-22 26 22 46 0 76"/>
+      <path d="M256 68c-22 26 22 46 0 76"/>
+      <path d="M316 84c-22 26 22 46 0 76"/>
+    </g>
+    <ellipse cx="256" cy="424" rx="176" ry="30" fill="#2a1d15" opacity=".35"/>
+    <path d="M392 236h14a50 50 0 0 1 0 100h-26" fill="none" stroke="#fffdfa" stroke-width="28" stroke-linecap="round"/>
+    <path d="M116 212h280v84c0 80-62 124-140 124s-140-44-140-124z" fill="#fffdfa"/>
+    <ellipse cx="256" cy="212" rx="140" ry="32" fill="#2a1d15"/>
+    <ellipse cx="256" cy="210" rx="116" ry="22" fill="#c98a3b"/>
+    <path d="M256 202c-8-14-34-14-34 4 0 14 18 22 34 34 16-12 34-20 34-34 0-18-26-18-34-4z" fill="#f7e7cc" transform="translate(0 211) scale(1 .55) translate(0 -219)"/>
+  </g>
+</svg>

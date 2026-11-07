@@ -17,6 +17,16 @@ export {
   type XrSupport,
   type XrSupportReason,
 } from './capabilities';
+export {
+  registerServiceWorker,
+  unregisterServiceWorkers,
+  applyUpdate,
+  acknowledgeOfflineReady,
+  usePwaStatus,
+  getPwaStatus,
+  subscribePwaStatus,
+  type PwaStatus,
+} from './pwa';
 
 let capabilitiesPromise: Promise<CapabilityProfile> | null = null;
 let capabilitiesCache: CapabilityProfile | null = null;
