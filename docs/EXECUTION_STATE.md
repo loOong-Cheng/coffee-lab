@@ -5,7 +5,7 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**Phase 1 — foundation + parallel content/design/XR (started 2026-11-07 ~23:30 local).**
+**Phase 1→2 (2026-11-07 ~23:50).** Foundation DONE + committed `0928779` (typecheck ✓, 74 unit ✓, build ✓, e2e 14 pass/2 intentional skips — lead re-ran). Running: curriculum core, curriculum atlas, experience-designer, xr-engineer, web-engineer A (learning loop), web-engineer B (kitchen/journal/atlas/settings).
 
 ## Working user-visible flows
 - [ ] Onboarding and course navigation
@@ -17,10 +17,10 @@
 - [ ] Music + SFX
 
 ## Verification
-- Build: NOT RUN
-- Unit tests: NOT RUN
-- Desktop browser smoke: NOT RUN
-- Mobile viewport smoke: NOT RUN
+- Build: PASS (foundation, 23:47)
+- Unit tests: PASS 74/74 (foundation)
+- Desktop browser smoke: PASS (shell only — placeholders)
+- Mobile viewport smoke: PASS (shell only — placeholders)
 - Actual headset: **NOT TESTED — no headset available (U2)**
 
 ## Current tasks / assigned owners (Phase 1, running in parallel)

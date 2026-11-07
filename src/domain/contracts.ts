@@ -186,7 +186,7 @@ export type ParameterLabType = 'espresso-ratio' | 'pourover-ratio' | 'extraction
 
 /**
  * Interactive parameter exploration. Math is computed by domain functions, not content.
- * Ratio convention: espresso → yield/dose ("1:2"); pour-over → water/dose ("1:16").
+ * Ratio convention: espresso → yield/dose ("1:2"); pour-over → water/dose ("1:16"); extraction-explorer → out/dose like espresso.
  */
 export interface ParameterLabActivity extends ActivityBase {
   kind: 'parameter-lab';
@@ -241,7 +241,10 @@ export interface GuidedPracticeActivity extends ActivityBase {
     id: string;
     text: LocalizedText;
     detail?: LocalizedText;
-    /** Optional countdown/stopwatch the user starts themselves. */
+    /**
+     * REFERENCE duration in seconds (not auto-advance). UI offers a user-started stopwatch showing this
+     * reference (countdown only for waits like bloom). A timer never completes a step; completion is a self-reported tap.
+     */
     timerSec?: number;
     safety?: LocalizedText;
     /** Shown when the user taps "Need help". */
