@@ -1,0 +1,247 @@
+/*
+ * Coffee Lab design tokens — the ONE source of visual truth (CONTRACTS.md §7).
+ * Palette: paper / milk / crema / roast. Light is default; dark via
+ * prefers-color-scheme (unless [data-theme="light"]) or [data-theme="dark"].
+ * Contrast (WCAG 2.2): every text token >= 4.5:1 on bg/surface/surface-2 in
+ * both themes; --color-border-strong and --color-focus >= 3:1 (non-text UI).
+ * --color-border and --color-crema are DECORATIVE only (never text, never the
+ * sole boundary of an input).
+ */
+
+:root {
+  color-scheme: light;
+
+  /* ── colour: core ───────────────────────────────────────────── */
+  --color-bg: #fbf7f1;            /* paper */
+  --color-surface: #fffdfa;       /* milk */
+  --color-surface-2: #f3eadf;     /* latte foam */
+  --color-surface-sunken: #efe4d6;
+  --color-text: #2a1d15;          /* espresso */
+  --color-text-muted: #6a5546;    /* 6.5:1 on bg */
+  --color-border: #e3d6c6;        /* decorative divider */
+  --color-border-strong: #8e7865; /* >=3:1 input/control outline */
+  --color-accent: #8c4a1f;        /* roasted caramel; links + primary */
+  --color-accent-hover: #743c17;
+  --color-accent-contrast: #ffffff;
+  --color-accent-soft: #f6e5d3;
+  --color-crema: #c98a3b;         /* decorative highlight */
+  --color-crema-soft: #f7e7cc;
+  --color-overlay: rgb(30 18 10 / 0.48);
+
+  /* ── colour: feedback (always paired with icon + words) ─────── */
+  --color-success: #2e6b3f;
+  --color-success-soft: #e4f1e5;
+  --color-warning: #7f5300;
+  --color-warning-soft: #fbefd6;
+  --color-danger: #a6352b;
+  --color-danger-hover: #8d2b22;
+  --color-danger-contrast: #ffffff;
+  --color-danger-soft: #fbe6e2;
+  --color-info: #2d5f8b;
+  --color-info-soft: #e3edf7;
+  --color-culture: #6b3f7a;       /* coffee-culture callouts (plum) */
+  --color-culture-soft: #f1e6f3;
+  --color-focus: #1f5fd1;         /* deliberately off-palette so focus is never missed */
+
+  /* ── illustration palette (SVG fills; theme-aware) ──────────── */
+  --ill-plate: #f3e8da;
+  --ill-plate-2: #ead9c4;
+  --ill-line: #3a2619;
+  --ill-coffee: #5b3420;
+  --ill-coffee-dark: #2f1a10;
+  --ill-crema: #d79a52;
+  --ill-milk: #fffaf2;
+  --ill-foam: #f4e6d0;
+  --ill-steel: #c9cdd2;
+  --ill-steel-dark: #8d949c;
+  --ill-machine: #b8452f;          /* brick-red machine body */
+  --ill-machine-dark: #8a3222;
+  --ill-wood: #b98252;
+  --ill-wood-dark: #8a5a33;
+  --ill-paper: #fbf3e4;
+  --ill-water: #8ec5e6;
+  --ill-leaf: #5f8a4a;
+  --ill-cherry: #c23b30;
+  --ill-green-bean: #a7b47a;
+  --ill-glass: rgb(200 228 240 / 0.55);
+  --ill-steam: rgb(255 255 255 / 0.85);
+  --ill-shadow: rgb(58 38 25 / 0.14);
+  --ill-highlight: #1f5fd1;
+  --ill-flame: #4f8fe0;
+  --ill-warn: #f0b93a;
+  --ill-clay: #b5653c;
+  --ill-ice: #dff1fa;
+  --ill-ink: #2a1d15;
+
+  /* ── typography ─────────────────────────────────────────────── */
+  --font-body: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans SC", "Noto Sans CJK SC",
+    "Source Han Sans SC", sans-serif;
+  /* Café-menu serif for headings; CJK falls back to Songti/Noto Serif, then to
+     YaHei (never to SimSun, which looks dated at display sizes). */
+  --font-display: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia,
+    "Songti SC", "Noto Serif SC", "Source Han Serif SC", "Noto Serif CJK SC",
+    "PingFang SC", "Microsoft YaHei", serif;
+  --font-mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, "Roboto Mono", Menlo,
+    "Microsoft YaHei", monospace;
+
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-md: 1.125rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5rem;
+  --text-2xl: clamp(1.625rem, 1.35rem + 1.2vw, 2rem);
+  --text-3xl: clamp(2rem, 1.55rem + 2vw, 2.75rem);
+  --text-kitchen: clamp(1.5rem, 1.2rem + 1.6vw, 2.25rem); /* hands-busy step text */
+
+  --leading-tight: 1.2;
+  --leading-normal: 1.55;
+  --leading-cjk: 1.75;
+  --weight-regular: 400;
+  --weight-medium: 550;
+  --weight-bold: 700;
+
+  /* ── spacing (4px base) ─────────────────────────────────────── */
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+  --space-6: 2rem;
+  --space-7: 3rem;
+  --space-8: 4rem;
+
+  --measure: 68ch;               /* comfortable reading width */
+  --content-max: 72rem;
+
+  /* ── shape & depth ──────────────────────────────────────────── */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 18px;
+  --radius-pill: 999px;
+  --shadow-1: 0 1px 2px rgb(58 38 25 / 0.08), 0 2px 6px rgb(58 38 25 / 0.06);
+  --shadow-2: 0 6px 16px rgb(58 38 25 / 0.12), 0 2px 4px rgb(58 38 25 / 0.08);
+  --shadow-3: 0 18px 48px rgb(40 24 14 / 0.24);
+
+  /* ── motion ─────────────────────────────────────────────────── */
+  --dur-fast: 120ms;
+  --dur-med: 220ms;
+  --dur-slow: 420ms;
+  --ease-out: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  /* ── touch targets ──────────────────────────────────────────── */
+  --tap-min: 44px;
+  --tap-kitchen: 64px;
+
+  --z-sticky: 10;
+  --z-overlay: 100;
+  --z-toast: 200;
+}
+
+/* ── dark theme (shared block, applied two ways) ──────────────── */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --color-bg: #16100c;
+    --color-surface: #201712;
+    --color-surface-2: #2b2019;
+    --color-surface-sunken: #120d0a;
+    --color-text: #f3e9de;
+    --color-text-muted: #c4b1a0;
+    --color-border: #3f3128;
+    --color-border-strong: #8c7766;
+    --color-accent: #e3a35c;
+    --color-accent-hover: #edb677;
+    --color-accent-contrast: #1b120b;
+    --color-accent-soft: #3a2a1d;
+    --color-crema: #e6ae63;
+    --color-crema-soft: #3b2c1b;
+    --color-overlay: rgb(0 0 0 / 0.6);
+    --color-success: #86cf94;
+    --color-success-soft: #1c2e20;
+    --color-warning: #ebc060;
+    --color-warning-soft: #33290f;
+    --color-danger: #f49a8a;
+    --color-danger-hover: #f7b2a5;
+    --color-danger-contrast: #1b120b;
+    --color-danger-soft: #3a1e1a;
+    --color-info: #93c2f2;
+    --color-info-soft: #18283a;
+    --color-culture: #d6a8e4;
+    --color-culture-soft: #2e2033;
+    --color-focus: #8ab8ff;
+    --ill-plate: #392b20;
+    --ill-plate-2: #46362a;
+    --ill-coffee-dark: #3d2417;
+    --ill-line: #140c07;
+    --ill-milk: #f4ece0;
+    --ill-paper: #efe3cf;
+    --ill-shadow: rgb(0 0 0 / 0.3);
+    --ill-highlight: #8ab8ff;
+    --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 6px rgb(0 0 0 / 0.25);
+    --shadow-2: 0 6px 16px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
+    --shadow-3: 0 18px 48px rgb(0 0 0 / 0.6);
+  }
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --color-bg: #16100c;
+  --color-surface: #201712;
+  --color-surface-2: #2b2019;
+  --color-surface-sunken: #120d0a;
+  --color-text: #f3e9de;
+  --color-text-muted: #c4b1a0;
+  --color-border: #3f3128;
+  --color-border-strong: #8c7766;
+  --color-accent: #e3a35c;
+  --color-accent-hover: #edb677;
+  --color-accent-contrast: #1b120b;
+  --color-accent-soft: #3a2a1d;
+  --color-crema: #e6ae63;
+  --color-crema-soft: #3b2c1b;
+  --color-overlay: rgb(0 0 0 / 0.6);
+  --color-success: #86cf94;
+  --color-success-soft: #1c2e20;
+  --color-warning: #ebc060;
+  --color-warning-soft: #33290f;
+  --color-danger: #f49a8a;
+  --color-danger-hover: #f7b2a5;
+  --color-danger-contrast: #1b120b;
+  --color-danger-soft: #3a1e1a;
+  --color-info: #93c2f2;
+  --color-info-soft: #18283a;
+  --color-culture: #d6a8e4;
+  --color-culture-soft: #2e2033;
+  --color-focus: #8ab8ff;
+  --ill-plate: #392b20;
+  --ill-plate-2: #46362a;
+  --ill-coffee-dark: #3d2417;
+  --ill-line: #140c07;
+  --ill-milk: #f4ece0;
+  --ill-paper: #efe3cf;
+  --ill-shadow: rgb(0 0 0 / 0.3);
+  --ill-highlight: #8ab8ff;
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 0.4), 0 2px 6px rgb(0 0 0 / 0.25);
+  --shadow-2: 0 6px 16px rgb(0 0 0 / 0.45), 0 2px 4px rgb(0 0 0 / 0.3);
+  --shadow-3: 0 18px 48px rgb(0 0 0 / 0.6);
+}
+
+/* ── reduced motion: OS setting (unless user forced motion on) or app toggle ── */
+@media (prefers-reduced-motion: reduce) {
+  :root:not([data-reduced-motion="off"]) {
+    --dur-fast: 1ms;
+    --dur-med: 1ms;
+    --dur-slow: 1ms;
+    --ease-spring: linear;
+  }
+}
+
+:root[data-reduced-motion="on"] {
+  --dur-fast: 1ms;
+  --dur-med: 1ms;
+  --dur-slow: 1ms;
+  --ease-spring: linear;
+}

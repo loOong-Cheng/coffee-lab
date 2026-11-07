@@ -1,0 +1,3 @@
+/* Coffee Lab global styles (imported once by src/main.tsx). Component styles live next to src/ui components. */
+@import "./tokens.css";
+@import "./base.css";
