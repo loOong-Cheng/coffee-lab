@@ -8,6 +8,7 @@ import { useDocumentTitle } from '../../app/useDocumentTitle';
 import { audio, type MusicMood } from '../../audio';
 import type { Locale, LocalizedText, Preferences } from '../../domain/contracts';
 import { useI18n } from '../../i18n';
+import { usePwaStatus } from '../../platform';
 import { getLearnerState, learnerActions, useLearner, usePersistenceStatus } from '../../state';
 import { announce, Button, Callout, Dialog, GuidanceSelector, SegmentedControl, Switch, Tag } from '../../ui';
 import { equipmentName } from '../practice/catalog';
@@ -50,6 +51,14 @@ const S = {
   noProfile: { zh: '你还没有完成初始设置。', en: 'You haven’t set up your profile yet.' },
   startSetup: { zh: '开始设置', en: 'Set up now' },
   data: { zh: '你的数据', en: 'Your data' },
+  offline: {
+    ready: { zh: '离线可用：已就绪（课程、厨房模式、日志、图鉴）。', en: 'Offline: ready (lessons, kitchen mode, journal, atlas).' },
+    pending: { zh: '离线可用：首次在线打开后自动准备。', en: 'Offline: prepares automatically after the first online visit.' },
+    unsupported: {
+      zh: '离线可用：此连接不支持（需要 https 或 localhost）。',
+      en: 'Offline: not available on this connection (needs https or localhost).',
+    },
+  },
   stored: {
     zh: '保存的内容：你的设置和器具、偏好、学习记录（答题、模拟和自我报告的练习）、冲煮日志，以及进行中的指导。',
     en: 'What’s stored: your setup and gear, preferences, learning record (answers, simulations and self-reported practice), brew journal, and any guide in progress.',
@@ -97,6 +106,7 @@ export default function SettingsPage() {
   const prefs = useLearner((s) => s.prefs);
   const profile = useLearner((s) => s.profile);
   const persistence = usePersistenceStatus();
+  const pwa = usePwaStatus();
   const [volume, setVolume] = useState(Math.round(prefs.volume * 100));
   const [importState, setImportState] = useState<Extract<ImportResult, { ok: true }> | null>(null);
   const [message, setMessage] = useState<{ tone: 'success' | 'error'; text: string; setup?: boolean } | null>(null);
@@ -337,6 +347,9 @@ export default function SettingsPage() {
       <section className="st-section" aria-labelledby="st-data">
         <h2 id="st-data">{t(S.data)}</h2>
         <p>{t(S.stored)}</p>
+        <p data-testid="settings-offline-status">
+          {t(!pwa.supported ? S.offline.unsupported : pwa.offlineReady ? S.offline.ready : S.offline.pending)}
+        </p>
         <Callout kind="info" locale={locale}>
           {t(S.local)}
         </Callout>

@@ -947,10 +947,30 @@
   width: min(24rem, calc(100vw - 2 * var(--space-4)));
   pointer-events: none;
 }
+/* Phones: toasts drop in from the TOP, just below the compact header, so they can never
+   cover the bottom tab bar or the kitchen-mode Done bar (thumb zone). The shell may set
+   --cl-toast-top to its header height. Only the toast cards take taps, never the container. */
 @media (max-width: 40rem) {
   .cl-toasts {
-    inset-inline: var(--space-4);
+    inset: calc(env(safe-area-inset-top, 0px) + var(--cl-toast-top, 64px)) var(--space-3) auto var(--space-3);
     width: auto;
+    flex-direction: column-reverse;
+  }
+  .cl-toast {
+    animation-name: cl-drop;
+    padding-block: var(--space-2);
+  }
+}
+/* Wider screens: if a kitchen action bar is on the page, float toasts above it. */
+@media (min-width: 40.0625rem) {
+  body:has(.cl-kitchen-bar) .cl-toasts {
+    bottom: calc(8.5rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+@keyframes cl-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
   }
 }
 .cl-toast {

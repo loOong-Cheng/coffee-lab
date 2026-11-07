@@ -41,6 +41,14 @@ const TONE_ICON: Record<ToastTone, IconName> = {
 
 const ToastContext = createContext<ToastApi | null>(null);
 
+function isNarrowViewport(): boolean {
+  try {
+    return typeof window !== 'undefined' && typeof window.matchMedia === 'function' && window.matchMedia('(max-width: 40rem)').matches;
+  } catch {
+    return false;
+  }
+}
+
 /** Fallback when no provider is mounted: still announce, never throw. */
 const fallbackApi: ToastApi = {
   toast(opts) {
@@ -91,7 +99,8 @@ function ToastView({ item, dismiss, locale }: { item: ToastItem; dismiss(id: num
   const [paused, setPaused] = useState(false);
   const { id } = item;
   const onDismiss = useCallback(() => dismiss(id), [dismiss, id]);
-  const duration = item.duration ?? 5000;
+  // Phones get a shorter default: the toast sits over content near the header.
+  const duration = item.duration ?? (isNarrowViewport() ? 3500 : 5000);
   const tone = item.tone ?? 'neutral';
 
   useEffect(() => {
