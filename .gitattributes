@@ -1,0 +1,3 @@
+# Keep LF everywhere: .claude/mission.sha256 hashes COFFEE_LAB_HANDOFF.md byte-for-byte,
+# and CRLF conversion on checkout (e.g. in worktrees) would break that check.
+* text=auto eol=lf
