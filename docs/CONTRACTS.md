@@ -88,7 +88,10 @@ Theme: light default + dark via `prefers-color-scheme` and `[data-theme]` on `<h
 `/` home (course map; redirects to onboarding if no profile) · `/onboarding` · `/learn/:lessonId` lesson player · `/practice/:activityId` real-world guide (kitchen mode) · `/journal` · `/atlas` and `/atlas/:drinkId` · `/xr` (lazy, `src/xr/XrRoute.tsx` default export) · `/settings` · 404.
 
 ## 9. Evidence honesty rules (everyone)
-- Quiz/sequence/identify/diagnose answers → `assessed_answer`.
+- Quiz/sequence/identify/diagnose/parameter-lab answers → `assessed_answer`.
+- Explain/reading cards paged through → `observed_by_app` (UI says "viewed" — it is NOT evidence of understanding). Reflections → `self_report`.
+- Real-world guide: ONE `completed` event per finished session (`evidence: 'self_report'`, `mode: 'real-world-guide'`), not one per step. Atlas drink practice uses `activityId: 'drink:<drinkId>'`, `lessonId: ''`.
+- Brew log `drinkId`: real drink id (e.g. `espresso-shot`) when known; display resolves drink → activity title → raw text.
 - XR or 3D task completion detected by the app's own collision/rules → `simulated` (it's a simulation) — never "real skill".
 - Real-world guide steps and brew logs → `self_report`; UI labels them "self-reported".
 - `observed_by_app` only for things the app truly measured (e.g. a timer the user ran in-app).

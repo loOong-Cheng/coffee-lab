@@ -343,6 +343,8 @@ export interface Preferences {
   locale: Locale;
   sfx: boolean;
   music: boolean;
+  /** Generative music mood (matches audio MusicMood). */
+  musicMood: 'cafe' | 'focus' | 'lab';
   /** 0..1 */
   volume: number;
   reducedMotion: 'system' | 'on' | 'off';

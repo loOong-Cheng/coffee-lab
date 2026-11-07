@@ -36,4 +36,9 @@ export const S = {
   notFoundTitle: { zh: '找不到这个页面', en: "We couldn't find that page" },
   notFoundBody: { zh: '链接可能已过期或输入有误。', en: 'The link may be outdated or mistyped.' },
   notFoundHome: { zh: '返回课程地图', en: 'Back to the course map' },
+  footer: {
+    zh: '进度只保存在这台设备上。真实操作由你自己确认（自我报告）；模拟和萃取模型只是示意。',
+    en: 'Progress is saved on this device only. Real-world steps are self-reported; simulations and extraction models are illustrative.',
+  },
+  editSetup: { zh: '修改学习设置', en: 'Edit learning setup' },
 } satisfies Record<string, LocalizedText>;

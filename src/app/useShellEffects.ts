@@ -34,7 +34,9 @@ export function useAudioSync(): void {
   const sfx = useLearner((s) => s.prefs.sfx);
   const music = useLearner((s) => s.prefs.music);
   const volume = useLearner((s) => s.prefs.volume);
+  const musicMood = useLearner((s) => s.prefs.musicMood);
   useEffect(() => safely(() => audio.setSfxEnabled(sfx)), [sfx]);
+  useEffect(() => safely(() => audio.setMusicMood(musicMood)), [musicMood]);
   useEffect(() => safely(() => audio.setMusicEnabled(music)), [music]);
   useEffect(() => safely(() => audio.setVolume(volume)), [volume]);
   useEffect(() => {

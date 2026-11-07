@@ -33,6 +33,7 @@ export function createDefaultPrefs(locale: Locale = detectDefaultLocale()): Pref
     locale,
     sfx: true, // audible only after the first user gesture unlocks audio
     music: false, // music is OFF by default (CONTRACTS §6)
+    musicMood: 'cafe',
     volume: 0.7,
     reducedMotion: 'system',
     theme: 'system',
@@ -64,6 +65,7 @@ const OUTCOMES: readonly LearningEvent['outcome'][] = ['completed', 'retry', 'sk
 const STEP_STATUS = ['done', 'skipped', 'help'] as const;
 const REDUCED_MOTION: readonly Preferences['reducedMotion'][] = ['system', 'on', 'off'];
 const THEMES: readonly Preferences['theme'][] = ['system', 'light', 'dark'];
+const MOODS: readonly Preferences['musicMood'][] = ['cafe', 'focus', 'lab'];
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
@@ -108,6 +110,7 @@ function validatePrefs(v: unknown, r: Report): Preferences {
     locale: isLocale(v.locale) ? v.locale : d.locale,
     sfx: isBool(v.sfx) ? v.sfx : d.sfx,
     music: isBool(v.music) ? v.music : d.music,
+    musicMood: oneOf(MOODS, v.musicMood) ? v.musicMood : d.musicMood,
     volume: isNum(v.volume) ? clamp01(v.volume) : d.volume,
     reducedMotion: oneOf(REDUCED_MOTION, v.reducedMotion) ? v.reducedMotion : d.reducedMotion,
     theme: oneOf(THEMES, v.theme) ? v.theme : d.theme,

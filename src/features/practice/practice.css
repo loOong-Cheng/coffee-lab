@@ -1,0 +1,407 @@
+/* Kitchen mode (real-world guide). Prefix: kp-. Tokens only (src/styles/tokens.css). */
+
+.kp-page {
+  max-width: 46rem;
+  margin-inline: auto;
+}
+
+.kp-head {
+  display: grid;
+  gap: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+.kp-head > * {
+  margin: 0;
+}
+.kp-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+}
+.kp-lead {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+.kp-small {
+  font-size: var(--text-sm);
+}
+.kp-list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: var(--space-1);
+}
+
+.kp-section {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-6);
+}
+.kp-section > h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+
+.kp-preflight > .cl-callout {
+  margin-bottom: var(--space-3);
+}
+
+.kp-grid {
+  display: grid;
+  gap: var(--space-4);
+}
+@media (min-width: 48rem) {
+  .kp-grid {
+    grid-template-columns: 1fr 1fr;
+    align-items: start;
+  }
+}
+
+.kp-panel {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.kp-panel > h3 {
+  margin: 0;
+  font-size: var(--text-lg);
+}
+.kp-panel > p {
+  margin: 0;
+}
+
+/* gear checklist: whole row is the hit target */
+.kp-gear {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.kp-gear__item {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-3);
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+  cursor: pointer;
+}
+.kp-gear__item input {
+  width: 22px;
+  height: 22px;
+  accent-color: var(--color-accent);
+  flex: none;
+}
+.kp-gear__name {
+  flex: 1 1 8rem;
+  min-width: 0;
+}
+.kp-gear__item:has(input:checked) .kp-gear__name {
+  text-decoration: line-through;
+  text-decoration-thickness: 1px;
+  color: var(--color-text-muted);
+}
+
+.kp-recipe {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+.kp-recipe > div {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-2);
+}
+.kp-recipe dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.kp-recipe dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+
+.kp-details {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-surface);
+}
+.kp-details > summary {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  font-weight: var(--weight-medium);
+}
+.kp-details[open] > summary {
+  margin-bottom: var(--space-2);
+}
+
+.kp-switches {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.kp-start {
+  position: sticky;
+  bottom: 0;
+  z-index: var(--z-sticky);
+  margin-top: var(--space-6);
+  padding: var(--space-3) 0 calc(var(--space-3) + env(safe-area-inset-bottom, 0px));
+  background: linear-gradient(to top, var(--color-bg) 70%, transparent);
+}
+
+/* ── resume ─────────────────────────────── */
+.kp-resume {
+  display: grid;
+  gap: var(--space-2);
+}
+.kp-resume__card {
+  display: grid;
+  gap: var(--space-3);
+}
+.kp-resume__card > p {
+  margin: 0;
+}
+.kp-resume__step {
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+.kp-resume__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* ── run ────────────────────────────────── */
+.kp-run {
+  display: grid;
+  gap: var(--space-4);
+}
+.kp-run__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.kp-run__tools {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-1);
+}
+.kp-awake {
+  margin: 0;
+  font-size: var(--text-xs);
+}
+.kp-awake span {
+  color: var(--color-success);
+}
+
+.kp-step {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-5) var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-1);
+  transition: box-shadow var(--dur-med) var(--ease-out), border-color var(--dur-med) var(--ease-out);
+}
+.kp-step > p {
+  margin: 0;
+}
+.kp-step.is-flash {
+  border-color: var(--color-accent);
+  box-shadow: 0 0 0 4px var(--color-accent-soft);
+}
+.kp-step__text {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-kitchen);
+  line-height: var(--leading-tight);
+  outline: none;
+}
+.kp-step__text:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 4px;
+  border-radius: var(--radius-sm);
+}
+.kp-step__detail {
+  font-size: var(--text-lg);
+  color: var(--color-text-muted);
+}
+.kp-step__art {
+  max-width: 18rem;
+  margin-inline: auto;
+}
+.kp-run[data-guidance='independent'] .kp-step {
+  padding: var(--space-4);
+}
+.kp-run[data-guidance='independent'] .kp-step__text {
+  font-size: var(--text-xl);
+}
+
+/* timers */
+.kp-timer {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+}
+.kp-timer > p {
+  margin: 0;
+}
+.kp-timer__head {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+}
+.kp-timer__digits {
+  display: block;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.kp-timer--stopwatch .kp-timer__head {
+  justify-content: space-between;
+}
+.kp-timer--prominent {
+  background: var(--color-crema-soft);
+  border-color: var(--color-crema);
+}
+.kp-timer--prominent .kp-timer__digits {
+  font-size: var(--text-3xl);
+}
+.kp-timer__ref {
+  font-size: var(--text-sm);
+}
+.kp-timer__ring-text {
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+.kp-timer__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.kp-timer__note {
+  font-size: var(--text-xs);
+}
+.kp-timer--countdown.is-finished {
+  background: var(--color-success-soft);
+  border-color: var(--color-success);
+}
+.kp-timer__done {
+  font-size: var(--text-base);
+}
+
+/* independent checklist */
+.kp-checklist h2 {
+  margin: 0 0 var(--space-2);
+}
+.kp-checklist ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.kp-checklist__item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.kp-checklist__item[aria-current='step'] {
+  border-color: var(--color-accent);
+  border-width: 2px;
+  background: var(--color-accent-soft);
+  font-weight: var(--weight-bold);
+}
+.kp-checklist__mark {
+  flex: none;
+  display: inline-grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+.kp-checklist li[data-state='done'] .kp-checklist__mark {
+  background: var(--color-success);
+  color: var(--color-accent-contrast);
+}
+.kp-checklist li[data-state='done'] .kp-checklist__text,
+.kp-checklist li[data-state='skipped'] .kp-checklist__text {
+  color: var(--color-text-muted);
+}
+
+/* help sheet */
+.kp-help__step {
+  margin-top: 0;
+}
+.kp-help__actions {
+  display: grid;
+  gap: var(--space-2);
+  margin-top: var(--space-4);
+}
+
+/* Kitchen action bar sits above the fixed mobile tab bar (shell ≤720px). */
+@media (max-width: 720px) {
+  .kp-actions.cl-kitchen-bar {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    margin-inline: calc(-1 * var(--space-4));
+  }
+  .kp-start {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── finish ─────────────────────────────── */
+.kp-finish {
+  display: grid;
+  gap: var(--space-4);
+}
+.kp-finish__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-4);
+}
+.kp-finish__head p {
+  margin: var(--space-2) 0;
+}
+.kp-finish__art {
+  width: 120px;
+  flex: none;
+}

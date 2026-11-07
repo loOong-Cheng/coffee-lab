@@ -4,6 +4,7 @@ import { audio } from '../audio';
 import type { LocalizedText } from '../domain/contracts';
 import { otherLocale, useI18n } from '../i18n';
 import { learnerActions, useLearner, usePersistenceStatus } from '../state';
+import { ToastProvider } from '../ui/primitives/Toast';
 import { ErrorBoundary } from './ErrorBoundary';
 import { S } from './strings';
 import { useAudioSync, useDocumentSync, useRouteEffects } from './useShellEffects';
@@ -98,80 +99,87 @@ export function AppShell({ children }: { children: ReactNode }) {
   const nextLocale = otherLocale(locale);
 
   return (
-    <div className="shell">
-      <a className="shell-skip" href={`#${MAIN_ID}`} onClick={skipToMain}>
-        {t(S.skip)}
-      </a>
-      <header className="shell-header">
-        <Link to="/" className="shell-brand" aria-label={t(S.brand)}>
-          <svg className="shell-brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
-            <path d="M5 11h18v7a9 9 0 0 1-18 0z" fill="currentColor" />
-            <path d="M23 13h2a4 4 0 0 1 0 8h-2.5" fill="none" stroke="currentColor" strokeWidth="2" />
-            <path d="M10 4c0 2 2 2 2 4M15 4c0 2 2 2 2 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
-          </svg>
-          <span className="shell-brand__full">{t(S.brand)}</span>
-          <span className="shell-brand__short" aria-hidden="true">
-            {t(S.brandShort)}
-          </span>
-        </Link>
-        <div className="shell-tools">
-          <button
-            type="button"
-            className="shell-tool"
-            data-testid="locale-toggle"
-            onClick={() => setLocale(nextLocale)}
-            aria-label={t(S.switchLang)}
-          >
-            <span lang={nextLocale === 'zh' ? 'zh-CN' : 'en'}>{nextLocale === 'zh' ? '中文' : 'EN'}</span>
-          </button>
-          <button
-            type="button"
-            className="shell-tool"
-            aria-pressed={sfx}
-            onClick={toggleSfx}
-            title={t(S.sfx)}
-            data-testid="sfx-toggle"
-          >
-            {sfx ? ICONS.soundOn : ICONS.soundOff}
-            <span className="shell-sr-only">{t(S.sfx)}</span>
-          </button>
-          <button
-            type="button"
-            className="shell-tool"
-            aria-pressed={music}
-            onClick={() => learnerActions.updatePrefs({ music: !music })}
-            title={t(S.music)}
-            data-testid="music-toggle"
-          >
-            {ICONS.music}
-            <span className="shell-sr-only">{t(S.music)}</span>
-          </button>
-        </div>
-      </header>
+    <ToastProvider locale={locale}>
+      <div className="shell">
+        <a className="shell-skip" href={`#${MAIN_ID}`} onClick={skipToMain}>
+          {t(S.skip)}
+        </a>
+        <header className="shell-header">
+          <Link to="/" className="shell-brand" aria-label={t(S.brand)}>
+            <svg className="shell-brand__mark" viewBox="0 0 32 32" aria-hidden="true" focusable="false">
+              <path d="M5 11h18v7a9 9 0 0 1-18 0z" fill="currentColor" />
+              <path d="M23 13h2a4 4 0 0 1 0 8h-2.5" fill="none" stroke="currentColor" strokeWidth="2" />
+              <path d="M10 4c0 2 2 2 2 4M15 4c0 2 2 2 2 4" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+            </svg>
+            <span className="shell-brand__full">{t(S.brand)}</span>
+            <span className="shell-brand__short" aria-hidden="true">
+              {t(S.brandShort)}
+            </span>
+          </Link>
+          <div className="shell-tools">
+            <button
+              type="button"
+              className="shell-tool"
+              data-testid="locale-toggle"
+              onClick={() => setLocale(nextLocale)}
+              aria-label={t(S.switchLang)}
+            >
+              <span lang={nextLocale === 'zh' ? 'zh-CN' : 'en'}>{nextLocale === 'zh' ? '中文' : 'EN'}</span>
+            </button>
+            <button
+              type="button"
+              className="shell-tool"
+              aria-pressed={sfx}
+              onClick={toggleSfx}
+              title={t(S.sfx)}
+              data-testid="sfx-toggle"
+            >
+              {sfx ? ICONS.soundOn : ICONS.soundOff}
+              <span className="shell-sr-only">{t(S.sfx)}</span>
+            </button>
+            <button
+              type="button"
+              className="shell-tool"
+              aria-pressed={music}
+              onClick={() => learnerActions.updatePrefs({ music: !music })}
+              title={t(S.music)}
+              data-testid="music-toggle"
+            >
+              {ICONS.music}
+              <span className="shell-sr-only">{t(S.music)}</span>
+            </button>
+          </div>
+        </header>
 
-      <nav className="shell-nav" aria-label={t(S.primaryNav)}>
-        <ul>
-          {NAV.map((item) => {
-            const active = item.isActive(pathname);
-            return (
-              <li key={item.to}>
-                <Link to={item.to} className="shell-nav__link" aria-current={active ? 'page' : undefined}>
-                  {item.icon}
-                  <span className="shell-nav__label">{t(item.label)}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      </nav>
+        <nav className="shell-nav" aria-label={t(S.primaryNav)}>
+          <ul>
+            {NAV.map((item) => {
+              const active = item.isActive(pathname);
+              return (
+                <li key={item.to}>
+                  <Link to={item.to} className="shell-nav__link" aria-current={active ? 'page' : undefined}>
+                    {item.icon}
+                    <span className="shell-nav__label">{t(item.label)}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
 
-      <PersistenceNotice />
+        <PersistenceNotice />
 
-      <main id={MAIN_ID} className="shell-main" tabIndex={-1}>
-        <ErrorBoundary resetKey={pathname} scope="page">
-          {children}
-        </ErrorBoundary>
-      </main>
-    </div>
+        <main id={MAIN_ID} className="shell-main" tabIndex={-1}>
+          <ErrorBoundary resetKey={pathname} scope="page">
+            {children}
+          </ErrorBoundary>
+        </main>
+
+        <footer className="shell-footer">
+          <p>{t(S.footer)}</p>
+          <Link to="/onboarding?edit=1">{t(S.editSetup)}</Link>
+        </footer>
+      </div>
+    </ToastProvider>
   );
 }

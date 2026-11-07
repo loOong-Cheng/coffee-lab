@@ -5,13 +5,14 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**Phase 1→2 (2026-11-07 ~23:50).** Foundation DONE + committed `0928779` (typecheck ✓, 74 unit ✓, build ✓, e2e 14 pass/2 intentional skips — lead re-ran). Running: curriculum core, curriculum atlas, experience-designer, xr-engineer, web-engineer A (learning loop), web-engineer B (kitchen/journal/atlas/settings).
+**Phase 2 (2026-11-08 ~00:25).** Committed: foundation `0928779`, content `16552d5` (24 lessons/100 activities, 29 drinks, 39 equipment; 31 content tests), design system + audio `6e4ddbd` (36 tests), XR espresso mission `3952165` (46 tests; browser fallback verified by worker via headless Chromium drags; WebXR HARDWARE-UNVERIFIED).
+Running: web-engineer A (onboarding/home/lesson player/activities/shell), web-engineer B (kitchen mode/journal/atlas/settings), xr-engineer phase 3 (mission picker + station-tour + pourover-bloom).
 
 ## Working user-visible flows
 - [ ] Onboarding and course navigation
 - [ ] Desktop lesson and interaction loop
 - [ ] Mobile real-world step guide + journal
-- [ ] XR scene with meaningful controller interaction
+- [~] XR scene with meaningful interaction — espresso mission playable in 3D fallback (mouse/touch/action list); VR controllers hardware-unverified
 - [ ] Persisted shared progress
 - [ ] Drink Atlas + culture track
 - [ ] Music + SFX
@@ -23,17 +24,10 @@
 - Mobile viewport smoke: PASS (shell only — placeholders)
 - Actual headset: **NOT TESTED — no headset available (U2)**
 
-## Current tasks / assigned owners (Phase 1, running in parallel)
-1. Scaffold, state/persistence, i18n, capabilities, router, shell, test infra — platform-architect.
-2. Core curriculum: literacy, espresso, pour-over (13 lessons) + content tests — coffee-curriculum (core).
-3. Equipment catalog, Drink Atlas (≥22), explore + culture tracks (11 lessons) — coffee-curriculum (atlas).
-4. UX spec, tokens, UI primitives, icons, original SVG diagrams, procedural music/SFX — experience-designer.
-5. WebXR espresso mission (state machine + Babylon scene + 3D fallback + tests) — xr-interaction-engineer.
-
-## Next (Phase 2, after scaffold + UI kit land)
-- web-product-engineer A: onboarding, course map/home, lesson player + all 2D activity components with guidance tiers (desktop-first).
-- web-product-engineer B: mobile kitchen-mode real-world guide, brew journal (self-report, ratio, one-change suggestion), Drink Atlas + culture views, settings.
-- quality-guardian: first independent QA gate after Phase 2 integration.
+## Next 3 tasks
+1. Integrate web A + web B handbacks → run full typecheck/test/build/e2e → commit.
+2. quality-guardian independent QA gate (P0 acceptance, product smoke scenario §12, a11y, honesty) + XR e2e via `?xrtest`.
+3. Lead: add spatial-practice activities `esp-meet-the-machine-xr` / `po-ratio-bloom-xr` to content when XR phase 3 lands; fix QA P0/P1 bugs via owners.
 
 ## Blockers / unverified assumptions
 - No headset → XR hardware-unverified by design.

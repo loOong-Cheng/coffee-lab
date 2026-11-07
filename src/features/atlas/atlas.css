@@ -1,0 +1,403 @@
+/* Drink Atlas. Prefix: at-. Tokens only. */
+
+.at-page,
+.at-detail {
+  display: grid;
+  gap: var(--space-5);
+}
+.at-detail {
+  max-width: 52rem;
+  margin-inline: auto;
+}
+.at-head {
+  display: grid;
+  gap: var(--space-2);
+}
+.at-head > * {
+  margin: 0;
+}
+.at-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+}
+.at-lead {
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+  max-width: var(--measure);
+  margin: 0;
+}
+.at-h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+.at-small {
+  font-size: var(--text-sm);
+  margin: 0;
+}
+.at-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+
+/* featured story */
+.at-featured {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-culture-soft);
+  border: 1px solid var(--color-border);
+}
+.at-featured__art {
+  max-width: 14rem;
+}
+.at-featured__body {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  justify-items: start;
+}
+.at-featured__body p {
+  margin: 0;
+  max-width: var(--measure);
+}
+.at-featured__origin {
+  font-weight: var(--weight-medium);
+}
+@media (min-width: 48rem) {
+  .at-featured {
+    grid-template-columns: 14rem 1fr;
+    align-items: center;
+  }
+}
+
+/* filters */
+.at-filters {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.at-input {
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+  box-sizing: border-box;
+}
+.at-input:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.at-fieldset {
+  border: 0;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+}
+.at-fieldset > legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.at-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.at-filters__row {
+  display: grid;
+  gap: var(--space-3);
+}
+.at-filters__row .cl-seg {
+  max-width: 100%;
+  flex-wrap: wrap;
+}
+@media (min-width: 60rem) {
+  .at-filters__row {
+    grid-template-columns: auto auto;
+    justify-content: start;
+    column-gap: var(--space-6);
+  }
+}
+.at-filters__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* groups + cards */
+.at-group {
+  display: grid;
+  gap: var(--space-3);
+}
+.at-group__head {
+  display: grid;
+  gap: var(--space-1);
+}
+.at-group__count {
+  font-family: var(--font-body);
+  font-size: var(--text-base);
+  color: var(--color-text-muted);
+  font-weight: var(--weight-regular);
+}
+.at-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 15rem), 1fr));
+}
+.at-grid > li {
+  display: grid;
+}
+.at-card {
+  position: relative;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.at-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+.at-card:has(.at-card__link:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.at-card__art {
+  background: var(--color-surface-2);
+  padding: var(--space-2) var(--space-4) 0;
+}
+.at-card__art .cl-ill {
+  max-height: 9rem;
+}
+.at-card__body {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+  padding: var(--space-3) var(--space-4) var(--space-4);
+}
+.at-card__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-tight);
+}
+.at-card__link {
+  color: var(--color-text);
+  text-decoration: none;
+}
+.at-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.at-card__link:focus-visible {
+  outline: none;
+}
+.at-card__tagline {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+.at-card__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+
+/* detail */
+.at-hero {
+  display: grid;
+  gap: var(--space-4);
+}
+.at-hero__art {
+  max-width: 16rem;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-2);
+  padding: var(--space-3);
+}
+.at-hero__body {
+  display: grid;
+  gap: var(--space-2);
+  align-content: start;
+}
+.at-hero__body > p {
+  margin: 0;
+}
+@media (min-width: 48rem) {
+  .at-hero {
+    grid-template-columns: 16rem 1fr;
+    align-items: start;
+  }
+}
+.at-make {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+  margin-top: var(--space-2);
+}
+.at-section {
+  display: grid;
+  gap: var(--space-3);
+}
+.at-section > p {
+  margin: 0;
+}
+.at-culture {
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-culture-soft);
+}
+.at-origin {
+  font-size: var(--text-lg);
+}
+.at-recipe {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+.at-recipe > div {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.at-recipe dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.at-recipe dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+.at-steps {
+  margin: 0;
+  padding-left: 1.5em;
+  display: grid;
+  gap: var(--space-2);
+  font-size: var(--text-md, var(--text-base));
+}
+.at-gear {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-1);
+}
+.at-gear__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+  min-height: var(--tap-min);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.at-gear__name {
+  flex: 1 1 8rem;
+  font-weight: var(--weight-medium);
+}
+.at-gear__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.at-list {
+  margin: 0;
+  padding-left: 1.2em;
+  display: grid;
+  gap: var(--space-1);
+}
+.at-links {
+  margin: 0;
+  padding-left: 1.2em;
+}
+.at-links a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+.at-sources {
+  font-size: var(--text-sm);
+}
+.at-sources > summary {
+  min-height: var(--tap-min);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+/* Phones: compact horizontal cards (art left) so 29 drinks don't become an endless scroll. */
+@media (max-width: 40rem) {
+  .at-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-2);
+  }
+  .at-card {
+    grid-template-rows: none;
+    grid-template-columns: 5.5rem 1fr;
+    align-items: center;
+  }
+  .at-card__art {
+    height: 100%;
+    display: grid;
+    align-items: center;
+    padding: var(--space-1);
+  }
+  .at-card__art .cl-ill {
+    max-height: 5rem;
+  }
+  .at-card__body {
+    padding: var(--space-2) var(--space-3);
+    gap: var(--space-1);
+  }
+  .at-card__title {
+    font-size: var(--text-base);
+  }
+  .at-card__tagline {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .at-featured {
+    grid-template-columns: 5rem 1fr;
+    gap: var(--space-3);
+    padding: var(--space-3);
+    align-items: start;
+  }
+  .at-featured__art {
+    max-width: 5rem;
+  }
+  .at-featured__note {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}

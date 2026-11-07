@@ -26,7 +26,7 @@ const validState = {
     preferredMode: 'mobile',
     onboardedAt: '2026-11-07T09:00:00.000Z',
   },
-  prefs: { locale: 'zh', sfx: false, music: true, volume: 0.4, reducedMotion: 'on', theme: 'dark', defaultGuidance: 'assisted', speakSteps: true },
+  prefs: { locale: 'zh', sfx: false, music: true, musicMood: 'focus', volume: 0.4, reducedMotion: 'on', theme: 'dark', defaultGuidance: 'assisted', speakSteps: true },
   events: [validEvent],
   journal: [{ id: 'brew_1', evidence: 'self_report', drinkId: 'espresso', createdAt: '2026-11-07T11:00:00.000Z', doseG: 18, outG: 36, rating: 4 }],
   activePractice: {
