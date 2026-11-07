@@ -29,6 +29,7 @@ const ICONS = {
   learn: svg('M4 5.5C4 4.7 4.7 4 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5zM20 5.5c0-.8-.7-1.5-1.5-1.5H13v16h5.5c.8 0 1.5-.7 1.5-1.5z'),
   practice: svg('M5 9h11v5a5 5 0 0 1-5 5h-1a5 5 0 0 1-5-5zM16 10h1.5a2.5 2.5 0 0 1 0 5H16M8 3.5v2.5M11 3.5v2.5M14 3.5v2.5'),
   atlas: svg('M3 6l6-2 6 2 6-2v14l-6 2-6-2-6 2zM9 4v14M15 6v14'),
+  cafe: svg('M4 10h16M5 10l1-5h12l1 5M6 10v10h12V10M10 20v-5h4v5'),
   xr: svg('M3 9a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-4l-1.5-2.5a1.7 1.7 0 0 0-3 0L9 17H5a2 2 0 0 1-2-2z'),
   settings: svg('M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-1-3-2.2.2-1.3-1.6.4-2.2-3-1-1 2h-1.8l-1-2-3 1 .4 2.2L6.2 8.2 4 8l-1 3 2 1v1.8l-2 1 1 3 2.2-.2 1.3 1.6-.4 2.2 3 1 1-2h1.8l1 2 3-1-.4-2.2 1.3-1.6 2.2.2 1-3-2-1z'),
   soundOn: svg('M4 10h3l5-4v12l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11'),
@@ -45,6 +46,7 @@ const NAV: NavItem[] = [
     isActive: (p) => p === '/journal' || p.startsWith('/practice/'),
   },
   { to: '/atlas', label: S.navAtlas, icon: ICONS.atlas, isActive: (p) => p === '/atlas' || p.startsWith('/atlas/') },
+  { to: '/cafe', label: { zh: '咖啡馆', en: 'Café' }, icon: ICONS.cafe, isActive: (p) => p === '/cafe' },
   { to: '/xr', label: S.navXr, icon: ICONS.xr, isActive: (p) => p === '/xr' },
   { to: '/settings', label: S.navSettings, icon: ICONS.settings, isActive: (p) => p === '/settings' },
 ];

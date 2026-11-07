@@ -1,0 +1,58 @@
+/* Café Counter entry card on the home page. Prefix: home-cafe (owned by features/cafe). */
+.home-cafe {
+  display: grid;
+  grid-template-columns: 112px minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: center;
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, var(--color-surface), var(--color-culture-soft, var(--color-surface-2)));
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-1);
+  color: var(--color-text);
+  text-decoration: none;
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.home-cafe:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+.home-cafe__art svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius-md);
+}
+.home-cafe__body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.home-cafe__title {
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+}
+.home-cafe__text {
+  color: var(--color-text-muted);
+}
+.home-cafe__meta {
+  font-size: var(--text-sm);
+}
+.home-cafe__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+@media (max-width: 480px) {
+  .home-cafe {
+    grid-template-columns: 72px minmax(0, 1fr);
+    gap: var(--space-3);
+    padding: var(--space-3);
+  }
+}

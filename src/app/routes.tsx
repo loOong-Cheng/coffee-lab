@@ -15,6 +15,7 @@ const Practice = lazy(() => import('../features/practice'));
 const Journal = lazy(() => import('../features/journal'));
 const Atlas = lazy(() => import('../features/atlas'));
 const Settings = lazy(() => import('../features/settings'));
+const Cafe = lazy(() => import('../features/cafe'));
 const XrRoute = lazy(() => import('../xr/XrRoute'));
 /** DEV-ONLY UI gallery. `import.meta.env.DEV` is statically false in production builds, so the chunk is dropped. */
 const UiGallery = import.meta.env.DEV ? lazy(() => import('../ui/Gallery')) : null;
@@ -29,6 +30,7 @@ export const ROUTE_PATHS = {
   drink: (drinkId: string) => `/atlas/${encodeURIComponent(drinkId)}`,
   xr: '/xr',
   settings: '/settings',
+  cafe: '/cafe',
 } as const;
 
 export function AppRoutes() {
@@ -51,6 +53,7 @@ export function AppRoutes() {
         <Route path="/atlas/:drinkId" element={<Atlas />} />
         <Route path="/xr" element={<XrRoute />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/cafe" element={<Cafe />} />
         {UiGallery && <Route path="/dev/ui" element={<UiGallery />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>

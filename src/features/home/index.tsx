@@ -17,6 +17,7 @@ import { EvidenceBadge } from '../../ui/primitives/EvidenceBadge';
 import { ProgressBar, ProgressRing } from '../../ui/primitives/Progress';
 import { Tag } from '../../ui/primitives/Tag';
 import { ActivityArt, coverArtKey } from '../activities';
+import { CafeEntryCard } from '../cafe/CafeEntry';
 import { orderTracks, pickPracticeActivity, progressSummary } from './summary';
 import { S } from './strings';
 import './home.css';
@@ -285,6 +286,8 @@ function DesktopHome() {
         <SummaryPanel />
       </div>
 
+      <CafeEntryCard />
+
       <section className="home-map" aria-labelledby="home-map">
         <h2 id="home-map" className="home-h2">
           {t(S.courseMap)}
@@ -336,6 +339,8 @@ function PhoneHome() {
         </span>
         <Icon name="next" size={24} />
       </Link>
+
+      <CafeEntryCard />
 
       <SummaryPanel compact />
 

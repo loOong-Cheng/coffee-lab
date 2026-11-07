@@ -23,9 +23,11 @@ export function PwaNotices() {
   const { toast } = useToast();
   const { offlineReadyNow, updateAvailable, applyUpdate, acknowledgeOfflineReady } = usePwaStatus();
   const updateShown = useRef(false);
+  const offlineShown = useRef(false);
 
   useEffect(() => {
-    if (!offlineReadyNow) return;
+    if (!offlineReadyNow || offlineShown.current) return;
+    offlineShown.current = true;
     toast({ title: t(S.offlineTitle), description: t(S.offlineBody), tone: 'success', icon: 'check' });
     acknowledgeOfflineReady();
   }, [offlineReadyNow, acknowledgeOfflineReady, toast, t]);
