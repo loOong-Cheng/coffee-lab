@@ -1,0 +1,39 @@
+import type { LocalizedText } from '../domain/contracts';
+
+/** Shell UI strings (colocated, CONTRACTS §4). */
+export const S = {
+  brand: { zh: 'Coffee Lab · 咖啡实验室', en: 'Coffee Lab · 咖啡实验室' },
+  brandShort: { zh: '咖啡实验室', en: 'Coffee Lab' },
+  skip: { zh: '跳到主要内容', en: 'Skip to main content' },
+  primaryNav: { zh: '主导航', en: 'Primary' },
+  navLearn: { zh: '学习', en: 'Learn' },
+  navPractice: { zh: '练习', en: 'Practice' },
+  navAtlas: { zh: '图鉴', en: 'Atlas' },
+  navXr: { zh: 'XR 实验室', en: 'XR Lab' },
+  navSettings: { zh: '设置', en: 'Settings' },
+  switchLang: { zh: '切换到英文', en: 'Switch to Chinese' },
+  sfx: { zh: '音效', en: 'Sound effects' },
+  music: { zh: '音乐', en: 'Music' },
+  loading: { zh: '加载中…', en: 'Loading…' },
+  storageUnavailable: {
+    zh: '此浏览器无法保存进度（可能是隐私模式）。本次学习仍可进行，但关闭页面后进度会丢失。',
+    en: "This browser can't save progress (private mode?). You can keep learning, but progress is lost when you close the page.",
+  },
+  storageRecovered: {
+    zh: '之前保存的数据有损坏，已尽量恢复并备份原始数据。',
+    en: 'Some saved data was damaged. We recovered what we could and kept a backup of the original.',
+  },
+  dismiss: { zh: '知道了', en: 'Dismiss' },
+  errorTitle: { zh: '出了点问题', en: 'Something went wrong' },
+  errorBody: {
+    zh: '这一页遇到了错误。你的学习进度保存在本设备上，不会因此丢失。',
+    en: 'This page hit an error. Your learning progress is stored on this device and is not lost.',
+  },
+  errorRetry: { zh: '重试', en: 'Try again' },
+  errorHome: { zh: '回到首页', en: 'Go to home' },
+  errorReload: { zh: '重新加载', en: 'Reload page' },
+  errorDetails: { zh: '技术细节', en: 'Technical details' },
+  notFoundTitle: { zh: '找不到这个页面', en: "We couldn't find that page" },
+  notFoundBody: { zh: '链接可能已过期或输入有误。', en: 'The link may be outdated or mistyped.' },
+  notFoundHome: { zh: '返回课程地图', en: 'Back to the course map' },
+} satisfies Record<string, LocalizedText>;
