@@ -18,6 +18,7 @@ const Journal = lazyRoute(() => import('../features/journal'));
 const Atlas = lazyRoute(() => import('../features/atlas'));
 const Settings = lazyRoute(() => import('../features/settings'));
 const Cafe = lazyRoute(() => import('../features/cafe'));
+const Culture = lazyRoute(() => import('../features/culture'));
 const XrRoute = lazyRoute(() => import('../xr/XrRoute'));
 /** DEV-ONLY UI gallery. `import.meta.env.DEV` is statically false in production builds, so the chunk is dropped. */
 const UiGallery = import.meta.env.DEV ? lazy(() => import('../ui/Gallery')) : null;
@@ -33,6 +34,7 @@ export const ROUTE_PATHS = {
   xr: '/xr',
   settings: '/settings',
   cafe: '/cafe',
+  culture: '/culture',
 } as const;
 
 export function AppRoutes() {
@@ -56,6 +58,7 @@ export function AppRoutes() {
         <Route path="/xr" element={<XrRoute />} />
         <Route path="/settings" element={<Settings />} />
         <Route path="/cafe" element={<Cafe />} />
+        <Route path="/culture" element={<Culture />} />
         {UiGallery && <Route path="/dev/ui" element={<UiGallery />} />}
         <Route path="*" element={<NotFound />} />
       </Routes>

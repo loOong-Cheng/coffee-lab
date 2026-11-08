@@ -1,0 +1,52 @@
+/* Entry links to /culture (home + atlas). Prefix: cu-entry (owned by features/culture). */
+.cu-entry {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-culture-soft);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+  min-height: var(--tap-min);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.cu-entry:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+.cu-entry__icon {
+  display: grid;
+  place-items: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--color-surface);
+  color: var(--color-culture);
+}
+.cu-entry__body {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.cu-entry__title {
+  font-family: var(--font-display);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+.cu-entry__text {
+  color: var(--color-text-muted);
+  font-size: var(--text-sm);
+}
+.cu-entry-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  font-weight: var(--weight-bold);
+  color: var(--color-culture);
+}

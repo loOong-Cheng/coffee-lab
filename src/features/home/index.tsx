@@ -18,6 +18,7 @@ import { ProgressBar, ProgressRing } from '../../ui/primitives/Progress';
 import { Tag } from '../../ui/primitives/Tag';
 import { ActivityArt, coverArtKey } from '../activities';
 import { CafeEntryCard } from '../cafe/CafeEntry';
+import { CultureEntryLink } from '../culture/CultureEntry';
 import { lessonAutonomy, type Autonomy } from '../lesson/autonomy';
 import { orderTracks, pickPracticeActivity, progressSummary } from './summary';
 import { S } from './strings';
@@ -224,6 +225,7 @@ function TrackSection({ track, nextId, status }: { track: Track; nextId?: string
             </Tag>
           </h3>
           <p className="home-track__summary">{t(track.summary)}</p>
+          {track.id === 'culture' && <CultureEntryLink variant="inline" testId="home-culture-link" />}
         </div>
         <ProgressBar
           value={trackLessons.length ? completed / trackLessons.length : 0}
@@ -387,6 +389,7 @@ function PhoneHome() {
                   {completed}/{ls.length}
                 </span>
               </summary>
+              {tr.id === 'culture' && <CultureEntryLink variant="inline" testId="home-culture-link" />}
               <ol className="home-acc__list">
                 {ls.map((l) => {
                   const st = status.get(l.id) ?? 'not-started';
