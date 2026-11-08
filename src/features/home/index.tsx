@@ -18,6 +18,7 @@ import { ProgressBar, ProgressRing } from '../../ui/primitives/Progress';
 import { Tag } from '../../ui/primitives/Tag';
 import { ActivityArt, coverArtKey } from '../activities';
 import { CafeEntryCard } from '../cafe/CafeEntry';
+import { lessonAutonomy, type Autonomy } from '../lesson/autonomy';
 import { orderTracks, pickPracticeActivity, progressSummary } from './summary';
 import { S } from './strings';
 import './home.css';
@@ -40,16 +41,24 @@ function statusIcon(s: LessonStatus) {
   return s === 'completed' ? 'check' : s === 'in-progress' ? 'play' : 'book';
 }
 
+/** "Completed with guidance" vs "Mastered independently" (QA-08) — never "mastered" for hinted work. */
+function statusLabel(s: LessonStatus, autonomy: Autonomy | null) {
+  return s === 'completed' && autonomy ? S.autonomy[autonomy] : S.status[s];
+}
+
 // ───────────────────────── shared pieces ─────────────────────────
 
 function NextLessonCard({ lesson, big }: { lesson: Lesson | null; big?: boolean }) {
   const { t } = useI18n();
   const progress = useLearner((s) => (lesson ? lessonProgress(lesson, s.events) : null));
+  const allIndependent = useLearner(
+    (s) => !lesson && lessons.every((l) => ['independent', 'untiered'].includes(lessonAutonomy(l, s.events) ?? '')),
+  );
   if (!lesson || !progress) {
     return (
       <div className="home-next home-next--done">
         <Icon name="star" size={28} />
-        <p>{t(S.allDone)}</p>
+        <p>{t(allIndependent ? S.allMastered : S.allDone)}</p>
       </div>
     );
   }
@@ -91,11 +100,16 @@ function SummaryPanel({ compact }: { compact?: boolean }) {
       </h2>
       <dl className="home-stats">
         <div>
-          <dt>{t(S.mastered)}</dt>
+          <dt>{t(S.completed)}</dt>
           <dd className="cl-num" data-testid="stat-mastered">
-            {summary.coreMastered}/{summary.coreTotal}
+            {summary.coreCompleted}/{summary.coreTotal}
           </dd>
-          {!compact && summary.optionalMastered > 0 && <dd className="home-stats__sub">{t(S.optionalMastered(summary.optionalMastered))}</dd>}
+          {summary.coreCompleted > 0 && (
+            <dd className="home-stats__sub" data-testid="stat-independent">
+              {t(S.independentCount(summary.coreIndependent))}
+            </dd>
+          )}
+          {!compact && summary.optionalCompleted > 0 && <dd className="home-stats__sub">{t(S.optionalCompleted(summary.optionalCompleted))}</dd>}
         </div>
         {!compact && (
           <div>
@@ -126,15 +140,15 @@ function SummaryPanel({ compact }: { compact?: boolean }) {
       </dl>
       {!compact && (
         <ProgressBar
-          value={summary.coreTotal ? summary.coreMastered / summary.coreTotal : 0}
-          label={t(S.mastered)}
+          value={summary.coreTotal ? summary.coreCompleted / summary.coreTotal : 0}
+          label={t(S.completed)}
           hideLabel
-          valueText={`${summary.coreMastered}/${summary.coreTotal}`}
+          valueText={`${summary.coreCompleted}/${summary.coreTotal}`}
           tone="success"
           size="sm"
         />
       )}
-      <p className="cl-muted home-small">{nothing ? t(S.noProgress) : t(S.masteredNote)}</p>
+      <p className="cl-muted home-small">{nothing ? t(S.noProgress) : t(S.completedNote)}</p>
     </section>
   );
 }
@@ -198,7 +212,7 @@ function BeyondScreen({ practiceId, resumeId }: { practiceId: string; resumeId?:
 function TrackSection({ track, nextId, status }: { track: Track; nextId?: string; status: Map<string, LessonStatus> }) {
   const { t } = useI18n();
   const trackLessons = getTrackLessons(track.id);
-  const mastered = trackLessons.filter((l) => status.get(l.id) === 'completed').length;
+  const completed = trackLessons.filter((l) => status.get(l.id) === 'completed').length;
   return (
     <section className="home-track" data-track={track.id} data-optional={!!track.optional} aria-labelledby={`track-${track.id}`}>
       <header className="home-track__head">
@@ -212,10 +226,10 @@ function TrackSection({ track, nextId, status }: { track: Track; nextId?: string
           <p className="home-track__summary">{t(track.summary)}</p>
         </div>
         <ProgressBar
-          value={trackLessons.length ? mastered / trackLessons.length : 0}
+          value={trackLessons.length ? completed / trackLessons.length : 0}
           label={t(track.title)}
           hideLabel
-          valueText={t(S.lessonsDone(mastered, trackLessons.length))}
+          valueText={t(S.lessonsDone(completed, trackLessons.length))}
           size="sm"
           className="home-track__bar"
         />
@@ -234,13 +248,22 @@ function TrackSection({ track, nextId, status }: { track: Track; nextId?: string
 function LessonCard({ lesson, n, isNext }: { lesson: Lesson; n: number; isNext: boolean }) {
   const { t } = useI18n();
   const p = useLearner((s) => lessonProgress(lesson, s.events));
+  const autonomy = useLearner((s) => lessonAutonomy(lesson, s.events));
+  const label = statusLabel(p.status, autonomy);
   return (
-    <Link to={`/learn/${lesson.id}`} className="home-lesson" data-status={p.status} data-next={isNext || undefined} data-lesson={lesson.id}>
+    <Link
+      to={`/learn/${lesson.id}`}
+      className="home-lesson"
+      data-status={p.status}
+      data-autonomy={autonomy ?? undefined}
+      data-next={isNext || undefined}
+      data-lesson={lesson.id}
+    >
       <ProgressRing
         value={p.fraction}
         size={44}
         label={t(lesson.title)}
-        valueText={`${t(S.status[p.status])}, ${t(S.activityCount(p.completedCount, p.totalCount))}`}
+        valueText={`${t(label)}, ${t(S.activityCount(p.completedCount, p.totalCount))}`}
         className="home-lesson__ring"
       >
         {p.status === 'completed' ? <Icon name="check" size={18} /> : n}
@@ -249,7 +272,7 @@ function LessonCard({ lesson, n, isNext }: { lesson: Lesson; n: number; isNext: 
         <span className="home-lesson__title">{t(lesson.title)}</span>
         <span className="home-lesson__meta">
           <span className="home-lesson__status" data-status={p.status}>
-            <Icon name={statusIcon(p.status)} size={14} /> {t(S.status[p.status])}
+            <Icon name={autonomy === 'independent' ? 'star' : statusIcon(p.status)} size={14} /> {t(label)}
           </span>
           <span>· {t(S.minutes(lesson.estimatedMinutes))}</span>
         </span>
@@ -318,7 +341,7 @@ function DesktopHome() {
 
 function PhoneHome() {
   const { t } = useI18n();
-  const { next, status, ordered, practiceId, activePractice } = useHomeData();
+  const { next, status, ordered, practiceId, activePractice, events } = useHomeData();
   return (
     <div className="home home--phone" data-layout="phone">
       <header className="home-head">
@@ -350,7 +373,7 @@ function PhoneHome() {
         </h2>
         {ordered.map((tr) => {
           const ls = getTrackLessons(tr.id);
-          const mastered = ls.filter((l) => status.get(l.id) === 'completed').length;
+          const completed = ls.filter((l) => status.get(l.id) === 'completed').length;
           return (
             <details key={tr.id} className="home-acc" data-track={tr.id} open={ls.some((l) => l.id === next?.id) || undefined}>
               <summary>
@@ -361,18 +384,19 @@ function PhoneHome() {
                   </Tag>
                 )}
                 <span className="home-acc__count cl-num">
-                  {mastered}/{ls.length}
+                  {completed}/{ls.length}
                 </span>
               </summary>
               <ol className="home-acc__list">
                 {ls.map((l) => {
                   const st = status.get(l.id) ?? 'not-started';
+                  const autonomy = st === 'completed' ? lessonAutonomy(l, events) : null;
                   return (
                     <li key={l.id}>
-                      <Link to={`/learn/${l.id}`} className="home-row" data-status={st}>
-                        <Icon name={statusIcon(st)} size={18} />
+                      <Link to={`/learn/${l.id}`} className="home-row" data-status={st} data-autonomy={autonomy ?? undefined}>
+                        <Icon name={autonomy === 'independent' ? 'star' : statusIcon(st)} size={18} />
                         <span className="home-row__title">{t(l.title)}</span>
-                        <span className="cl-visually-hidden">{t(S.status[st])}</span>
+                        <span className="cl-visually-hidden">{t(statusLabel(st, autonomy))}</span>
                         <Icon name="next" size={16} />
                       </Link>
                     </li>

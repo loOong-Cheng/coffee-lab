@@ -37,8 +37,9 @@ describe('EspressoStationDiagram', () => {
     const list = screen.getByRole('list', { name: 'Parts' });
     const buttons = within(list).getAllByRole('button');
     expect(buttons).toHaveLength(DIAGRAM_PARTS['espresso-station'].length);
-    expect(screen.getByRole('button', { name: 'Group head' })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Tamper' })).toHaveAttribute('aria-pressed', 'true');
+    // Label in name (WCAG 2.5.3): the visible pin number + name chip, e.g. "3 Group head".
+    expect(screen.getByRole('button', { name: /^\d+ Group head$/ })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^\d+ Tamper$/ })).toHaveAttribute('aria-pressed', 'true');
 
     await user.tab();
     expect(buttons[0]).toHaveFocus();
@@ -47,7 +48,7 @@ describe('EspressoStationDiagram', () => {
     await user.keyboard('{Enter}');
     expect(onSelect).toHaveBeenLastCalledWith(buttons[1]!.getAttribute('data-part'));
 
-    await user.click(screen.getByRole('button', { name: 'Steam wand' }));
+    await user.click(screen.getByRole('button', { name: /^\d+ Steam wand$/ }));
     expect(onSelect).toHaveBeenLastCalledWith('steam-wand');
   });
 
@@ -71,11 +72,11 @@ describe('EspressoStationDiagram', () => {
 
   it('uses custom labels and Chinese defaults', () => {
     const { unmount } = render(<EspressoStationDiagram mode="explore" locale="zh" />);
-    expect(screen.getByRole('button', { name: '冲煮头' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^\d+ 冲煮头$/ })).toBeInTheDocument();
     expect(screen.getByRole('figure', { name: '意式咖啡工作台示意图' })).toBeInTheDocument();
     unmount();
     render(<EspressoStationDiagram mode="explore" labels={{ cup: 'Demitasse' }} />);
-    expect(screen.getByRole('button', { name: 'Demitasse' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^\d+ Demitasse$/ })).toBeInTheDocument();
   });
 });
 
@@ -85,7 +86,7 @@ describe('PourOverStationDiagram', () => {
     const onSelect = vi.fn();
     render(<PourOverStationDiagram mode="explore" locale="en" onSelectPart={onSelect} highlighted={['dripper']} />);
     expect(screen.getAllByRole('button')).toHaveLength(8);
-    await user.click(screen.getByRole('button', { name: 'Gooseneck kettle' }));
+    await user.click(screen.getByRole('button', { name: /^\d+ Gooseneck kettle$/ }));
     expect(onSelect).toHaveBeenCalledWith('gooseneck-kettle');
   });
 

@@ -43,8 +43,31 @@ describe('App shell', () => {
     expect(sfx).toHaveAttribute('aria-pressed', 'true');
     await user.click(sfx);
     expect(getLearnerState().prefs.sfx).toBe(false);
-    await user.click(screen.getByTestId('music-toggle'));
+    await user.click(screen.getByRole('button', { name: 'Background music' }));
     expect(getLearnerState().prefs.music).toBe(true);
+  });
+
+  it('header music control: mood (all six moods), volume and SFX persist to prefs', async () => {
+    const user = userEvent.setup();
+    render(<App />);
+    const moodButton = screen.getByRole('button', { name: /Music mood:/ });
+    expect(moodButton).toHaveAttribute('aria-expanded', 'false');
+    await user.click(moodButton);
+    const panel = screen.getByRole('group', { name: 'Music & sound' });
+    expect(within(panel).getAllByRole('radio')).toHaveLength(6);
+    await user.click(within(panel).getByRole('radio', { name: /Bossa/i }));
+    expect(getLearnerState().prefs.musicMood).toBe('bossa');
+    const sfxSwitch = within(panel).getByRole('switch', { name: /Sound effects/ });
+    await user.click(sfxSwitch);
+    expect(getLearnerState().prefs.sfx).toBe(false);
+    await user.keyboard('{Escape}');
+    expect(moodButton).toHaveAttribute('aria-expanded', 'false');
+    expect(moodButton).toHaveFocus();
+  });
+
+  it('locale toggle: visible text starts its accessible name (WCAG 2.5.3)', () => {
+    render(<App />);
+    expect(screen.getByTestId('locale-toggle')).toHaveAccessibleName('中文 — Switch to Chinese');
   });
 
   it('unknown routes show a 404 with a way home', async () => {

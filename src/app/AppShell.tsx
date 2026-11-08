@@ -1,9 +1,10 @@
 import { useState, type MouseEvent, type ReactNode } from 'react';
 import { Link, useLocation } from 'react-router';
-import { audio } from '../audio';
+import { audio, MUSIC_MOOD_IDS } from '../audio';
 import type { LocalizedText } from '../domain/contracts';
 import { otherLocale, useI18n } from '../i18n';
 import { learnerActions, useLearner, usePersistenceStatus } from '../state';
+import { MusicControl } from '../ui/MusicControl';
 import { ToastProvider } from '../ui/primitives/Toast';
 import { ErrorBoundary } from './ErrorBoundary';
 import { S } from './strings';
@@ -34,7 +35,6 @@ const ICONS = {
   settings: svg('M12 15a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM19 12l2-1-1-3-2.2.2-1.3-1.6.4-2.2-3-1-1 2h-1.8l-1-2-3 1 .4 2.2L6.2 8.2 4 8l-1 3 2 1v1.8l-2 1 1 3 2.2-.2 1.3 1.6-.4 2.2 3 1 1-2h1.8l1 2 3-1-.4-2.2 1.3-1.6 2.2.2 1-3-2-1z'),
   soundOn: svg('M4 10h3l5-4v12l-5-4H4zM16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11'),
   soundOff: svg('M4 10h3l5-4v12l-5-4H4zM16 10l4 4M20 10l-4 4'),
-  music: svg('M9 18V6l10-2v12M9 18a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0zM19 16a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0z'),
 };
 
 const NAV: NavItem[] = [
@@ -73,6 +73,8 @@ export function AppShell({ children }: { children: ReactNode }) {
   const { pathname } = useLocation();
   const sfx = useLearner((s) => s.prefs.sfx);
   const music = useLearner((s) => s.prefs.music);
+  const musicMood = useLearner((s) => s.prefs.musicMood);
+  const volume = useLearner((s) => s.prefs.volume);
   useDocumentSync();
   useAudioSync();
   useRouteEffects(MAIN_ID);
@@ -85,8 +87,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     main?.scrollIntoView?.();
   };
 
-  const toggleSfx = () => {
-    const next = !sfx;
+  const setSfx = (next: boolean) => {
     learnerActions.updatePrefs({ sfx: next });
     if (next) {
       try {
@@ -124,32 +125,37 @@ export function AppShell({ children }: { children: ReactNode }) {
               className="shell-tool"
               data-testid="locale-toggle"
               onClick={() => setLocale(nextLocale)}
-              aria-label={t(S.switchLang)}
             >
+              {/* WCAG 2.5.3: the visible "中文"/"EN" starts the accessible name ("中文 — Switch to Chinese"). */}
               <span lang={nextLocale === 'zh' ? 'zh-CN' : 'en'}>{nextLocale === 'zh' ? '中文' : 'EN'}</span>
+              {' '}
+              <span className="shell-sr-only">— {t(S.switchLang)}</span>
             </button>
             <button
               type="button"
               className="shell-tool"
               aria-pressed={sfx}
-              onClick={toggleSfx}
+              onClick={() => setSfx(!sfx)}
               title={t(S.sfx)}
               data-testid="sfx-toggle"
             >
               {sfx ? ICONS.soundOn : ICONS.soundOff}
               <span className="shell-sr-only">{t(S.sfx)}</span>
             </button>
-            <button
-              type="button"
-              className="shell-tool"
-              aria-pressed={music}
-              onClick={() => learnerActions.updatePrefs({ music: !music })}
-              title={t(S.music)}
-              data-testid="music-toggle"
-            >
-              {ICONS.music}
-              <span className="shell-sr-only">{t(S.music)}</span>
-            </button>
+            {/* Music on/off + mood + master volume (+ SFX inside the popover). Off by default; never autoplays. */}
+            <MusicControl
+              className="shell-music"
+              locale={locale}
+              playing={music}
+              onPlayingChange={(on) => learnerActions.updatePrefs({ music: on })}
+              mood={musicMood}
+              onMoodChange={(m) => learnerActions.updatePrefs({ musicMood: m })}
+              moods={MUSIC_MOOD_IDS}
+              volume={volume}
+              onVolumeChange={(v) => learnerActions.updatePrefs({ volume: v })}
+              sfx={sfx}
+              onSfxChange={setSfx}
+            />
           </div>
         </header>
 

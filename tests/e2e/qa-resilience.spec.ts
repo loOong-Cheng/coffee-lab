@@ -116,7 +116,6 @@ test.describe('unknown ids and odd URLs never dead-end', () => {
 });
 
 test('QA-07 (P2): unknown journal entry page has an h1 like every other screen', async ({ page }) => {
-  test.fail(true, 'QA-07: /journal?entry=<unknown> renders only an h3 ("This cup isn’t in your journal") — no page h1');
   await seedProfile(page);
   await page.goto('/#/journal?entry=does-not-exist');
   await expect(page.getByText('This cup isn’t in your journal')).toBeVisible();
@@ -175,7 +174,6 @@ test.describe('device capability fallbacks', () => {
 });
 
 test('QA-01 (P1): after a dropped connection, "Try again" recovers a screen once the network is back', async ({ page, context }) => {
-  test.fail(true, 'QA-01: React.lazy caches the rejected chunk import — route stays on "Something went wrong" until a full reload');
   await seedProfile(page, { devices: ['phone'], preferredMode: 'mobile', equipment: ['espresso-machine', 'grinder'] });
   await page.goto('/#/');
   await expect(page.getByTestId('home-next-lesson')).toBeVisible();
@@ -189,12 +187,17 @@ test('QA-01 (P1): after a dropped connection, "Try again" recovers a screen once
 
 test.describe('PWA offline (service worker allowed)', () => {
   test.use({ serviceWorkers: 'allow' });
-  test('PWA: once "Ready to work offline" shows, never-visited screens open offline (README claim)', async ({ page, context }) => {
+  test('PWA: once offline-ready (service worker active), never-visited screens open offline (README claim)', async ({ page, context }) => {
     test.setTimeout(60_000);
     await seedProfile(page);
     await page.goto('/#/');
     await expect(page.getByTestId('home-next-lesson')).toBeVisible();
-    await expect(page.locator('.cl-toast__title', { hasText: 'Ready to work offline' }).first()).toBeVisible({ timeout: 30_000 });
+    // The "Ready to work offline" toast was removed in 449dec7 (QA-02/04); readiness = an active, controlling
+    // service worker (Settings shows it as "Offline: ready").
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+    });
+    await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 30_000 });
     await context.setOffline(true);
     for (const [hash, check] of [
       ['#/atlas', () => page.getByTestId('atlas-count')],

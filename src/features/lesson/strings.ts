@@ -61,9 +61,24 @@ export const S = {
   completeTitle: { zh: '本课完成！', en: 'Lesson complete!' },
   almostTitle: { zh: '快完成了', en: 'Almost there' },
   openChecks: (n: number): LocalizedText => ({
-    zh: `还有 ${n} 个理解检查没有完成。完成后本课才算“掌握”。`,
-    en: `${n} check${n === 1 ? '' : 's'} still open. The lesson counts as mastered once they’re done.`,
+    zh: `还有 ${n} 个理解检查没有完成。完成后本课才算学完。`,
+    en: `${n} check${n === 1 ? '' : 's'} still open. The lesson counts as completed once they’re done.`,
   }),
+  /** QA-08: say HOW the lesson was completed; "mastered" only for the Independent tier. */
+  autonomyResult: {
+    guided: {
+      zh: '在引导下完成。有提示时答对，说明你正在掌握——用“独立”模式（没有提示）再做一遍理解检查，就算真正掌握了。',
+      en: 'Completed with guidance. Getting it right with hints means you’re getting there — redo the checks at the Independent tier (no hints) to master this lesson.',
+    },
+    assisted: {
+      zh: '在少量提示下完成。用“独立”模式（没有提示）再做一遍理解检查，就算真正掌握了。',
+      en: 'Completed with light support. Redo the checks at the Independent tier (no hints) to master this lesson.',
+    },
+    independent: { zh: '已独立掌握：每个理解检查都在没有提示的情况下完成。', en: 'Mastered independently: every check done without hints.' },
+    untiered: { zh: '已完成。', en: 'Completed.' },
+  } satisfies Record<'guided' | 'assisted' | 'independent' | 'untiered', LocalizedText>,
+  tryIndependent: { zh: '用“独立”模式挑战理解检查', en: 'Take the checks at the Independent tier' },
+  resumeHere: (n: number): LocalizedText => ({ zh: `回到你上次的位置：第 ${n} 个练习`, en: `Back to where you were: activity ${n}` }),
   goTo: { zh: '去完成', en: 'Go to it' },
   learned: { zh: '你学到了', en: 'What you learned' },
   evidence: { zh: '记录了哪些证据', en: 'What was recorded' },

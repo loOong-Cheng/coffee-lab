@@ -1,12 +1,15 @@
 /** Pure, honest progress summary for the home page (tested). */
 import type { BrewLogEntry, Goal, Lesson, LearningEvent, TrackId } from '../../domain/contracts';
 import { completedActivityIds, lessonStatusMap } from '../../domain/progress';
+import { lessonAutonomy } from '../lesson/autonomy';
 
 export interface ProgressSummary {
   coreTotal: number;
-  /** Core lessons whose checks for understanding are all completed (assessed answers). */
-  coreMastered: number;
-  optionalMastered: number;
+  /** Core lessons whose checks for understanding are all completed (assessed answers, any tier). */
+  coreCompleted: number;
+  /** Core lessons whose tiered checks were all completed at the Independent tier ("mastered"). */
+  coreIndependent: number;
+  optionalCompleted: number;
   /** Distinct activities with a completed event (any evidence kind). */
   activitiesDone: number;
   /** Journal entries — real cups the learner says they made (self-reported). */
@@ -23,20 +26,25 @@ export function progressSummary(
 ): ProgressSummary {
   const status = lessonStatusMap(lessons, events);
   let coreTotal = 0;
-  let coreMastered = 0;
-  let optionalMastered = 0;
+  let coreCompleted = 0;
+  let coreIndependent = 0;
+  let optionalCompleted = 0;
   for (const l of lessons) {
-    const mastered = status.get(l.id) === 'completed';
+    const completed = status.get(l.id) === 'completed';
     if (isCore(l.track)) {
       coreTotal += 1;
-      if (mastered) coreMastered += 1;
-    } else if (mastered) optionalMastered += 1;
+      if (completed) {
+        coreCompleted += 1;
+        if (lessonAutonomy(l, events) === 'independent') coreIndependent += 1;
+      }
+    } else if (completed) optionalCompleted += 1;
   }
   const simulated = new Set(events.filter((e) => e.evidence === 'simulated' && e.outcome === 'completed').map((e) => e.activityId));
   return {
     coreTotal,
-    coreMastered,
-    optionalMastered,
+    coreCompleted,
+    coreIndependent,
+    optionalCompleted,
     activitiesDone: completedActivityIds(events).size,
     cupsLogged: journal.length,
     simulatedDone: simulated.size,

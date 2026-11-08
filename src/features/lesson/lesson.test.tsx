@@ -73,6 +73,37 @@ describe('lesson player', () => {
     expect(events.some((e) => e.activityId === 'lit-what-is-coffee-reflect')).toBe(false); // skipped → not recorded
     expect(lessonStatus(getLesson('lit-what-is-coffee')!, events)).toBe('completed');
     expect(screen.getByTestId('next-lesson')).toHaveAttribute('href', '#/learn/lit-tools-safety');
+    // QA-08: guided completion is "completed with guidance", not "mastered"; offers the Independent tier.
+    expect(screen.getByTestId('lesson-autonomy')).toHaveAttribute('data-autonomy', 'guided');
+    expect(screen.getByTestId('lesson-autonomy')).toHaveTextContent('Completed with guidance');
+    expect(screen.getByTestId('lesson-complete')).not.toHaveTextContent(/Mastered independently/);
+    await user.click(screen.getByTestId('try-independent'));
+    expect(window.location.hash).toMatch(/step=2&g=independent/); // first check = the sequence
+    expect(await screen.findByTestId('activity-sequence')).toHaveAttribute('data-mode', 'reorder');
+  });
+
+  it('an in-progress lesson resumes at the exact activity the learner was on (after reload / coming back)', async () => {
+    const user = userEvent.setup();
+    window.location.hash = '#/learn/lit-what-is-coffee?step=1&g=assisted';
+    const first = render(<App />);
+    expect(await screen.findByTestId('activity-explain')).toBeInTheDocument();
+    for (let i = 0; i < 10 && screen.queryByTestId('explain-next'); i++) await user.click(screen.getByTestId('explain-next'));
+    await user.click(screen.getByTestId('activity-continue')); // records the cards → lesson in progress
+    expect(await screen.findByTestId('activity-sequence')).toBeInTheDocument();
+    await user.click(screen.getByTestId('lesson-next')); // skip ahead to activity 3 (the quiz)
+    expect(await screen.findByTestId('activity-quiz')).toBeInTheDocument();
+    expect(getLearnerState().lastLocation?.route).toBe('/learn/lit-what-is-coffee?step=3&g=assisted');
+    first.unmount();
+
+    // "Reload" / relaunch: come back through the course-map link (no step in the URL).
+    window.location.hash = '#/learn/lit-what-is-coffee';
+    render(<App />);
+    const cta = await screen.findByTestId('lesson-start');
+    expect(cta).toHaveTextContent('Back to where you were: activity 3');
+    expect(screen.getByRole('radio', { name: /Assisted/ })).toHaveAttribute('aria-checked', 'true'); // tier restored too
+    await user.click(cta);
+    expect(await screen.findByTestId('activity-quiz')).toBeInTheDocument();
+    expect(window.location.hash).toContain('step=3');
   });
 
   it('H toggles the hint (assisted) and changing support restarts the activity with the new tier', async () => {

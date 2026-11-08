@@ -1,6 +1,8 @@
 /**
  * Guidance tiers change BEHAVIOUR, not just a badge (brief §3/§6). One table, consumed by the
- * sequence, quiz, identify and parameter-lab activities, so the differences are explicit and tested.
+ * sequence, quiz, identify, parameter-lab and diagnose activities, so the differences are explicit and tested.
+ * Diagnose: guided = annotated observations + hint; assisted = raw numbers, hint on request;
+ * independent = no hint, a variable AND a short reason must be committed before any feedback.
  */
 import type { ActivityKind, Guidance } from '../../../domain/contracts';
 
@@ -59,7 +61,7 @@ export function guidancePolicy(g: Guidance): GuidancePolicy {
 }
 
 /** Activity kinds whose interaction actually changes with the guidance tier. */
-export const GUIDANCE_SENSITIVE_KINDS: readonly ActivityKind[] = ['sequence', 'quiz', 'identify', 'parameter-lab'];
+export const GUIDANCE_SENSITIVE_KINDS: readonly ActivityKind[] = ['sequence', 'quiz', 'identify', 'parameter-lab', 'diagnose'];
 
 export function isGuidanceSensitive(kind: ActivityKind): boolean {
   return GUIDANCE_SENSITIVE_KINDS.includes(kind);

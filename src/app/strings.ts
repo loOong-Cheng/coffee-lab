@@ -13,7 +13,6 @@ export const S = {
   navSettings: { zh: '设置', en: 'Settings' },
   switchLang: { zh: '切换到英文', en: 'Switch to Chinese' },
   sfx: { zh: '音效', en: 'Sound effects' },
-  music: { zh: '音乐', en: 'Music' },
   loading: { zh: '加载中…', en: 'Loading…' },
   storageUnavailable: {
     zh: '此浏览器无法保存进度（可能是隐私模式）。本次学习仍可进行，但关闭页面后进度会丢失。',
@@ -28,6 +27,18 @@ export const S = {
   errorBody: {
     zh: '这一页遇到了错误。你的学习进度保存在本设备上，不会因此丢失。',
     en: 'This page hit an error. Your learning progress is stored on this device and is not lost.',
+  },
+  errorDownload: {
+    zh: '这一页没能下载下来（网络不稳定，或者应用刚更新过）。你的学习进度保存在本设备上，不会丢失。检查网络后点“重试”。',
+    en: 'This screen couldn’t be downloaded (a shaky connection, or the app was just updated). Your progress is stored on this device and is not lost. Check your connection, then press Try again.',
+  },
+  errorOffline: {
+    zh: '你现在好像处于离线状态，这一页还没有保存到本设备。你的学习进度不会丢失。恢复网络后点“重试”。',
+    en: 'You seem to be offline, and this screen isn’t saved on this device yet. Your progress is not lost. Reconnect, then press Try again.',
+  },
+  errorReloadHint: {
+    zh: '重试了几次还是不行。网络恢复后，请重新加载整个页面。',
+    en: 'Still not loading after a few tries. Once you’re back online, reload the whole page.',
   },
   errorRetry: { zh: '重试', en: 'Try again' },
   errorHome: { zh: '回到首页', en: 'Go to home' },

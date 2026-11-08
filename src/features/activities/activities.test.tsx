@@ -1,7 +1,7 @@
 import { act, render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import type { LocalizedText, ParameterLabActivity, QuizActivity, SequenceActivity } from '../../domain/contracts';
+import type { DiagnoseActivity, LocalizedText, ParameterLabActivity, QuizActivity, SequenceActivity } from '../../domain/contracts';
 import { createMemoryStorage, initLearnerStore, learnerActions } from '../../state';
 import { ActivityRenderer } from './ActivityRenderer';
 
@@ -62,6 +62,80 @@ const lab: ParameterLabActivity = {
     { id: 'c1', prompt: L('Make about 1:2.5'), target: { ratioMin: 2.4, ratioMax: 2.6 }, success: L('That is a longer shot.') },
   ],
 };
+
+const diagnose: DiagnoseActivity = {
+  id: 'dx-act',
+  lessonId: 'l',
+  kind: 'diagnose',
+  title: L('Shot scenarios'),
+  supportedModes: ['desktop'],
+  scenarios: [
+    {
+      id: 'fast',
+      situation: L('Your shot ran fast and tastes sour.'),
+      observations: { doseG: 18, outG: 36, timeSec: 15, taste: L('sour, thin') },
+      choices: [
+        { id: 'finer', text: L('Grind a little finer'), quality: 'best', feedback: L('Finer slows the flow and extracts more.') },
+        { id: 'temp', text: L('Change the water temperature'), quality: 'reasonable', feedback: L('Can help, but grind is the first lever.') },
+        { id: 'all', text: L('Change everything at once'), quality: 'unhelpful', feedback: L('You will not know what helped.') },
+      ],
+      caveat: L('Real results depend on beans and grinder.'),
+    },
+  ],
+};
+
+describe('DiagnoseView guidance tiers (QA-06)', () => {
+  it('guided: numbers are annotated, the hint is shown, picks get instant feedback', async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    render(<ActivityRenderer activity={diagnose} guidance="guided" onComplete={onComplete} />);
+    expect(screen.getByText('Fast: quicker than the common 25–35 s')).toBeInTheDocument();
+    expect(screen.getByText(/rules of thumb, not targets or taste predictions/)).toBeInTheDocument();
+    expect(screen.getByText(/Find the clue that stands out/)).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Change the water temperature/ }));
+    expect(screen.getByText('Can help, but grind is the first lever.')).toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Grind a little finer/ }));
+    await user.click(screen.getByTestId('diagnose-next'));
+    await user.click(screen.getByTestId('activity-continue'));
+    expect(onComplete).toHaveBeenCalledWith({ outcome: 'completed', score: 0.5 });
+  });
+
+  it('assisted: raw numbers only; the hint waits for a request', async () => {
+    const user = userEvent.setup();
+    render(<ActivityRenderer activity={diagnose} guidance="assisted" onComplete={() => {}} />);
+    expect(screen.queryByText(/quicker than the common/)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Find the clue that stands out/)).not.toBeInTheDocument();
+    await user.click(screen.getByRole('button', { name: /Show hint/ }));
+    expect(screen.getByText(/Find the clue that stands out/)).toBeInTheDocument();
+  });
+
+  it('independent: no hint, no feedback until a change AND a short reason are committed', async () => {
+    const user = userEvent.setup();
+    const onComplete = vi.fn();
+    render(<ActivityRenderer activity={diagnose} guidance="independent" onComplete={onComplete} />);
+    expect(screen.queryByRole('button', { name: /Show hint/ })).not.toBeInTheDocument();
+    expect(screen.queryByText(/quicker than the common/)).not.toBeInTheDocument();
+    // Committing with nothing chosen explains what is missing.
+    await user.click(screen.getByTestId('diagnose-commit'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Pick one change first.');
+    // Selecting is not answering: no quality, no feedback yet.
+    await user.click(screen.getByRole('button', { name: /Grind a little finer/ }));
+    expect(screen.getByRole('button', { name: /Grind a little finer/ })).toHaveAttribute('aria-pressed', 'true');
+    expect(screen.queryByText('Finer slows the flow and extracts more.')).not.toBeInTheDocument();
+    expect(screen.queryByText('A strong first move')).not.toBeInTheDocument();
+    await user.click(screen.getByTestId('diagnose-commit'));
+    expect(screen.getByRole('alert')).toHaveTextContent('Add a short reason first');
+    expect(screen.getByLabelText(/Why this change/)).toHaveFocus();
+    expect(screen.queryByText('Finer slows the flow and extracts more.')).not.toBeInTheDocument();
+    await user.type(screen.getByLabelText(/Why this change/), 'shot ran fast');
+    await user.click(screen.getByTestId('diagnose-commit'));
+    expect(screen.getByText('Finer slows the flow and extracts more.')).toBeInTheDocument();
+    expect(screen.getByText(/“shot ran fast”/)).toBeInTheDocument();
+    await user.click(screen.getByTestId('diagnose-next'));
+    await user.click(screen.getByTestId('activity-continue'));
+    expect(onComplete).toHaveBeenCalledWith({ outcome: 'completed', score: 1 });
+  });
+});
 
 describe('QuizView', () => {
   it('guided: wrong pick shows option-specific misconception feedback, then the right pick explains why', async () => {

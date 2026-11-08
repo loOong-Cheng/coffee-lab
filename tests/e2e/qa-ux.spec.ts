@@ -136,28 +136,46 @@ test.describe('layout sanity + evidence screenshots', () => {
   }
 });
 
-test.describe('PWA notices (commit 411315b/a18b5f2)', () => {
+test.describe('PWA notices (commit 411315b/a18b5f2; fixed in 449dec7)', () => {
   test.use({ serviceWorkers: 'allow' });
-  test('QA-04 (P2): the "Ready to work offline" toast is shown once, not twice', async ({ page }) => {
-    test.fail(true, 'QA-04: two identical "Ready to work offline" toasts appear together on first load (src/app/PwaNotices.tsx)');
+  /** First load → wait until the service worker is active and controls the page (= offline-ready). */
+  async function waitOfflineReady(page: Page) {
+    await page.evaluate(async () => {
+      await navigator.serviceWorker.ready;
+    });
+    await page.waitForFunction(() => navigator.serviceWorker.controller !== null, null, { timeout: 30_000 });
+  }
+
+  test('QA-04 (P2): offline readiness is never shown as duplicate toasts — it is a status line in Settings', async ({ page }) => {
+    test.setTimeout(60_000);
     await seedProfile(page);
     await page.goto('/#/');
-    const toast = page.locator('.cl-toast__title', { hasText: 'Ready to work offline' });
-    await expect(toast.first()).toBeVisible({ timeout: 30_000 });
-    await expect(toast).toHaveCount(1);
+    await expect(page.getByTestId('home-next-lesson')).toBeVisible();
+    await waitOfflineReady(page);
+    await page.waitForTimeout(1_500); // a notice reacting to the install would be on screen by now
+    await expect(page.locator('.cl-toast__title', { hasText: 'Ready to work offline' })).toHaveCount(0);
+    await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Settings' }).click();
+    await expect(page.getByTestId('settings-offline-status')).toHaveText(/Offline: ready/);
   });
 
-  test('QA-02 (P1): on a phone the offline toast auto-dismisses and never blocks the bottom navigation', async ({ page, isMobile }) => {
+  test('QA-02 (P1): on a phone no offline notice ever covers the bottom navigation', async ({ page, isMobile }) => {
     test.skip(!isMobile, 'bottom navigation is the phone layout');
     test.setTimeout(60_000);
-    test.fail(true, 'QA-02: toast sits over the bottom nav and pauses on mouseenter; after a tap the emulated pointer rests there, so it never auto-dismisses and swallows nav taps');
     await seedProfile(page, { devices: ['phone'], preferredMode: 'mobile' });
     await page.goto('/#/journal');
     await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Learn' }).click(); // thumb rests on the nav
-    const toast = page.locator('.cl-toast').filter({ hasText: 'Ready to work offline' });
-    await expect(toast.first()).toBeVisible({ timeout: 30_000 });
-    await page.waitForTimeout(7_000); // > 5 s default toast duration
-    await expect(toast).toHaveCount(0);
+    await waitOfflineReady(page);
+    await page.waitForTimeout(1_500);
+    // No toast overlaps the bottom bar (phone toasts sit at the top, and the offline-ready toast is gone).
+    const overlap = await page.evaluate(() => {
+      const nav = document.querySelector('.shell-nav')?.getBoundingClientRect();
+      if (!nav) return 'no nav';
+      return [...document.querySelectorAll('.cl-toast')].some((t) => {
+        const r = t.getBoundingClientRect();
+        return r.bottom > nav.top && r.top < nav.bottom;
+      });
+    });
+    expect(overlap).toBe(false);
     await page.getByRole('navigation', { name: 'Primary' }).getByRole('link', { name: 'Atlas' }).click({ timeout: 3_000 });
     await expect(page.getByRole('heading', { level: 1, name: 'Drink Atlas' })).toBeVisible();
   });

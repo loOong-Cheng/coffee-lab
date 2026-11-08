@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import { useLocation } from 'react-router';
 import { audio } from '../audio';
-import { learnerActions, useLearner } from '../state';
+import { getLearnerState, learnerActions, useLearner } from '../state';
 import { applyDocumentAttributes } from './document';
 
 /** prefs.locale / reducedMotion → <html lang>, data-reduced-motion (and data-theme when a theme pref exists). */
@@ -63,7 +63,9 @@ export function useRouteEffects(mainId: string): void {
   const { pathname } = useLocation();
   const first = useRef(true);
   useEffect(() => {
-    if (RESUMABLE.test(pathname)) learnerActions.setLastLocation(pathname);
+    // Keep a more precise saved place for the same screen (e.g. the lesson player's `?step=4&g=…`).
+    const saved = getLearnerState().lastLocation?.route;
+    if (RESUMABLE.test(pathname) && !saved?.startsWith(`${pathname}?`)) learnerActions.setLastLocation(pathname);
     if (first.current) {
       first.current = false;
       return;

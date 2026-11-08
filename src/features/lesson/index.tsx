@@ -3,18 +3,19 @@
  * Phase + position live in the URL (?step=N&g=<guidance>, ?done=1) so reload/back keep the learner's place.
  * Progress is derived from recorded LearningEvents (never stored separately).
  */
-import { useCallback, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { Link, useParams, useSearchParams } from 'react-router';
 import { useDocumentTitle } from '../../app/useDocumentTitle';
 import { getLesson, getLessonActivities, lessons as allLessons } from '../../content';
 import type { Guidance, Lesson } from '../../domain/contracts';
 import { useI18n } from '../../i18n';
-import { useLearner } from '../../state';
+import { learnerActions, useLearner } from '../../state';
 import { EmptyState } from '../../ui/primitives/misc';
 import { LessonComplete } from './LessonComplete';
 import { LessonHeader } from './LessonHeader';
 import { LessonIntro } from './LessonIntro';
 import { LessonPlay } from './LessonPlay';
+import { lessonDoneRoute, lessonPositionRoute, parseLessonPosition } from './position';
 import { S } from './strings';
 import './lesson.css';
 
@@ -53,12 +54,21 @@ function LessonView({ lesson }: { lesson: Lesson }) {
   const activities = useMemo(() => getLessonActivities(lesson.id), [lesson.id]);
   const [params, setParams] = useSearchParams();
   const defaultGuidance = useLearner((s) => s.prefs.defaultGuidance);
+  const savedRoute = useLearner((s) => s.lastLocation?.route ?? null);
+  const saved = parseLessonPosition(savedRoute, lesson.id, activities.length);
   const g = params.get('g');
-  const guidance: Guidance = GUIDANCE.includes(g as Guidance) ? (g as Guidance) : defaultGuidance;
+  // URL first; else the tier the learner last used in THIS lesson; else their default.
+  const guidance: Guidance = GUIDANCE.includes(g as Guidance) ? (g as Guidance) : (saved?.guidance ?? defaultGuidance);
   const stepParam = Number.parseInt(params.get('step') ?? '', 10);
   const done = params.get('done') === '1';
   const step = Number.isFinite(stepParam) ? Math.min(Math.max(stepParam, 1), Math.max(activities.length, 1)) - 1 : null;
   const phase: 'intro' | 'play' | 'done' = done ? 'done' : step !== null && activities.length > 0 ? 'play' : 'intro';
+
+  // Remember the exact place (activity + tier) so "continue" returns here after a reload or relaunch.
+  useEffect(() => {
+    if (phase === 'play' && step !== null) learnerActions.setLastLocation(lessonPositionRoute(lesson.id, step, guidance));
+    else if (phase === 'done') learnerActions.setLastLocation(lessonDoneRoute(lesson.id, guidance));
+  }, [lesson.id, phase, step, guidance]);
 
   const goTo = useCallback(
     (index: number, opts: { replace?: boolean; guidance?: Guidance } = {}) => {
@@ -82,7 +92,14 @@ function LessonView({ lesson }: { lesson: Lesson }) {
       {activities.length === 0 ? (
         <EmptyState title={t(S.noActivities)} action={<Link to="/">{t(S.backToMap)}</Link>} />
       ) : phase === 'intro' ? (
-        <LessonIntro lesson={lesson} activities={activities} guidance={guidance} onGuidance={setGuidance} onStart={(i) => goTo(i)} />
+        <LessonIntro
+          lesson={lesson}
+          activities={activities}
+          guidance={guidance}
+          savedIndex={saved?.index ?? null}
+          onGuidance={setGuidance}
+          onStart={(i) => goTo(i)}
+        />
       ) : phase === 'play' && step !== null ? (
         <LessonPlay
           lesson={lesson}
@@ -94,7 +111,15 @@ function LessonView({ lesson }: { lesson: Lesson }) {
           onFinish={finish}
         />
       ) : (
-        <LessonComplete lesson={lesson} activities={activities} onReview={(i) => goTo(i)} />
+        <LessonComplete
+          lesson={lesson}
+          activities={activities}
+          onReview={(i) => goTo(i)}
+          onTryIndependent={() => {
+            const first = activities.findIndex((a) => lesson.checkForUnderstanding.includes(a.id));
+            goTo(Math.max(first, 0), { guidance: 'independent' });
+          }}
+        />
       )}
     </article>
   );

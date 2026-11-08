@@ -7,7 +7,7 @@ import type { BrewLogEntry } from '../../domain/contracts';
 import { formatRatio } from '../../domain/brew';
 import { useI18n } from '../../i18n';
 import { learnerActions, useLearner } from '../../state';
-import { announce, Button, Callout, Card, Dialog, EmptyState, EvidenceBadge, Illustration, Tag } from '../../ui';
+import { announce, Button, Callout, Card, Dialog, EvidenceBadge, Illustration, Tag } from '../../ui';
 import { entryContext, entryDrinkLabel, guidedPractices } from '../practice/catalog';
 import { formatClock } from '../practice/timer';
 import { suggestNextChange } from './advice';
@@ -87,18 +87,24 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
 
   const ctx = useMemo(() => (entry ? entryContext(entry) : null), [entry?.drinkId, entry?.activityId]);
   if (!entry || !ctx) {
+    // Same look as EmptyState, but this IS the page, so its title is the page's one h1 (QA-07).
     return (
-      <EmptyState
-        art={<Illustration name="cup" />}
-        title={<span id="page-title">{t(S.missing)}</span>}
-        action={
+      <section className="jr-page" aria-labelledby="page-title" data-testid="journal-entry-missing">
+        <div className="cl-empty">
+          <div className="cl-empty__art">
+            <Illustration name="cup" />
+          </div>
+          <h1 id="page-title" className="jr-title">
+            {t(S.missing)}
+          </h1>
+          <div className="cl-empty__body">
+            <p>{t(S.missingBody)}</p>
+          </div>
           <Link className="cl-btn cl-btn--primary cl-btn--md" to="/journal">
             {t(S.back)}
           </Link>
-        }
-      >
-        <p>{t(S.missingBody)}</p>
-      </EmptyState>
+        </div>
+      </section>
     );
   }
 

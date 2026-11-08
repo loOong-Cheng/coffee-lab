@@ -11,13 +11,27 @@ export const S = {
   recommended: { zh: '推荐下一课', en: 'Recommended next' },
   continueLesson: { zh: '继续这节课', en: 'Continue this lesson' },
   startLesson: { zh: '开始这节课', en: 'Start this lesson' },
-  allDone: { zh: '所有课程都已掌握！可以去做一杯真的咖啡，或者复习喜欢的课。', en: 'Every lesson is mastered! Go make a real cup, or revisit a favourite lesson.' },
+  allDone: {
+    zh: '所有课程都完成了！试试用“独立”模式重做来真正掌握，去做一杯真的咖啡，或者复习喜欢的课。',
+    en: 'Every lesson is completed! Redo them at the Independent tier to master them, go make a real cup, or revisit a favourite.',
+  },
+  allMastered: {
+    zh: '所有课程都已独立掌握！去做一杯真的咖啡，或者复习喜欢的课。',
+    en: 'Every lesson mastered independently! Go make a real cup, or revisit a favourite lesson.',
+  },
   minutes: (n: number): LocalizedText => ({ zh: `约 ${n} 分钟`, en: `~${n} min` }),
   // summary
   progress: { zh: '你的进度', en: 'Your progress' },
-  mastered: { zh: '核心课程已掌握', en: 'Core lessons mastered' },
-  masteredNote: { zh: '“掌握” = 本课的理解检查全部完成（答题评估）。', en: '“Mastered” = all of the lesson’s checks done (assessed answers).' },
-  optionalMastered: (n: number): LocalizedText => ({ zh: `另有 ${n} 节选修课已掌握`, en: `plus ${n} optional lesson${n === 1 ? '' : 's'}` }),
+  completed: { zh: '核心课程已完成', en: 'Core lessons completed' },
+  independentCount: (n: number): LocalizedText => ({
+    zh: `其中 ${n} 节已独立掌握`,
+    en: `${n} mastered independently`,
+  }),
+  completedNote: {
+    zh: '“完成” = 本课的理解检查全部答对（答题评估，可以有提示）。“独立掌握” = 在“独立”模式下、没有提示也完成了。',
+    en: '“Completed” = all of the lesson’s checks answered (assessed, hints allowed). “Mastered independently” = done at the Independent tier, without hints.',
+  },
+  optionalCompleted: (n: number): LocalizedText => ({ zh: `另有 ${n} 节选修课已完成`, en: `plus ${n} optional lesson${n === 1 ? '' : 's'}` }),
   activities: { zh: '完成的练习', en: 'Activities done' },
   cups: { zh: '记录的真实咖啡', en: 'Real cups logged' },
   cupsNote: { zh: '来自你的冲煮日志——由你自己记录。', en: 'From your brew journal — recorded by you.' },
@@ -28,11 +42,18 @@ export const S = {
   core: { zh: '核心', en: 'Core' },
   optional: { zh: '选修', en: 'Optional' },
   optionalNote: { zh: '选修路线不会阻挡核心课程，什么时候学都可以。', en: 'Optional tracks never block the core path — dip in any time.' },
-  lessonsDone: (d: number, n: number): LocalizedText => ({ zh: `已掌握 ${d}/${n} 节`, en: `${d} of ${n} mastered` }),
+  lessonsDone: (d: number, n: number): LocalizedText => ({ zh: `已完成 ${d}/${n} 节`, en: `${d} of ${n} completed` }),
   status: {
     'not-started': { zh: '未开始', en: 'Not started' },
     'in-progress': { zh: '进行中', en: 'In progress' },
-    completed: { zh: '已掌握', en: 'Mastered' },
+    completed: { zh: '已完成', en: 'Completed' },
+  },
+  /** Completed lessons, by the least-supported tier every check was done at (QA-08). */
+  autonomy: {
+    guided: { zh: '在引导下完成', en: 'Completed with guidance' },
+    assisted: { zh: '在少量提示下完成', en: 'Completed with light support' },
+    independent: { zh: '已独立掌握', en: 'Mastered independently' },
+    untiered: { zh: '已完成', en: 'Completed' },
   },
   activityCount: (d: number, n: number): LocalizedText => ({ zh: `${d}/${n} 个练习`, en: `${d}/${n} activities` }),
   nextBadge: { zh: '下一步', en: 'Next up' },

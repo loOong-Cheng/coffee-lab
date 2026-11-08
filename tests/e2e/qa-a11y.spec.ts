@@ -98,8 +98,8 @@ const SCREENS: Screen[] = [
   },
 ];
 
-/** Logged as QA-03 (P2, WCAG 2.5.3 Label in Name; axe "experimental" rule): asserted separately below. */
-const KNOWN_RULES = new Set(['label-content-name-mismatch']);
+/** QA-03 (label-content-name-mismatch) is fixed, so no rule is exempted any more. */
+const KNOWN_RULES = new Set<string>([]);
 
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`axe ${scheme}`, () => {
@@ -126,9 +126,8 @@ for (const scheme of ['light', 'dark'] as const) {
   });
 }
 
-test.describe('known a11y bugs (remove test.fail when fixed)', () => {
+test.describe('fixed a11y bugs (regression)', () => {
   test('QA-03 (P2): visible label is part of the accessible name (WCAG 2.5.3) — locale toggle + identify pins', async ({ page }) => {
-    test.fail(true, 'QA-03: locale toggle shows "中文"/"EN" but is named "Switch to Chinese"; identify pins named by part while showing a number');
     await seedWithJournal(page);
     for (const url of ['/#/', `/#/learn/esp-meet-the-machine?step=${idx('esp-meet-the-machine', 'esp-meet-the-machine-identify')}&g=guided`]) {
       await page.goto(url);
@@ -136,5 +135,11 @@ test.describe('known a11y bugs (remove test.fail when fixed)', () => {
       const res = await new AxeBuilder({ page }).withRules(['label-content-name-mismatch']).analyze();
       expect(res.violations.map((v) => v.id), url).toEqual([]);
     }
+    // Quiz mode: pins show only a number and are named "Part N" — still label-in-name, answer not leaked.
+    await page.getByTestId('identify-start').click();
+    const pin = page.locator('.cl-diagram__pins button').first();
+    await expect(pin).toHaveAccessibleName(/^(Part|部件) 1$/);
+    const res = await new AxeBuilder({ page }).withRules(['label-content-name-mismatch']).analyze();
+    expect(res.violations.map((v) => v.id), 'identify quiz mode').toEqual([]);
   });
 });

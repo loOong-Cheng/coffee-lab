@@ -105,10 +105,15 @@ export function StationDiagram<P extends string>({
     onMouseLeave: () => setHover((h) => (h === id ? null : h)),
   });
 
+  /**
+   * WCAG 2.5.3 (label in name): the accessible name always contains the pin's visible text.
+   *  explore → "3 Portafilter" (number + name chip are both visible);
+   *  quiz → "Part 3" (only the number is visible, so the answer never leaks), then "Part 3: Portafilter (identified)".
+   */
   const pinLabel = (id: P, i: number) => {
     const n = i + 1;
     const name = labelOf(id);
-    if (mode === 'explore') return name;
+    if (mode === 'explore') return `${n} ${name}`;
     if (revealed.includes(id)) return locale === 'zh' ? `部件 ${n}：${name}（已识别）` : `Part ${n}: ${name} (identified)`;
     return locale === 'zh' ? `部件 ${n}` : `Part ${n}`;
   };
@@ -180,9 +185,12 @@ export function StationDiagram<P extends string>({
                       {right ? <Icon name="check" size={16} strokeWidth={3} /> : wrong ? <Icon name="x" size={16} strokeWidth={3} /> : i + 1}
                     </span>
                     {rev && (
-                      <span className="cl-hotspot__label" aria-hidden="true">
-                        {labelOf(p.id)}
-                      </span>
+                      <>
+                        {' '}
+                        <span className="cl-hotspot__label" aria-hidden="true">
+                          {labelOf(p.id)}
+                        </span>
+                      </>
                     )}
                   </button>
                 </li>

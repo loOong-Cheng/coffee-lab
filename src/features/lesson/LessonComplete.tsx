@@ -7,7 +7,9 @@ import { completedActivityIds, lastEventFor, lessonStatus, useLearner } from '..
 import { Icon } from '../../ui/icons';
 import { Button } from '../../ui/primitives/Button';
 import { EvidenceBadge } from '../../ui/primitives/EvidenceBadge';
+import { GuidanceBadge } from '../../ui/primitives/Guidance';
 import { ActivityArt } from '../activities';
+import { lessonAutonomy } from './autonomy';
 import { RelatedDrinks } from './RelatedDrinks';
 import { S } from './strings';
 
@@ -17,13 +19,17 @@ export function LessonComplete({
   lesson,
   activities,
   onReview,
+  onTryIndependent,
 }: {
   lesson: Lesson;
   activities: Activity[];
   onReview(index: number): void;
+  /** Replays the lesson's checks at the Independent tier (the only tier that counts as "mastered"). */
+  onTryIndependent?(): void;
 }) {
   const { t, locale } = useI18n();
   const status = useLearner((s) => lessonStatus(lesson, s.events));
+  const autonomy = useLearner((s) => lessonAutonomy(lesson, s.events));
   const done = useLearner((s) => completedActivityIds(s.events));
   const kinds = useLearner((s) => new Set(s.events.filter((e) => e.lessonId === lesson.id).map((e) => e.evidence)));
   const checkScores = useLearner((s) =>
@@ -52,6 +58,17 @@ export function LessonComplete({
               t(S.almostTitle)
             )}
           </h2>
+          {complete && autonomy && (
+            <div className="ls-autonomy" data-testid="lesson-autonomy" data-autonomy={autonomy}>
+              {autonomy !== 'untiered' && <GuidanceBadge level={autonomy} locale={locale} />}
+              <p>{t(S.autonomyResult[autonomy])}</p>
+              {(autonomy === 'guided' || autonomy === 'assisted') && onTryIndependent && (
+                <Button variant="secondary" size="sm" icon="star" onClick={onTryIndependent} data-testid="try-independent">
+                  {t(S.tryIndependent)}
+                </Button>
+              )}
+            </div>
+          )}
           {!complete && openChecks.length > 0 && (
             <>
               <p>{t(S.openChecks(openChecks.length))}</p>

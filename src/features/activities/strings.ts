@@ -129,6 +129,25 @@ export const S = {
     unhelpful: { zh: '这样不太能帮你找到原因', en: 'This won’t help you find the cause' },
   },
   uncertainty: { zh: '不确定性', en: 'Uncertainty' },
+  diagnoseHint: {
+    zh: '先找出最突出的线索——偏离常见范围的数字，或者味道描述——然后只改和它最直接相关的那一项。',
+    en: 'Find the clue that stands out — a number far from the usual range, or the taste words — then change only the one thing most directly linked to it.',
+  },
+  annotationsNote: {
+    zh: '标注是和常见新手参考范围的比较——经验法则，不是标准答案，也不是味道预测。',
+    en: 'Notes compare with common beginner reference ranges — rules of thumb, not targets or taste predictions.',
+  },
+  independentDiagnose: {
+    zh: '独立模式：选一个改变，并写下简短理由，然后再看反馈。',
+    en: 'Independent mode: pick one change and write a short reason before you see any feedback.',
+  },
+  reasonLabel: { zh: '为什么选这个？（几个字就行）', en: 'Why this change? (a few words is enough)' },
+  checkChoice: { zh: '检查我的选择', en: 'Check my choice' },
+  needChoice: { zh: '请先选一个改变。', en: 'Pick one change first.' },
+  needReason: { zh: '请先写一个简短理由——几个字就行。', en: 'Add a short reason first — a few words is enough.' },
+  yourReason: { zh: '你的理由', en: 'Your reasoning' },
+  compareReason: { zh: '对照下面的解释，看看你的理由是否抓住了关键。', en: 'Compare it with the explanation below — did your reason catch the key clue?' },
+  selectedChoice: { zh: '已选择', en: 'Selected' },
   // reflect
   reflectNote: { zh: '只保存在这台设备上，可以留空。', en: 'Saved only on this device. Leave blank if you like.' },
   saveReflection: { zh: '保存反思并继续', en: 'Save reflection & continue' },

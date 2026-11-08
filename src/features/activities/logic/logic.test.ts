@@ -5,7 +5,7 @@ import { checkNextStep, checkSequence, detectMisconceptions, moveItem, relocate,
 import { evaluateOption, quizComplete, quizScore, recordAttempt, type QuizAttempts } from './quiz';
 import { extractionModel, ZONE_THRESHOLDS } from './extractionModel';
 import { guidancePolicy, isGuidanceSensitive } from './guidance';
-import { diagnoseScore, scenarioResolved } from './diagnose';
+import { annotateObservations, brewFamily, diagnoseScore, reasonGiven, scenarioResolved } from './diagnose';
 import { evidenceForKind } from './evidence';
 
 const L = (en: string): LocalizedText => ({ zh: en, en });
@@ -220,6 +220,33 @@ describe('diagnose + evidence', () => {
     ],
     caveat: L('depends'),
   };
+
+  it('diagnose is guidance-sensitive (tier selector shown, behaviour differs)', () => {
+    expect(isGuidanceSensitive('diagnose')).toBe(true);
+  });
+
+  it('guided annotations compare numbers with the common reference range (QA-06)', () => {
+    expect(brewFamily({ doseG: 18, outG: 36 })).toBe('espresso');
+    expect(brewFamily({ doseG: 15, outG: 250 })).toBe('filter');
+    expect(brewFamily({ taste: L('sour') })).toBeNull();
+    const fast = annotateObservations({ doseG: 18, outG: 36, timeSec: 15 });
+    expect(fast.time?.verdict).toBe('low');
+    expect(fast.time?.text.en).toBe('Fast: quicker than the common 25–35 s');
+    expect(fast.ratio?.verdict).toBe('in');
+    expect(annotateObservations({ doseG: 18, outG: 54, timeSec: 30 }).ratio?.verdict).toBe('high');
+    expect(annotateObservations({ doseG: 18, outG: 15, timeSec: 40 }).ratio?.text.en).toMatch(/^Shorter than the common 1:1.5–1:2.5/);
+    const slowFilter = annotateObservations({ doseG: 15, outG: 250, timeSec: 330 });
+    expect(slowFilter.time?.text.en).toBe('Slow: longer than the common 2:30–4:00');
+    expect(annotateObservations({ doseG: 15, outG: 200, timeSec: 160 }).ratio?.text.en).toMatch(/^Tighter/);
+    expect(annotateObservations({ taste: L('chlorine') })).toEqual({});
+  });
+
+  it('independent tier needs a short, non-blank reason', () => {
+    expect(reasonGiven('   ')).toBe(false);
+    expect(reasonGiven('a')).toBe(false);
+    expect(reasonGiven('太快')).toBe(true);
+    expect(reasonGiven('too fast')).toBe(true);
+  });
 
   it('scores first pick quality and resolves only on the best choice', () => {
     expect(diagnoseScore([s], { s1: ['longer', 'finer'] })).toBe(0.5);

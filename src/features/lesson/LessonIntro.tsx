@@ -16,12 +16,15 @@ export function LessonIntro({
   lesson,
   activities,
   guidance,
+  savedIndex = null,
   onGuidance,
   onStart,
 }: {
   lesson: Lesson;
   activities: Activity[];
   guidance: Guidance;
+  /** Activity the learner was on last time in this lesson (from the saved location), if any. */
+  savedIndex?: number | null;
   onGuidance(g: Guidance): void;
   onStart(index: number): void;
 }) {
@@ -34,9 +37,15 @@ export function LessonIntro({
       .filter((l): l is Lesson => !!l && lessonStatus(l, s.events) !== 'completed'),
   );
   const firstOpen = activities.findIndex((a) => !done.has(a.id) && !ELSEWHERE_KINDS.has(a.kind));
-  const resumeAt = status === 'not-started' ? 0 : firstOpen === -1 ? 0 : firstOpen;
+  // In-progress: go back to the exact activity they were on (survives reload / relaunch); else the first open one.
+  const resumeSaved = status === 'in-progress' && savedIndex !== null && savedIndex < activities.length;
+  const resumeAt = resumeSaved ? savedIndex : status === 'not-started' ? 0 : firstOpen === -1 ? 0 : firstOpen;
   const ctaLabel =
-    status === 'completed' ? t(S.review) : status === 'in-progress' && resumeAt > 0 ? t(S.resume(resumeAt + 1)) : t(S.start);
+    status === 'completed'
+      ? t(S.review)
+      : status === 'in-progress' && resumeAt > 0
+        ? t(resumeSaved ? S.resumeHere(resumeAt + 1) : S.resume(resumeAt + 1))
+        : t(S.start);
 
   return (
     <div className="ls-intro">

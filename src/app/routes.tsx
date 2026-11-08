@@ -1,22 +1,24 @@
 /**
  * The ONE route table (CONTRACTS.md §8). Hash routing (works on any static host, no server rewrites).
  * Every page is a lazily loaded chunk; /xr is the only chunk allowed to pull in Babylon.js.
+ * lazyRoute() (not bare React.lazy) so a chunk that failed to download can be retried (QA-01).
  */
 import { lazy, Suspense } from 'react';
 import { Route, Routes } from 'react-router';
 import NotFound from './NotFound';
+import { lazyRoute } from './lazyRoute';
 import { RequireProfile } from './RequireProfile';
 import { RouteFallback } from './RouteFallback';
 
-const Home = lazy(() => import('../features/home'));
-const Onboarding = lazy(() => import('../features/onboarding'));
-const Lesson = lazy(() => import('../features/lesson'));
-const Practice = lazy(() => import('../features/practice'));
-const Journal = lazy(() => import('../features/journal'));
-const Atlas = lazy(() => import('../features/atlas'));
-const Settings = lazy(() => import('../features/settings'));
-const Cafe = lazy(() => import('../features/cafe'));
-const XrRoute = lazy(() => import('../xr/XrRoute'));
+const Home = lazyRoute(() => import('../features/home'));
+const Onboarding = lazyRoute(() => import('../features/onboarding'));
+const Lesson = lazyRoute(() => import('../features/lesson'));
+const Practice = lazyRoute(() => import('../features/practice'));
+const Journal = lazyRoute(() => import('../features/journal'));
+const Atlas = lazyRoute(() => import('../features/atlas'));
+const Settings = lazyRoute(() => import('../features/settings'));
+const Cafe = lazyRoute(() => import('../features/cafe'));
+const XrRoute = lazyRoute(() => import('../xr/XrRoute'));
 /** DEV-ONLY UI gallery. `import.meta.env.DEV` is statically false in production builds, so the chunk is dropped. */
 const UiGallery = import.meta.env.DEV ? lazy(() => import('../ui/Gallery')) : null;
 

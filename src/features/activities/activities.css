@@ -574,6 +574,49 @@
   margin: 0;
   font-weight: var(--weight-bold, 700);
 }
+/* Guided tier: how each number compares with the common reference range (words, not colour alone). */
+.act-obs .act-obs__note {
+  max-width: 22ch;
+  margin-top: var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-regular, 400);
+  color: var(--color-text-muted);
+}
+.act-obs .act-obs__note[data-verdict='low'],
+.act-obs .act-obs__note[data-verdict='high'] {
+  color: var(--color-text);
+  font-weight: var(--weight-medium, 600);
+}
+.act-obs__footnote {
+  margin: 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.act-diagnose__mode {
+  margin: 0;
+}
+.act-diagnose__commit {
+  display: grid;
+  gap: var(--space-3);
+  justify-items: start;
+}
+.act-diagnose__commit .act-field {
+  width: 100%;
+}
+.act-textarea--short {
+  min-height: 64px;
+}
+.act-diagnose__error {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin: 0;
+  color: var(--color-danger);
+  font-weight: var(--weight-medium, 600);
+}
+.act-diagnose__reason {
+  margin: 0 0 var(--space-2);
+}
 
 /* ── practice / spatial cards ───────────────── */
 .act-practice__badges {

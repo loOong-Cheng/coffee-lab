@@ -504,3 +504,15 @@
 .ls-evidence__item .ls-small {
   margin: 0;
 }
+
+/* Completion: how independently the lesson was done (QA-08). */
+.ls-autonomy {
+  display: grid;
+  gap: var(--space-2);
+  justify-items: start;
+  margin-top: var(--space-3);
+}
+.ls-autonomy p {
+  margin: 0;
+  max-width: 60ch;
+}

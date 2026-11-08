@@ -113,6 +113,11 @@
   border-color: var(--color-accent, #8a4b22);
 }
 
+/* Header music control (src/ui MusicControl): keep every target ≥ 44 px even when the mood name is hidden. */
+.shell-tools .cl-music__mood {
+  min-width: var(--tap-min, 44px);
+}
+
 .shell-icon {
   width: 22px;
   height: 22px;
@@ -207,6 +212,15 @@
   flex-wrap: wrap;
   gap: var(--space-2, 8px);
   margin: var(--space-4, 16px) 0;
+}
+.shell-error button[data-variant='primary'] {
+  border-color: var(--color-accent, #8a4b22);
+  background: var(--color-accent, #8a4b22);
+  color: var(--color-accent-contrast, #fff);
+  font-weight: 600;
+}
+.shell-error > h1:focus {
+  outline: none; /* programmatic focus target after a failed retry */
 }
 .shell-error pre {
   white-space: pre-wrap;
@@ -328,16 +342,28 @@
   .shell-nav__link[aria-current='page'] {
     border-top-color: var(--color-accent, #8a4b22);
   }
+  /* Labels may wrap to a second line on the narrowest phones ("XR / 实验室" at 320 px) instead of being cut off. */
   .shell-nav__label {
     max-width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+    line-height: 1.15;
+    white-space: normal;
+    word-break: keep-all; /* break "XR 实验室" at the space, never inside a CJK word */
+    overflow-wrap: anywhere;
   }
   .shell-main {
     padding: var(--space-4, 16px) var(--space-4, 16px) var(--space-6, 32px);
   }
   .shell-footer {
     padding-bottom: calc(80px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* Smallest phones (320–374 px): the cup mark alone names the brand (the link keeps its accessible name). */
+@media (max-width: 374px) {
+  .shell-brand__short {
+    display: none;
+  }
+  .shell-header {
+    gap: var(--space-2, 8px);
   }
 }
