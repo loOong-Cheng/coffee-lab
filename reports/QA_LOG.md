@@ -120,3 +120,8 @@ Lead verification at `b5547ae`: typecheck ✓, unit 414/414 ✓, shell + smoke e
 | Real phone | NOT TESTED by agents |
 
 Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverified branch `wip/phase5-unfinished`. QA gate #2 not run (session ended at usage limit).
+
+## User device check (2026-11-08)
+| Platform | Result | Evidence | Notes |
+|---|---|---|---|
+| User's phone via Tailscale HTTPS (`tailscale serve` → `vite preview` @ `6057e71` build) | **User-reported: works** | user message "I started the app and it works okay now" | Self-reported by the user; no detailed checklist (kitchen mode, wake lock, offline install, audio) was reported. |

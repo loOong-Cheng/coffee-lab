@@ -56,6 +56,7 @@ Production builds (`npm run build`, `npm run preview`, any static host) register
 - To test those features on a phone you need HTTPS or `localhost`. Options — **none are set up by this project; use them only with your own approval**:
   - **Android + USB (local, no third party):** enable USB debugging, then `adb reverse tcp:4173 tcp:4173` and open `http://localhost:4173` on the phone — it counts as `localhost`, so secure-context features work.
   - **Chrome flag (local testing only):** `chrome://flags/#unsafely-treat-insecure-origin-as-secure` on the phone, add `http://<your-PC-IP>:4173`. Remove it afterwards.
+  - **Tailscale (tailnet-only HTTPS, used during development):** enable *HTTPS Certificates* in the Tailscale admin DNS page, run `npx vite preview --host 127.0.0.1 --port 4173` and `tailscale serve --bg 4173`, then open `https://<machine>.<tailnet>.ts.net/` on the phone. `*.ts.net` is already allowed in `vite.config.ts`. Turn off with `tailscale serve reset`.
   - **Public HTTPS tunnels** (e.g. Cloudflare Tunnel, ngrok) expose your dev machine to the internet and need your own account; not recommended unless you understand and accept that.
   - **Self-signed HTTPS** via a local certificate requires installing/trusting that certificate on the phone.
 - No headset was available during development: XR is **hardware-unverified** (see `reports/DELIVERY.md`).

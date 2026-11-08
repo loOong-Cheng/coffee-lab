@@ -37,7 +37,7 @@ Requires Node ≥ 22.22 (built on Node 24.19 / npm 11.17 / Windows 11).
 | Production build | PASS | Babylon only in lazy `/xr` chunks (e2e-asserted) |
 | E2E — all suites (`npx playwright test`) | **246 passed / 14 skipped / 0 failed** @ 773a388 (desktop 1280×800 + Pixel 7; skips are viewport-scoped tests) | smoke, shell, learn, practice, brew, cafe, culture, offline (PWA) + independent QA suites |
 | Independent QA gate #1 (`tests/e2e/qa-*`) | 178 pass / 12 skip (2 identical runs); bugs QA-01…09 fixed except QA-05 | | phone-only + desktop-only scenarios, XR fallback, failure handling, axe WCAG A/AA on 17 screens × themes × viewports, zh pass, content honesty |
-| **Real phone** | **NOT TESTED by agents** | user can test via `npm run dev:lan` |
+| **Real phone** | **User-reported: works** (2026-11-08, opened via Tailscale HTTPS `tailscale serve` → `vite preview`) | reported by the user, no detailed checklist; not tested by agents |
 | **XR headset** | **NOT TESTED — no headset available** | WebXR controller code, comfort, frame rate are hardware-unverified; 3D fallback verified in headless Chromium (software WebGL) |
 | **Audio by ear** | **NOT HEARD by a human** | only no-throw/scheduling tests and (if present) `reports/AUDIO_QA.md` render metrics |
 | Browsers | Chromium only automated | Firefox/Safari not tested |
