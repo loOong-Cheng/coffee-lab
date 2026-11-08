@@ -91,3 +91,19 @@ Not bugs (checked): kitchen-mode stopwatch under the sticky action bar is reacha
 
 ## Evidence screenshots (`reports/screenshots/`, a18b5f2, service workers blocked so no toast)
 `home-{desktop-1280,mobile-390}.png`, `lesson-activity-quiz-*.png`, `lesson-activity-ratio-lab-*.png`, `kitchen-mode-step-*.png`, `atlas-detail-*.png`, `xr-intro-*.png`; bug evidence: `bug-QA-02-offline-toast-covers-bottom-nav-mobile.png`, `bug-QA-02-QA-04-double-offline-toast-home-mobile.png`.
+
+## Lead integration — fixes for QA gate #1 (2026-11-08 ~02:20)
+
+| Bug | Severity | Fix commit | Verification |
+|---|---|---|---|
+| QA-02 offline toast covered mobile nav | P1 | `449dec7` (toasts top on mobile; offline toast removed; Settings shows offline status) | fixed-behaviour assertions replace `test.fail` in `qa-ux`/`qa-resilience` (`b5547ae`); lead re-ran smoke mobile nav ✓ |
+| QA-04 double offline toast | P2 | `a18b5f2`→`449dec7` | as above |
+| QA-09 DELIVERY.md template | P1 | `bbecaa3` draft; final numbers at end | — |
+| QA-01 chunk-load failure no recovery | P2 | `b5547ae` `lazyRoute()` retry | `lazyRoute.test.tsx` (5) + QA-01 e2e (marker removed) |
+| QA-03 label-in-name (locale toggle, diagram pins) | P2 | `b5547ae` | axe rule re-enabled on 17 screens ✓; diagrams.test |
+| QA-05 XR intro links 25px on phone | P2 | assigned to xr-engineer (in progress) | pending |
+| QA-06 diagnose ignores tiers | P2 | `b5547ae` | activities tests (3 new) |
+| QA-07 journal unknown entry no h1 | P2 | `b5547ae` | QA-07 e2e (marker removed) |
+| QA-08 "mastered" overstated | P2 | `b5547ae` (mastered = independent-tier checks only) | home/lesson tests |
+
+Lead verification at `b5547ae`: typecheck ✓, unit 414/414 ✓, shell + smoke e2e 24 pass / 2 viewport skips ✓. Fixer reported full e2e 230 pass / 14 skip / 0 fail (desktop + mobile) on the integrated tree.
