@@ -24,9 +24,10 @@ Status: DONE / PARTIAL / TODO / BLOCKED.
 - [ ] TODO — Cross-mode recommendations based on user capability
 - [ ] PARTIAL — Localization (zh/en done in content + shell), offline/PWA TODO, extended accessibility audit TODO
 - [x] DONE (pending QA) — **User-requested breadth (U3):** Drink Atlas UI (29 drinks, culture notes, gear owned/missing, make-it) + culture/explore tracks `af54ea0`
-- [ ] TODO — Simple virtual café orders (Café Counter) — web C running
-- [ ] TODO — Offline/PWA — architect running
-- [ ] TODO — Culture-linked music moods (e.g. espresso bar / kissaten / ceremony) — idea for user's music+culture interest
+- [x] DONE — Café Counter: 19 drinks, 3 levels, tiers, explanatory feedback `ec1dcad`
+- [x] DONE — Offline/PWA (hand-written SW, offline e2e) `411315b`
+- [x] DONE (unheard by a human) — Culture-inspired music moods bossa/kissa/bar + generative composer + render QA `81fe1d3` (`reports/AUDIO_QA.md`)
+- [ ] TODO (P2) — Even out quieter moods (focus/lab/kissa are 2–4 LU below others); human listening pass on phone speakers
 
 ## P2 — optional if time
 - [ ] TODO — Data-only future skill schema validation and example generator prompt
