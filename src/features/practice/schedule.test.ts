@@ -19,7 +19,7 @@ describe('pour schedule — reference recipe (matches the authored guide)', () =
       ['drawdown', 250, 250],
     ]);
     expect(s.pourEndSec).toBe(120);
-    expect(s.finishWindowSec).toEqual([150, 210]);
+    expect(s.finishWindowSec).toEqual([150, 240]);
     expect(s.stagesIllustrative).toBe(false);
   });
 

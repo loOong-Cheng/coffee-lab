@@ -185,7 +185,7 @@ export const activities: Activity[] = [
       {
         heading: L('手冲的研磨度', 'Grind for pour-over'),
         body: L(
-          '手冲的研磨通常是中等偏细到中等，大致像细砂糖到粗盐之间，比意式粗得多。研磨是你调整手冲最主要的旋钮：太快就调细一点，太慢就调粗一点。',
+          '手冲的研磨通常是中等偏细到中等，大致在细盐粒到粗砂之间，比意式粗得多。研磨是你调整手冲最主要的旋钮：太快就调细一点，太慢就调粗一点。',
           'Pour-over grind is usually medium-fine to medium — roughly between table salt and coarse sand — much coarser than espresso. Grind is your main dial: too fast, go a little finer; too slow, a little coarser.',
         ),
         illustration: 'grind-size-scale',
@@ -816,7 +816,7 @@ export const activities: Activity[] = [
     steps: [
       {
         id: 'heat',
-        text: L('烧水：刚离火（约 92–96 °C，或水开后等约 30 秒）', 'Heat water to just off the boil (about 92–96 °C, or ~30 s after boiling)'),
+        text: L('烧水：刚离火（约 90–96 °C，或水开后等约 30 秒）', 'Heat water to just off the boil (about 90–96 °C, or ~30 s after boiling)'),
         safety: L('水壶放在平稳处，壶嘴的蒸汽也会烫。', 'Keep the kettle on a stable surface; steam from the spout burns too.'),
         help: L('用普通水壶也可以，之后倒水时要更慢、更小心。', 'A regular kettle is fine — just pour more slowly and carefully later.'),
         illustration: 'kettle-temp',
@@ -873,7 +873,7 @@ export const activities: Activity[] = [
       {
         id: 'drawdown',
         text: L('等水完全滴完，记下总时间', 'Let it drain completely and note the total time'),
-        detail: L('很多人在约 2 分 30 秒到 3 分 30 秒之间完成（示意）。', 'Many finish around 2:30–3:30 (illustrative).'),
+        detail: L('很多人在约 2 分 30 秒到 4 分钟之间完成（示意，随滤杯和手法变化）。', 'Many finish somewhere around 2:30–4:00 (illustrative; varies with dripper and technique).'),
         help: L(
           '远早于 2 分钟：下次调细一点；超过 4 分 30 秒还没滴完：下次调粗一点。一次只改这一项。',
           'Done well before 2:00? Grind a little finer next time. Still dripping after 4:30? A little coarser. Change only that.',

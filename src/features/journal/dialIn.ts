@@ -2,7 +2,7 @@
  * Dial-in chart model (pure, unit-tested): the learner's OWN logged attempts of one drink, time vs ratio,
  * in the order they were logged. The shaded "common starting zone" is an illustrative rule of thumb
  * taken from the curriculum (espresso "normal" ≈ 1:1.5–1:2.5 in ~25–35 s; pour-over 1:15–1:17 in
- * ~2:30–3:30) — never a target or a grade. No values are interpolated or invented: entries without both
+ * ~2:30–4:00 single cup) — never a target or a grade. No values are interpolated or invented: entries without both
  * a time and a ratio are listed as "not plotted".
  */
 import type { BrewLogEntry, DrinkCategory, LocalizedText } from '../../domain/contracts';
@@ -68,7 +68,7 @@ const ESPRESSO_RATIO: Record<string, [number, number]> = {
 const ZONE_TIME: Record<string, [number, number]> = {
   ristretto: [20, 30],
   lungo: [30, 45],
-  'pourover-cone': [150, 210],
+  'pourover-cone': [150, 240],
   'chemex-brew': [240, 300],
 };
 
@@ -93,7 +93,7 @@ export function zoneFor(z: ZoneInput): DialInZone | null {
     };
   }
   if (z.category === 'pourover') {
-    const time: [number, number] = timeOverride ?? [150, 210];
+    const time: [number, number] = timeOverride ?? [150, 240];
     const mm = (s: number) => `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
     return {
       timeSec: time,

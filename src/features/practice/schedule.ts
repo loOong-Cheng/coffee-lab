@@ -5,7 +5,7 @@
  *
  * Templates come from authored content:
  *  - 'cone'  — po-first-real-cup-guide (bloom ~40 g, wait to ~0:45; ~150 g by ~1:15; 250 g by ~2:00;
- *              many finish ~2:30–3:30) and the Atlas cone pour-over (15 g → 250 g, 2:30–3:30).
+ *              many finish ~2:30–4:00) and the Atlas cone pour-over (15 g → 250 g, 2:30–4:00).
  *  - 'chemex'— Atlas Chemex (30 g → 500 g, bloom 60–90 g for 45 s, pour in stages, ~4–5 min).
  *              The split of the stages is illustrative (the content only says "in stages").
  * Scaling keeps the template's water:coffee ratio exactly (total via domain/brew outForRatio);
@@ -54,7 +54,7 @@ export const POUR_TEMPLATES: Record<PourTemplateId, PourTemplate> = {
       { id: 'pour-2', kind: 'pour', startSec: 90, endSec: 120, refTargetG: 250 },
       { id: 'drawdown', kind: 'drawdown', startSec: 120, endSec: 180 },
     ],
-    finishWindowSec: [150, 210],
+    finishWindowSec: [150, 240],
     stagesIllustrative: false,
   },
   chemex: {

@@ -106,7 +106,7 @@ export const lessons: Lesson[] = [
     level: 'beginner',
     title: L('冲煮的核心概念', 'Brewing Concepts'),
     goal: L(
-      '正确使用粉量、液重、粉水比、时间和研磨度这些词；会计算比例；分清“浓度”和“萃取”，并理解任何配方都只是起点。',
+      '正确使用粉量、液重、比例（粉液比/粉水比）、时间和研磨度这些词；会计算比例；分清“浓度”和“萃取”，并理解任何配方都只是起点。',
       'Use dose, yield, ratio, time and grind correctly; calculate a ratio; tell strength apart from extraction; and understand why every recipe is only a starting point.',
     ),
     prerequisites: ['lit-tools-safety'],
@@ -738,7 +738,7 @@ export const activities: Activity[] = [
       {
         heading: L('比例：一个数字说清配方', 'Ratio: a recipe in one number'),
         body: L(
-          '比例 = 输出 ÷ 粉量。意式：18 克粉得到 36 克液体，36 ÷ 18 = 2，记作 1:2。手冲：15 克粉配 250 克水，250 ÷ 15 ≈ 16.7，约 1:17。比例让你可以按杯量等比放大或缩小。',
+          '比例 = 输出 ÷ 粉量。意式常叫“粉液比”：18 克粉得到 36 克液体，36 ÷ 18 = 2，记作 1:2。手冲常叫“粉水比”：15 克粉配 250 克水，250 ÷ 15 ≈ 16.7，约 1:17。比例让你可以按杯量等比放大或缩小。',
           'Ratio = output ÷ dose. Espresso: 18 g of coffee giving 36 g of liquid is 36 ÷ 18 = 2, written 1:2. Pour-over: 15 g of coffee with 250 g of water is 250 ÷ 15 ≈ 16.7, about 1:17. Ratios let you scale a recipe up or down.',
         ),
         illustration: 'ratio-bar',

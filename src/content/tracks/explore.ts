@@ -93,7 +93,7 @@ export const lessons: Lesson[] = [
     keyConcepts: [
       L('“调校”是针对这包豆子、这台磨豆机和机器调整配方', 'Dialing in adapts a recipe to this coffee, grinder and machine'),
       L('研磨度是调整流速的主要手段', 'Grind size is the main lever for flow'),
-      L('出液量（粉液比）影响浓度和平衡', 'Yield (ratio) shapes strength and balance'),
+      L('液重（粉液比）影响浓度和平衡', 'Yield (ratio) shapes strength and balance'),
       L('时间是观察结果，口味才是裁判', 'Time is an observation; taste is the judge'),
       L('一次只改一个变量，并记录下来', 'Change one variable at a time — and write it down'),
     ],
@@ -454,13 +454,13 @@ export const activities: Activity[] = [
       {
         heading: L('三个手段，一个裁判', 'Three levers, one judge'),
         body: L(
-          '研磨度（主要影响流速和萃取）、粉量（粉碗里有多少咖啡）、出液量（决定粉液比和浓度）。时间是你观察到的结果，而口味才是最后的裁判。',
+          '研磨度（主要影响流速和萃取）、粉量（粉碗里有多少咖啡）、液重（决定粉液比和浓度）。时间是你观察到的结果，而口味才是最后的裁判。',
           'Grind size (mainly flow and extraction), dose (how much coffee is in the basket) and yield (sets ratio and strength). Time is what you observe; taste is the final judge.',
         ),
         illustration: 'three-levers',
         callout: {
           kind: 'illustrative',
-          text: L('像“18 克 → 36 克，25–30 秒”这样的数字是示例起点，不是目标。', 'Numbers like “18 g → 36 g in 25–30 s” are illustrative starting points, not targets.'),
+          text: L('像“18 克 → 36 克，25–35 秒”这样的数字是示例起点，不是目标。', 'Numbers like “18 g → 36 g in 25–35 s” are illustrative starting points, not targets.'),
         },
       },
       {
@@ -502,8 +502,8 @@ export const activities: Activity[] = [
     supportedModes: COG,
     prompt: L('把调校一款新豆子的步骤按正确顺序排好。', 'Put the steps for dialing in a new coffee into the right order.'),
     steps: [
-      { id: 'start', text: L('选定起始配方（粉量、目标出液量）', 'Choose a starting recipe (dose, target yield)'), why: L('需要一个参照点，后面才有比较对象。', 'You need a reference point to compare against.') },
-      { id: 'pull', text: L('萃取一杯，测量粉量、出液量和时间', 'Pull a shot and measure dose, yield and time'), why: L('有了数据，下一步决定就基于事实而不是猜测。', 'Measurements make the next decision about facts, not guesses.') },
+      { id: 'start', text: L('选定起始配方（粉量、目标液重）', 'Choose a starting recipe (dose, target yield)'), why: L('需要一个参照点，后面才有比较对象。', 'You need a reference point to compare against.') },
+      { id: 'pull', text: L('萃取一杯，测量粉量、液重和时间', 'Pull a shot and measure dose, yield and time'), why: L('有了数据，下一步决定就基于事实而不是猜测。', 'Measurements make the next decision about facts, not guesses.') },
       { id: 'taste', text: L('品尝并描述（酸？苦？薄？平衡？）', 'Taste and describe it (sour? bitter? thin? balanced?)'), why: L('口味决定要不要改、往哪个方向改。', 'Taste tells you whether to change anything — and which way.') },
       { id: 'one-change', text: L('只选一个调整（通常先调研磨）', 'Choose ONE change (usually grind first)'), why: L('只改一个变量，才能知道是什么带来了差别。', 'Changing one variable shows you what caused the difference.') },
       { id: 'repeat', text: L('只带着这一个改变再萃取一杯', 'Pull again with only that change'), why: L('两杯对比，才能看出这个改变的效果。', 'Comparing two shots isolates the effect of that change.') },
@@ -529,8 +529,8 @@ export const activities: Activity[] = [
         situation: L('新豆子的第一杯：18 克粉，36 克液，只用了 17 秒。', 'First shot with a new bag: 18 g in, 36 g out in just 17 s.'),
         observations: { doseG: 18, outG: 36, timeSec: 17, taste: L('尖酸、单薄', 'Sharp, sour, thin') },
         choices: [
-          { id: 'finer', text: L('研磨调细一小格，粉量和出液量不变', 'Grind one small step finer; keep dose and yield'), quality: 'best', feedback: L('流得快常意味着萃取不足，调细能减慢流速、通常会萃取更多。小步调整。', 'Fast flow often means under-extraction; finer grind slows it and usually extracts more. Small steps.') },
-          { id: 'longer', text: L('出液量增加到 45 克', 'Increase the yield to 45 g'), quality: 'reasonable', feedback: L('更多水能多萃取一些、缓和酸感，但也会变淡；而“流得快”这个线索用研磨解决更直接。', 'More water can extract more and soften sourness, but the shot gets weaker; grind addresses the fast flow more directly.') },
+          { id: 'finer', text: L('研磨调细一小格，粉量和液重不变', 'Grind one small step finer; keep dose and yield'), quality: 'best', feedback: L('流得快常意味着萃取不足，调细能减慢流速、通常会萃取更多。小步调整。', 'Fast flow often means under-extraction; finer grind slows it and usually extracts more. Small steps.') },
+          { id: 'longer', text: L('液重增加到 45 克', 'Increase the yield to 45 g'), quality: 'reasonable', feedback: L('更多水能多萃取一些、缓和酸感，但也会变淡；而“流得快”这个线索用研磨解决更直接。', 'More water can extract more and soften sourness, but the shot gets weaker; grind addresses the fast flow more directly.') },
           { id: 'all', text: L('同时调细、加粉、加出液', 'Grind finer, add dose AND extend yield at once'), quality: 'unhelpful', feedback: L('一次改三样，就算变好了也不知道是哪个起作用。', 'Three changes at once — even if it improves, you won’t know which one helped.') },
           { id: 'tamp', text: L('用更大的力气压粉', 'Tamp much harder'), quality: 'unhelpful', feedback: L('只要压得平整一致，更用力的效果很小，一致性比力气重要。', 'Once you tamp level and consistently, extra force changes little; consistency beats force.') },
         ],
@@ -552,7 +552,7 @@ export const activities: Activity[] = [
         situation: L('18 克粉，36 克液，28 秒——“教科书时间”。但你觉得有点酸，不太喜欢。', '18 g in, 36 g out in 28 s — a “textbook” time. But it tastes a bit sour and you don’t enjoy it.'),
         observations: { doseG: 18, outG: 36, timeSec: 28, taste: L('偏酸，不太喜欢', 'A bit sour; not enjoyable') },
         choices: [
-          { id: 'trust-taste', text: L('相信自己的口味：试着稍微调细，或把出液量加到约 40 克（二选一）', 'Trust your taste: try slightly finer OR a longer yield of about 40 g (pick one)'), quality: 'best', feedback: L('时间在范围内不代表你会喜欢，口味才是裁判。只选一个调整。', 'A time in range doesn’t mean you’ll like it — taste is the judge. Pick just one change.') },
+          { id: 'trust-taste', text: L('相信自己的口味：试着稍微调细，或把液重加到约 40 克（二选一）', 'Trust your taste: try slightly finer OR a longer yield of about 40 g (pick one)'), quality: 'best', feedback: L('时间在范围内不代表你会喜欢，口味才是裁判。只选一个调整。', 'A time in range doesn’t mean you’ll like it — taste is the judge. Pick just one change.') },
           { id: 'in-range', text: L('时间在范围内，所以就是对的', 'It’s in range, so it’s correct'), quality: 'unhelpful', feedback: L('时间是参考点，不是品质证明。', 'Times are reference points, not proof of quality.') },
           { id: 'switch-beans', text: L('马上换成深烘豆', 'Switch to a darker roast right away'), quality: 'reasonable', feedback: L('深烘也许更合你的口味，但这等于一次改了所有东西——先试试小的配方调整。', 'A darker roast might suit you, but it changes everything at once — try small recipe tweaks first.') },
         ],
@@ -588,7 +588,7 @@ export const activities: Activity[] = [
       },
       {
         id: 'shot-1',
-        text: L('第 1 杯：按起始配方萃取，记下粉量、出液量和时间', 'Shot 1: pull the starting recipe; record dose, yield and time'),
+        text: L('第 1 杯：按起始配方萃取，记下粉量、液重和时间', 'Shot 1: pull the starting recipe; record dose, yield and time'),
         timerSec: 30,
         help: L('不用追求完美，这一杯是你的参照。', 'Don’t chase perfection — this shot is your reference.'),
         illustration: 'espresso-on-scale',

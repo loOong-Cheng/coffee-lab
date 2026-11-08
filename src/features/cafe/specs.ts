@@ -327,7 +327,7 @@ export const BUILD_SPECS: readonly BuildSpec[] = [
     ),
     why: {
       extras: L('摩卡需要巧克力——这正是它和拿铁的区别。', 'A mocha needs chocolate — that’s the whole difference from a latte.'),
-      milkMl: L('和拿铁一样，约 150–200 毫升蒸奶。', 'Like a latte: about 150–200 ml of steamed milk.'),
+      milkMl: L('奶量和拿铁相近或略少：这个版本约 150–200 毫升蒸奶。', 'Latte-like, or a little less: about 150–200 ml of steamed milk in this version.'),
       milk: L('用热的蒸奶，表面一层薄奶泡。', 'Hot steamed milk with a thin layer of foam.'),
       cup: L('巧克力 + 浓缩 + 一大杯奶，需要马克杯。', 'Chocolate + shot + lots of milk needs a mug.'),
     },

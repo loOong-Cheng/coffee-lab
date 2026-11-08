@@ -63,13 +63,13 @@ export const drinks: DrinkRecipe[] = [
     equipment: [...ESPRESSO_GEAR, 'espresso-cup', 'towel'],
     recipe: {
       summary: L(
-        '示例起点：18 克咖啡粉 → 约 36 克浓缩液（粉液比 1:2），约 25–30 秒。你的粉碗、豆子和口味可能需要别的数值。',
-        'Illustrative start: 18 g ground coffee → about 36 g espresso (1:2) in roughly 25–30 s. Your basket, beans and taste may call for different numbers.',
+        '示例起点：18 克咖啡粉 → 约 36 克浓缩液（粉液比 1:2），约 25–35 秒。你的粉碗、豆子和口味可能需要别的数值。',
+        'Illustrative start: 18 g ground coffee → about 36 g espresso (1:2) in roughly 25–35 s. Your basket, beans and taste may call for different numbers.',
       ),
       doseG: 18,
       outG: 36,
       waterTempNote: L('由机器控制（常见约 90–96 °C），按说明书设置。', 'Set by the machine (commonly about 90–96 °C) — follow its manual.'),
-      timeNote: L('从开泵起约 25–30 秒：这是用来比较的观察值，不是及格线。', 'About 25–30 s from pump start — an observation to compare, not a pass/fail line.'),
+      timeNote: L('从开泵起约 25–35 秒（常见经验范围）：这是用来比较的观察值，不是及格线。', 'About 25–35 s from pump start (a common rule of thumb) — an observation to compare, not a pass/fail line.'),
     },
     steps: [
       L('按说明书充分预热机器，不装手柄短暂放水冲一下冲煮头。', 'Fully warm the machine per its manual; briefly flush water through the group head with no portafilter.'),
@@ -88,7 +88,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'ristretto',
     category: 'espresso',
-    name: L('芮斯崔朵（Ristretto）', 'Ristretto'),
+    name: L('芮斯崔朵（Ristretto，短萃浓缩）', 'Ristretto'),
     tagline: L('更短、更浓的一份浓缩，常被形容为更浓稠、更集中。', 'A shorter, more concentrated shot — often described as thicker and more intense.'),
     origin: L('意大利；意大利语“ristretto”意为“受限的、浓缩的”。', 'Italy; “ristretto” is Italian for “restricted” or “narrowed”.'),
     cultureNote: L(
@@ -219,7 +219,7 @@ export const drinks: DrinkRecipe[] = [
     ),
     equipment: [...ESPRESSO_GEAR, 'cup'],
     recipe: {
-      summary: L('示例：一球（约 60 克）香草冰淇淋或意式冰淇淋，浇上一份单份或双份浓缩（约 25–36 克）。', 'Illustrative: one scoop (about 60 g) of vanilla gelato or ice cream, topped with a single or double shot (about 25–36 g).'),
+      summary: L('示例：一球（约 60 克）香草冰淇淋或意式冰淇淋，浇上一份单份或双份浓缩（约 18–36 克）。', 'Illustrative: one scoop (about 60 g) of vanilla gelato or ice cream, topped with a single or double shot (about 18–36 g).'),
       doseG: 18,
       outG: 36,
     },
@@ -477,7 +477,7 @@ export const drinks: DrinkRecipe[] = [
       doseG: 15,
       outG: 250,
       waterTempNote: L('刚离火的热水，常见约 90–96 °C；浅烘可偏热，深烘可偏低。', 'Just off the boil, commonly about 90–96 °C; lighter roasts often hotter, darker roasts cooler.'),
-      timeNote: L('总时间常见约 2:30–3:30，作为参考而非目标。', 'Total time commonly about 2:30–3:30 — a reference, not a target.'),
+      timeNote: L('单杯总时间常见约 2:30–4:00（经验范围，随滤杯和手法变化），作为参考而非目标。', 'Single-cup total time commonly about 2:30–4:00 (rule of thumb; varies with dripper and technique) — a reference, not a target.'),
     },
     steps: [
       L('滤纸放入滤杯，用热水润湿并预热，倒掉这部分水。', 'Place the filter, rinse it with hot water to preheat, and discard that water.'),
@@ -751,7 +751,7 @@ export const drinks: DrinkRecipe[] = [
     equipment: ['moka-pot', 'grinder', 'scale', 'kettle', 'espresso-cup'],
     recipe: {
       summary: L(
-        '示例（3 杯份壶）：约 15–17 克中细研磨咖啡装满粉槽、不要压实；下壶加热水到安全阀下方。粉量和出液量取决于壶的大小。',
+        '示例（3 杯份壶）：约 15–17 克中细研磨咖啡装满粉槽、不要压实；下壶加热水到安全阀下方。粉量和液重取决于壶的大小。',
         'Illustrative (3-cup pot): about 15–17 g medium-fine coffee filling the basket level, not tamped; base filled with hot water to just below the safety valve. Amounts depend on pot size.',
       ),
       doseG: 16,
@@ -857,7 +857,7 @@ export const drinks: DrinkRecipe[] = [
     id: 'yuenyeung',
     category: 'regional',
     name: L('鸳鸯（咖啡奶茶）', 'Yuenyeung (coffee + milk tea)'),
-    tagline: L('港式奶茶与咖啡混合，茶香与咖啡香各占一半，冷热皆宜。', 'Hong Kong-style milk tea blended with coffee — tea and coffee in one cup, hot or iced.'),
+    tagline: L('港式奶茶与咖啡混合，茶香与咖啡香同在一杯，冷热皆宜。', 'Hong Kong-style milk tea blended with coffee — tea and coffee in one cup, hot or iced.'),
     origin: L(
       '香港茶餐厅文化，20 世纪中叶流行；具体由谁首创说法不一。',
       'Hong Kong cha chaan teng culture, popular since the mid-20th century; who first made it is uncertain.',

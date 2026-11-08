@@ -25,7 +25,7 @@ describe('brew companions are attached from the real content', () => {
   });
 
   it('atlas espresso drinks: the extraction step(s), with the drink’s own time note when it has one', () => {
-    expect(plan('drink:espresso-shot').companion).toMatchObject({ kind: 'shot-timer', groups: [['s4', 's5']], targetOutG: 36, referenceSec: [25, 30], referenceFrom: 'recipe' });
+    expect(plan('drink:espresso-shot').companion).toMatchObject({ kind: 'shot-timer', groups: [['s4', 's5']], targetOutG: 36, referenceSec: [25, 35], referenceFrom: 'recipe' });
     expect(plan('drink:ristretto').companion).toMatchObject({ groups: [['s3']], targetOutG: 24, referenceSec: [20, 30] });
     expect(plan('drink:lungo').companion).toMatchObject({ targetOutG: 54, referenceSec: [30, 45] });
     expect(plan('drink:caffe-latte').companion).toMatchObject({ kind: 'shot-timer', groups: [['s2']], referenceSec: [25, 35], referenceFrom: 'common' });

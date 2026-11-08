@@ -120,7 +120,7 @@ describe('journal dial-in chart', () => {
     log('2026-11-02T08:00:00Z', { drinkId: 'pourover-cone', doseG: 15, outG: 240, timeSec: 170 });
     renderJournal('/journal?drink=pourover-cone');
     const chart = screen.getByTestId('dialin');
-    expect(chart).toHaveTextContent('about 1:15–1:17 in 2:30–3:30 total');
+    expect(chart).toHaveTextContent('about 1:15–1:17 in 2:30–4:00 total');
     expect(chart).toHaveTextContent('Latest: 2:50 at 1:16.0');
   });
 });

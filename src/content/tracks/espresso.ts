@@ -1679,8 +1679,8 @@ export const activities: Activity[] = [
       {
         heading: L('常见奶咖一览', 'Milk drinks at a glance'),
         body: L(
-          '卡布奇诺：意式 + 奶 + 较厚的奶泡。拿铁：意式 + 更多牛奶、较薄的奶泡，杯子更大。澳白（Flat White，也译“馥芮白”）：较少的牛奶和很薄、丝滑的奶泡，咖啡味更突出。可塔朵（Cortado）：意式加上大约等量的热牛奶。',
-          'Cappuccino: espresso, milk and a thicker foam layer. Latte: espresso with more milk and thinner foam, in a bigger cup. Flat white: less milk with a thin, silky foam, so the coffee stands out. Cortado: espresso cut with roughly equal warm milk.',
+          '卡布奇诺：意式 + 奶 + 较厚的奶泡。拿铁：意式 + 更多牛奶、较薄的奶泡，杯子更大。澳白（Flat White，也译“馥芮白”）：通常杯子比拿铁小、牛奶更少，奶泡很薄、丝滑，咖啡味更突出。可塔朵（Cortado）：意式加上大约等量的热牛奶。',
+          'Cappuccino: espresso, milk and a thicker foam layer. Latte: espresso with more milk and thinner foam, in a bigger cup. Flat white: usually a smaller cup than a latte, so less milk, with thin, silky foam — the coffee stands out. Cortado: espresso cut with roughly equal warm milk.',
         ),
         illustration: 'milk-drinks',
         callout: {

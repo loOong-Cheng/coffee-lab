@@ -39,11 +39,11 @@ describe('zoneFor (illustrative common starting zone from the curriculum)', () =
     expect(zoneFor({ drinkId: 'lungo', category: 'espresso' })).toMatchObject({ timeSec: [30, 45], ratio: [2.5, 3] });
   });
 
-  it('pour-over: 1:15–1:17, cone 2:30–3:30, Chemex 4–5 min; labelled illustrative; none for other drinks', () => {
+  it('pour-over: 1:15–1:17, cone 2:30–4:00, Chemex 4–5 min; labelled illustrative; none for other drinks', () => {
     const z = zoneFor({ drinkId: 'pourover-cone', category: 'pourover' });
-    expect(z).toMatchObject({ timeSec: [150, 210], ratio: [15, 17] });
+    expect(z).toMatchObject({ timeSec: [150, 240], ratio: [15, 17] });
     expect(z?.basis.en).toMatch(/illustrative/i);
-    expect(z?.basis.en).toContain('2:30–3:30');
+    expect(z?.basis.en).toContain('2:30–4:00');
     expect(zoneFor({ drinkId: 'chemex-brew', category: 'pourover' })).toMatchObject({ timeSec: [240, 300] });
     expect(zoneFor({ drinkId: 'french-press-coffee', category: 'immersion' })).toBeNull();
     expect(zoneFor({ drinkId: 'my own thing' })).toBeNull();
