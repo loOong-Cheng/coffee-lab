@@ -165,3 +165,14 @@ describe('loadState', () => {
     expect(loadState(storage).status).toBe('recovered');
   });
 });
+
+describe('journal timeSource (lead)', () => {
+  const base = { id: 'j1', evidence: 'self_report', drinkId: 'espresso-shot', createdAt: '2026-11-08T01:00:00.000Z', timeSec: 28 };
+  it('keeps a valid timeSource and drops invalid ones; entry evidence stays self_report', () => {
+    const ok = migrate({ ...createDefaultState('en'), journal: [{ ...base, timeSource: 'app-timer' }] });
+    expect(ok.journal[0]?.timeSource).toBe('app-timer');
+    expect(ok.journal[0]?.evidence).toBe('self_report');
+    const bad = migrate({ ...createDefaultState('en'), journal: [{ ...base, timeSource: 'sensor' }] });
+    expect(bad.journal[0]?.timeSource).toBeUndefined();
+  });
+});

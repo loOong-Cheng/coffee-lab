@@ -169,6 +169,7 @@ export function validateJournalEntry(v: unknown): BrewLogEntry | null {
   if (nextChange !== undefined) entry.nextChange = nextChange;
   const attemptOf = optStr(v.attemptOf);
   if (attemptOf !== undefined) entry.attemptOf = attemptOf;
+  if (v.timeSource === 'app-timer' || v.timeSource === 'self_report') entry.timeSource = v.timeSource;
   return entry;
 }
 

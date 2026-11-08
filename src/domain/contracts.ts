@@ -380,6 +380,12 @@ export interface BrewLogEntry {
   doseG?: number;
   outG?: number;
   timeSec?: number;
+  /**
+   * Who measured timeSec. 'app-timer' = the app timed the interval between the learner's own start/stop taps
+   * (the one legitimate observed_by_app value); absent or 'self_report' = typed by the learner. The entry as a
+   * whole stays evidence 'self_report'.
+   */
+  timeSource?: 'app-timer' | 'self_report';
   grind?: string;
   tasteTags?: string[];
   /** Learner's own 1–5 enjoyment rating. */
