@@ -1,6 +1,6 @@
 # Delivery Report — Coffee Lab · 咖啡实验室
 
-**Status:** working product, P0 scope met in browser (see evidence); XR **hardware-unverified**. This report is updated at each milestone — *last full verification: see "Tests" below.*
+**Status (final, 2026-11-08):** working product on `main` @ `773a388`; P0 scope met in browser with automated evidence; XR **hardware-unverified**. Unfinished work is preserved on branch `wip/phase5-unfinished` (not merged, not verified).
 **Canonical brief:** `COFFEE_LAB_HANDOFF.md` · decisions: `docs/DECISIONS.md` · state: `docs/EXECUTION_STATE.md` · QA: `reports/QA_LOG.md`.
 
 ## What a new user can do
@@ -10,10 +10,12 @@
 4. **Log real cups:** dose / yield / time / grind / taste tags / own rating → correct ratio, a modest one-change suggestion with a caveat, "log another attempt", side-by-side attempt comparison in the **journal**.
 5. **Explore all coffee types:** **Drink Atlas** of 29 drinks (espresso, milk drinks, pour-over, immersion, moka, cold, regional: Turkish, Vietnamese phin, yuenyeung, café de olla, qahwa, …) with origin/culture notes (legends flagged as legends), illustrative recipes, gear you own vs. need, related lessons, and "Make it now" in kitchen mode.
 6. **Play Café Counter:** customers order; build 19 drinks from 7 stations; feedback explains *what differs and why* (and spots when you built a different textbook drink); 3 levels (espresso bar, milk classics, world café); tiers; drinks-mastered collection.
-7. **XR Lab (optional):** the *espresso-first-shot* mission (13 steps: grab portafilter, dose, tamp, lock in, cup, tare, brew, stop near target yield, serve, knock out, flush) playable in **WebXR** where supported, as a **3D scene with mouse/touch**, or via a **keyboard/screen-reader action list**. Records evidence `simulated` and states what it does not train (grip force, haptics, heat, taste). More missions: see "Known limitations".
-8. **Sound & music:** original procedural SFX and generative café music (off by default; mood + volume in Settings).
-9. **Offline / install:** production build is a PWA; after the first load lessons, kitchen mode, journal, atlas and settings work offline.
-10. **Your data stays on the device:** export / import / reset in Settings; no account, no network calls at runtime.
+7. **Brew companions (phone, real gear):** espresso shot stopwatch (carries the measured seconds into the log as "Timed in app" — the only app-measured value; the rest is self-reported), pour-over pour-schedule companion ("a schedule, not a measurement"), and a dial-in chart (time vs ratio, illustrative zone, table alternative) in the journal.
+8. **Coffee Culture Explorer (`/culture`):** original hand-drawn world map with 34 places (origins, producers, coffeehouse cities, drink cultures) and a 37-event history timeline; legends and disputed dates badged; colonial/enslaved-labour history stated factually; optional matching music mood.
+9. **XR Lab (optional):** the *espresso-first-shot* mission (13 steps: grab portafilter, dose, tamp, lock in, cup, tare, brew, stop near target yield, serve, knock out, flush) playable in **WebXR** where supported, as a **3D scene with mouse/touch**, or via a **keyboard/screen-reader action list**. Records evidence `simulated` and states what it does not train (grip force, haptics, heat, taste). More missions: see "Known limitations".
+10. **Sound & music:** original procedural SFX and a generative café-music composer (off by default) with 6 moods incl. culture-inspired bossa / kissa / espresso-bar; header music control; WAV previews in `reports/audio/` (`reports/AUDIO_QA.md`).
+11. **Offline / install:** production build is a PWA; after the first load lessons, kitchen mode, journal, atlas and settings work offline.
+12. **Your data stays on the device:** export / import / reset in Settings; no account, no network calls at runtime.
 
 ## How to launch
 ```sh
@@ -30,11 +32,11 @@ Requires Node ≥ 22.22 (built on Node 24.19 / npm 11.17 / Windows 11).
 ## Tests and supported devices
 | Kind | Result | Notes |
 |---|---|---|
-| Typecheck (`npm run typecheck`) | PASS | app + configs + e2e |
-| Unit (`npm test`) | PASS — see EXECUTION_STATE for latest count | domain math, migration/corruption, selectors, activities, practice, journal advice, café specs, XR state machine (incl. 200-seed fuzz), audio no-throw, UI a11y behaviors, content integrity |
+| Typecheck (`npm run typecheck`) | PASS @ 773a388 | app + configs + e2e |
+| Unit (`npm test`) | PASS 480/480 (50 files) @ 773a388 | domain math, migration/corruption, selectors, activities, practice, journal advice, café specs, XR state machine (incl. 200-seed fuzz), audio no-throw, UI a11y behaviors, content integrity |
 | Production build | PASS | Babylon only in lazy `/xr` chunks (e2e-asserted) |
-| E2E product suites | PASS on desktop + mobile Chromium | smoke, learn, practice, cafe, offline (PWA) |
-| Independent QA gate #1 (`tests/e2e/qa-*`) | 178 pass / 12 skip (2 identical runs) | phone-only + desktop-only scenarios, XR fallback, failure handling, axe WCAG A/AA on 17 screens × themes × viewports, zh pass, content honesty |
+| E2E — all suites (`npx playwright test`) | **246 passed / 14 skipped / 0 failed** @ 773a388 (desktop 1280×800 + Pixel 7; skips are viewport-scoped tests) | smoke, shell, learn, practice, brew, cafe, culture, offline (PWA) + independent QA suites |
+| Independent QA gate #1 (`tests/e2e/qa-*`) | 178 pass / 12 skip (2 identical runs); bugs QA-01…09 fixed except QA-05 | | phone-only + desktop-only scenarios, XR fallback, failure handling, axe WCAG A/AA on 17 screens × themes × viewports, zh pass, content honesty |
 | **Real phone** | **NOT TESTED by agents** | user can test via `npm run dev:lan` |
 | **XR headset** | **NOT TESTED — no headset available** | WebXR controller code, comfort, frame rate are hardware-unverified; 3D fallback verified in headless Chromium (software WebGL) |
 | **Audio by ear** | **NOT HEARD by a human** | only no-throw/scheduling tests and (if present) `reports/AUDIO_QA.md` render metrics |
@@ -45,7 +47,11 @@ Requires Node ≥ 22.22 (built on Node 24.19 / npm 11.17 / Windows 11).
 - No human coffee-expert or native-speaker review of zh/en content; some figures are rules of thumb (labeled) and some history is disputed/legendary (labeled) — see `docs/CONTENT_SOURCES*.md`.
 - Taste, extraction and pour models are **illustrative**, never predictions; real-world steps are self-reported, never sensed.
 - Secure-context features (PWA, wake lock, WebXR) don't work over plain-HTTP LAN; see README for options (none set up).
-- Open QA items: see `reports/QA_LOG.md` (P2s being fixed at time of writing).
+- **Open QA item:** QA-05 (P2) — some XR intro links are ~25 px tall on phones (fix was in the unfinished XR branch).
+- **Unfinished, on branch `wip/phase5-unfinished` (NOT merged, NOT verified):** XR mission picker + *station-tour* + *pourover-bloom* missions (mid-refactor of the XR scene), glossary page + inline term help (UI started; glossary data file not written), `docs/CONTENT_CONSISTENCY.md` report. The consistency *fixes* themselves were verified and merged (`773a388`).
+- Independent QA gate #2 on the final build was not run; the lead's final full e2e run is the last evidence.
+- Music loudness: focus/lab/kissa moods are 2–4 LU quieter than others; mixes may sound dull on phone speakers (needs a human listen).
+- A real phone, Safari/Firefox, and screen readers (NVDA/VoiceOver) were not tested.
 
 ## Assets, licensing, content sources
 - All illustrations, icons, app icons, 3D props and audio are **original** (hand-written SVG / procedural Babylon meshes / Web Audio synthesis). No third-party images, models, fonts or audio files.
@@ -59,9 +65,10 @@ Requires Node ≥ 22.22 (built on Node 24.19 / npm 11.17 / Windows 11).
 
 ## Run limits / interruptions / time worked
 - Single session started 2026-11-07 ~23:25 local, orchestrated by a lead planner with specialist subagents (architect, 2 curriculum, designer, XR, 3 web engineers, QA). No deploys, pushes, purchases or paid APIs.
-- Interruptions: none blocking so far. Concurrent-agent Playwright runs collided on a shared port early on → fixed with `E2E_PORT/E2E_DIST/E2E_OUT` isolation.
+- Ended 2026-11-08 ~04:00 local when the account's **5-hour usage limit** was hit (HTTP 429 on two running workers) and the user asked to conclude. Roughly 4.5 h of active work; not a continuous 8 h.
+- Concurrent-agent Playwright runs collided on a shared port early on → fixed with `E2E_PORT/E2E_DIST/E2E_OUT` isolation.
 
 ## Next three improvements
-1. Test on the user's real phone (kitchen mode with their espresso machine / pour-over kit) and fix what the real kitchen reveals.
-2. Headset verification of the XR controller interactions, comfort and frame rate.
-3. Expert + native-speaker review of the zh/en curriculum; then expand dial-in and milk-texture practice.
+1. Finish and verify `wip/phase5-unfinished`: XR mission picker + station-tour + pourover-bloom (and QA-05), glossary data + inline term help; then run an independent QA gate #2.
+2. Real-world check on the user's phone with their espresso machine / pour-over kit (`npm run preview:lan`, or `adb reverse` for secure-context features) and a headset test of the XR controller code.
+3. Human review: listen to `reports/audio/` WAVs and even out mood loudness; expert + native-speaker review of the zh/en curriculum and culture claims.

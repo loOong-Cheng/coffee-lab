@@ -5,8 +5,9 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**Phase 5 — learning quality (2026-11-08 ~03:10, ~3.75h into window).** New since phase 4: culture map/timeline data `84f1b10`, Culture Explorer `/culture` `b6dafce`, `BrewLogEntry.timeSource` contract, brew companions (shot timer, pour schedule, dial-in chart) `40db012`, GlossaryTerm contract.
-Running: xr-engineer (mission picker + station-tour + pourover-bloom + QA-05 — long-running), curriculum (cross-module consistency audit + glossary data), web engineer F (glossary page + inline term help).
+**SESSION ENDED (2026-11-08 ~04:00)** — account 5-hour usage limit hit (HTTP 429 on workers) and user asked to conclude. `main` @ `773a388` is green and runnable.
+Final lead verification @ 773a388: typecheck ✓ · unit 480/480 ✓ · build ✓ · **e2e 246 passed / 14 viewport-scoped skips / 0 failed** (desktop 1280×800 + Pixel 7).
+**Unfinished work saved on branch `wip/phase5-unfinished` (`856aa98`, NOT verified, NOT merged):** XR mission picker + station-tour + pourover-bloom (XR scene refactor in progress; includes QA-05 fix attempt and edits to offline/qa-scenarios specs), glossary UI (`src/features/glossary`, route + ExplainView/LessonIntro wiring) — glossary DATA (`src/content/glossary.ts`) never written. Content-consistency fixes from that branch were verified and merged to main (`773a388`).
 
 ## Working user-visible flows (evidence = lead re-run at af54ea0)
 - [x] Onboarding (skip/edit) and course navigation; desktop course map vs phone "today" home — e2e learn.spec (desktop+mobile)
@@ -21,10 +22,10 @@ Running: xr-engineer (mission picker + station-tour + pourover-bloom + QA-05 —
 - Typecheck: PASS · Unit: PASS 309/309 (31 files) · Build: PASS · E2E: 30 PASS / 2 intentional skips (desktop 1280×800 + Pixel 7, isolated port 4180)
 - Actual headset: **NOT TESTED — no headset available (U2)** · Real phone: NOT TESTED by agents (user can via `npm run dev:lan`)
 
-## Next 3 tasks
-1. Integrate XR phase 3 (+ add spatial-practice activities `esp-meet-the-machine-xr`, `po-ratio-bloom-xr` to content) and wave 4 (culture explorer, brew companions) → full suite → commit.
-2. QA gate #2 (quality-guardian) on the integrated build incl. new routes /cafe, /culture, XR picker; commit refreshed screenshots.
-3. Finalize README layout section + DELIVERY.md numbers; anti-drift audit.
+## Next 3 tasks (on resume)
+1. `git checkout wip/phase5-unfinished`; resume/finish XR phase 3 (picker + 2 missions + QA-05) and make full suite green; write `src/content/glossary.ts`, finish glossary UI; merge to main only after typecheck/unit/build/full e2e pass.
+2. Independent QA gate #2 (quality-guardian) on the merged build; refresh `reports/screenshots/`.
+3. Human-in-the-loop items: real phone kitchen test, headset test, listen to `reports/audio/`, expert/native review.
 
 ## Blockers / unverified assumptions
 - No headset → XR hardware-unverified by design.

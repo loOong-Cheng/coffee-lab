@@ -107,3 +107,16 @@ Not bugs (checked): kitchen-mode stopwatch under the sticky action bar is reacha
 | QA-08 "mastered" overstated | P2 | `b5547ae` (mastered = independent-tier checks only) | home/lesson tests |
 
 Lead verification at `b5547ae`: typecheck ✓, unit 414/414 ✓, shell + smoke e2e 24 pass / 2 viewport skips ✓. Fixer reported full e2e 230 pass / 14 skip / 0 fail (desktop + mobile) on the integrated tree.
+
+## Final lead verification (2026-11-08 ~04:00) — `main` @ `773a388`
+
+| Check | Result |
+|---|---|
+| `npm run typecheck` | PASS |
+| `npx vitest run` | PASS 480/480 (50 files) |
+| `npm run build` | PASS |
+| `npx playwright test` (all suites, isolated `E2E_PORT=4199`) | **246 passed, 14 skipped (viewport-scoped), 0 failed** — desktop 1280×800 + Pixel 7 Chromium |
+| XR on headset | **NOT TESTED — no headset** |
+| Real phone | NOT TESTED by agents |
+
+Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverified branch `wip/phase5-unfinished`. QA gate #2 not run (session ended at usage limit).

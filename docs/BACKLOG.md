@@ -13,21 +13,27 @@ Status: DONE / PARTIAL / TODO / BLOCKED.
 - [x] DONE (hardware-unverified) — XR espresso mission 13 steps, fallback 3D + action list `3952165` (46 tests)
 - [x] DONE (pending QA) — Guidance tiers: sequence/quiz/identify/ratio lab, kitchen mode, XR
 - [x] DONE (pending QA) — Shared local persistence, provenance (CONTRACTS §9), recovery, export/import/reset `af54ea0`
-- [ ] PARTIAL — Unit 309 ✓, e2e 30 ✓, build ✓ — independent QA gate running
-- [ ] PARTIAL — Sources/safety, README, honest delivery report — CONTENT_SOURCES(+_ATLAS).md done; README initial; DELIVERY TODO
+- [x] DONE — Unit 480 ✓, e2e 246 pass/0 fail (incl. independent QA suites), build ✓ @ `773a388`
+- [x] DONE — Sources/safety docs, README, final `reports/DELIVERY.md`
 
 ## P1 — after P0 stable
 - [x] DONE (pending QA) — Complete pour-over path — 4 lessons playable + kitchen guide `af54ea0`
 - [x] DONE (pending QA) — Espresso fault diagnosis — 7 scenarios with best/reasonable/unhelpful feedback + caveats `af54ea0`
 - [x] DONE — Tasting tags + attempts compare in journal `af54ea0`; sensory side-by-side guide in explore track
 - [ ] PARTIAL — Animations/audio/comfort — SFX + music wired to prefs incl. mood `af54ea0` (unheard by a human)
-- [ ] TODO — Cross-mode recommendations based on user capability
-- [ ] PARTIAL — Localization (zh/en done in content + shell), offline/PWA TODO, extended accessibility audit TODO
+- [ ] PARTIAL — Cross-mode recommendations: home is mode-conditioned (desktop map vs phone 'today', XR support shown honestly); no explicit cross-device suggestion engine
+- [x] DONE — zh/en everywhere; offline PWA `411315b`; axe WCAG A/AA on 17+ screens (screen readers not tested by a human)
 - [x] DONE (pending QA) — **User-requested breadth (U3):** Drink Atlas UI (29 drinks, culture notes, gear owned/missing, make-it) + culture/explore tracks `af54ea0`
 - [x] DONE — Café Counter: 19 drinks, 3 levels, tiers, explanatory feedback `ec1dcad`
 - [x] DONE — Offline/PWA (hand-written SW, offline e2e) `411315b`
 - [x] DONE (unheard by a human) — Culture-inspired music moods bossa/kissa/bar + generative composer + render QA `81fe1d3` (`reports/AUDIO_QA.md`)
 - [ ] TODO (P2) — Even out quieter moods (focus/lab/kissa are 2–4 LU below others); human listening pass on phone speakers
+
+## Unfinished (branch `wip/phase5-unfinished`, not verified)
+- [ ] PARTIAL — XR mission picker + station-tour + pourover-bloom missions; QA-05 XR phone link size
+- [ ] PARTIAL — Glossary page + inline term help (UI started; data file missing)
+- [ ] PARTIAL — Content consistency report `docs/CONTENT_CONSISTENCY.md` (fixes merged `773a388`; report not written)
+- [ ] TODO — Independent QA gate #2
 
 ## P2 — optional if time
 - [ ] TODO — Data-only future skill schema validation and example generator prompt
