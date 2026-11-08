@@ -95,8 +95,9 @@ function coffeeLabServiceWorker(): Plugin {
 export default defineConfig({
   base: './',
   plugins: [react(), coffeeLabServiceWorker()],
-  server: { port: 5173 },
-  preview: { port: 4173 },
+  // '.ts.net': allow the Tailscale MagicDNS name when proxied by `tailscale serve` (tailnet-only HTTPS).
+  server: { port: 5173, allowedHosts: ['.ts.net'] },
+  preview: { port: 4173, allowedHosts: ['.ts.net'] },
   build: {
     target: 'es2022',
     sourcemap: true,
