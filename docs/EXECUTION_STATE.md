@@ -5,29 +5,27 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**Phase 2 (2026-11-08 ~00:25).** Committed: foundation `0928779`, content `16552d5` (24 lessons/100 activities, 29 drinks, 39 equipment; 31 content tests), design system + audio `6e4ddbd` (36 tests), XR espresso mission `3952165` (46 tests; browser fallback verified by worker via headless Chromium drags; WebXR HARDWARE-UNVERIFIED).
-Running: web-engineer A (onboarding/home/lesson player/activities/shell), web-engineer B (kitchen mode/journal/atlas/settings), xr-engineer phase 3 (mission picker + station-tour + pourover-bloom).
+**Phase 3 — QA fixes + P1 breadth (2026-11-08 ~01:45).** Commits since af54ea0: `411315b` PWA, `a18b5f2`/`449dec7` PWA notices + mobile toast fix (QA-02/04), `ec1dcad` Café Counter, `eb276e7` QA gate #1 suites (178 pass/12 skip ×2), DELIVERY.md draft (QA-09).
+QA gate #1 verdict: P0 met except QA-02 (fixed 449dec7) + QA-09 (draft written). Open P2s QA-01/03/05/06/07/08 assigned.
+Running: web fixer (QA-01/03/06/07/08 + lesson resume + small-phone nav), xr-engineer (mission picker + station-tour + pourover-bloom + QA-05 + keep offline/smoke XR steps green), experience-designer (music variety/culture moods, MusicControl, audio render QA).
 
-## Working user-visible flows
-- [ ] Onboarding and course navigation
-- [ ] Desktop lesson and interaction loop
-- [ ] Mobile real-world step guide + journal
-- [~] XR scene with meaningful interaction — espresso mission playable in 3D fallback (mouse/touch/action list); VR controllers hardware-unverified
-- [ ] Persisted shared progress
-- [ ] Drink Atlas + culture track
-- [ ] Music + SFX
+## Working user-visible flows (evidence = lead re-run at af54ea0)
+- [x] Onboarding (skip/edit) and course navigation; desktop course map vs phone "today" home — e2e learn.spec (desktop+mobile)
+- [x] Desktop lesson loop: 9 activity kinds, misconception feedback, guidance tiers in sequence/quiz/identify/ratio lab — unit + e2e (wrong→right quiz → completion persists)
+- [x] Mobile real-world kitchen guide + brew log + one-change advice + journal (self-reported) — e2e practice.spec (desktop+mobile)
+- [~] XR espresso mission: playable via 3D mouse/touch + accessible action list (worker headless-Chromium run); **WebXR VR hardware-unverified**
+- [x] Persisted shared progress (reload, resume practice) — e2e
+- [x] Drink Atlas (29 drinks, culture notes, gear owned/missing, "Make it now") + culture track via lesson player
+- [~] Music + SFX: engine wired to prefs (sfx/music/volume/mood); **never listened to by a human**
 
-## Verification
-- Build: PASS (foundation, 23:47)
-- Unit tests: PASS 74/74 (foundation)
-- Desktop browser smoke: PASS (shell only — placeholders)
-- Mobile viewport smoke: PASS (shell only — placeholders)
-- Actual headset: **NOT TESTED — no headset available (U2)**
+## Verification (lead, af54ea0)
+- Typecheck: PASS · Unit: PASS 309/309 (31 files) · Build: PASS · E2E: 30 PASS / 2 intentional skips (desktop 1280×800 + Pixel 7, isolated port 4180)
+- Actual headset: **NOT TESTED — no headset available (U2)** · Real phone: NOT TESTED by agents (user can via `npm run dev:lan`)
 
 ## Next 3 tasks
-1. Integrate web A + web B handbacks → run full typecheck/test/build/e2e → commit.
-2. quality-guardian independent QA gate (P0 acceptance, product smoke scenario §12, a11y, honesty) + XR e2e via `?xrtest`.
-3. Lead: add spatial-practice activities `esp-meet-the-machine-xr` / `po-ratio-bloom-xr` to content when XR phase 3 lands; fix QA P0/P1 bugs via owners.
+1. Integrate fixer + XR + audio handbacks → full suite (unit + all e2e incl. qa-*) → commit.
+2. Lead: add spatial-practice activities `esp-meet-the-machine-xr` / `po-ratio-bloom-xr` to content; mount MusicControl; extend `musicMood` union if designer adds moods.
+3. QA gate #2 on the integrated build; finalize DELIVERY.md numbers.
 
 ## Blockers / unverified assumptions
 - No headset → XR hardware-unverified by design.

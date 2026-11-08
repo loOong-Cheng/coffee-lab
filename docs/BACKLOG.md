@@ -5,25 +5,27 @@ Status: DONE / PARTIAL / TODO / BLOCKED.
 
 ## P0 — end-to-end product
 - [x] DONE — Working Vite/TypeScript web app with build/typecheck/test commands — `0928779`; lead re-ran typecheck/test/build/e2e green
-- [ ] PARTIAL — Branded accessible responsive UI, onboarding and course map — tokens/primitives/diagrams `6e4ddbd`; screens in progress (web A)
-- [ ] PARTIAL — At least three complete coffee beginner modules — content for 13 core lessons `16552d5` (31 integrity tests); needs UI (web A)
-- [ ] PARTIAL — Complete Espresso beginner path with real interactive activities — content done; activity UI in progress (web A)
-- [ ] TODO — Desktop-specific 2D/diagram/animation learning interactions — web A
-- [ ] TODO — Mobile touch-specific real-world practice guide with self-report and notes — web B
-- [ ] TODO — XR scene with meaningful grab/attach/progress sequence, fallback if unavailable — xr-engineer (state machine in progress)
-- [ ] TODO — Guidance reduction in at least two contexts — web A (sequence/quiz), web B (kitchen mode), XR tiers
-- [x] DONE (infra) — Shared local persistence, progress provenance, recovery — `src/state` migrate/corruption/storage-unavailable tests; UI wiring pending
-- [ ] PARTIAL — Unit tests, desktop/mobile smoke, build green, no fatal core bugs — infra + shell smoke only
+- [x] DONE (pending QA) — Branded accessible responsive UI, onboarding and course map — `6e4ddbd` + `af54ea0`; e2e learn.spec desktop+mobile
+- [x] DONE (pending QA) — ≥3 complete beginner modules — 13 core lessons playable `af54ea0`
+- [x] DONE (pending QA) — Complete Espresso path (machine → workflow → ratio lab → diagnosis → first real shot → milk) `af54ea0`
+- [x] DONE (pending QA) — Desktop 2D: station diagrams w/ hotspots, sequence, ratio/extraction labs, diagnose `af54ea0`
+- [x] DONE (pending QA) — Mobile kitchen mode + self-reported brew log + journal `af54ea0` (e2e practice.spec)
+- [x] DONE (hardware-unverified) — XR espresso mission 13 steps, fallback 3D + action list `3952165` (46 tests)
+- [x] DONE (pending QA) — Guidance tiers: sequence/quiz/identify/ratio lab, kitchen mode, XR
+- [x] DONE (pending QA) — Shared local persistence, provenance (CONTRACTS §9), recovery, export/import/reset `af54ea0`
+- [ ] PARTIAL — Unit 309 ✓, e2e 30 ✓, build ✓ — independent QA gate running
 - [ ] PARTIAL — Sources/safety, README, honest delivery report — CONTENT_SOURCES(+_ATLAS).md done; README initial; DELIVERY TODO
 
 ## P1 — after P0 stable
-- [ ] PARTIAL — Complete pour-over path — content done (4 lessons incl. real-cup guide + iterate diagnose)
-- [ ] PARTIAL — Espresso fault diagnosis challenge with branches — content: 7 scenarios; UI pending
-- [ ] TODO — Sensory/tasting journal and repeat attempts — web B (journal + attemptOf)
-- [ ] PARTIAL — Satisfying animations/audio/comfort controls — procedural SFX + music engine `6e4ddbd` (unheard by a human); wiring pending
+- [x] DONE (pending QA) — Complete pour-over path — 4 lessons playable + kitchen guide `af54ea0`
+- [x] DONE (pending QA) — Espresso fault diagnosis — 7 scenarios with best/reasonable/unhelpful feedback + caveats `af54ea0`
+- [x] DONE — Tasting tags + attempts compare in journal `af54ea0`; sensory side-by-side guide in explore track
+- [ ] PARTIAL — Animations/audio/comfort — SFX + music wired to prefs incl. mood `af54ea0` (unheard by a human)
 - [ ] TODO — Cross-mode recommendations based on user capability
 - [ ] PARTIAL — Localization (zh/en done in content + shell), offline/PWA TODO, extended accessibility audit TODO
-- [ ] PARTIAL — **User-requested breadth (U3):** Drink Atlas 29 drinks + 39 equipment + culture track content `16552d5`; Atlas UI in progress (web B)
+- [x] DONE (pending QA) — **User-requested breadth (U3):** Drink Atlas UI (29 drinks, culture notes, gear owned/missing, make-it) + culture/explore tracks `af54ea0`
+- [ ] TODO — Simple virtual café orders (Café Counter) — web C running
+- [ ] TODO — Offline/PWA — architect running
 - [ ] TODO — Culture-linked music moods (e.g. espresso bar / kissaten / ceremony) — idea for user's music+culture interest
 
 ## P2 — optional if time
