@@ -15,6 +15,7 @@ import { BrewLogForm } from './BrewLogForm';
 import { attemptNumber, changedVariableCount, compareAttempts, partiallyLoggedCount, entryRatio, findEntry, laterAttempts, previousAttempt, type CompareRow } from './model';
 import { tasteLabel } from './taste';
 import { formatWhen } from './format';
+import { timeSourceForSave, timeSourceOf } from './timeSource';
 
 const S = {
   back: { zh: '← 全部记录', en: '← All cups' },
@@ -64,6 +65,11 @@ const S = {
   delBody: { zh: '删除后无法恢复（除非你导出过数据）。', en: 'This can’t be undone (unless you exported your data).' },
   deleted: { zh: '已删除。', en: 'Deleted.' },
   logged: { zh: '记录于', en: 'Logged' },
+  timed: { zh: '应用计时', en: 'Timed in app' },
+  timedNote: {
+    zh: '时间由应用在你点“开始”和“停止”之间测得；其余数值都是你自己的报告。',
+    en: 'The time was measured by the app between your own Start and Stop taps; every other value is your own report.',
+  },
 };
 
 const FIELD_LABEL: Record<CompareRow['field'], keyof typeof S> = {
@@ -110,6 +116,7 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
 
   const espresso = ctx.brewKind === 'espresso';
   const ratio = entryRatio(entry);
+  const timedInApp = timeSourceOf(entry) === 'app-timer';
   const advice = suggestNextChange({
     kind: ctx.brewKind,
     doseG: entry.doseG,
@@ -180,9 +187,10 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
             fields={['doseG', 'outG', 'timeSec', 'grind', 'taste', 'rating', 'notes']}
             brewKind={ctx.brewKind}
             initial={entry}
+            initialTimedInApp={timedInApp}
             showNextChange
             submitLabel={t(S.saveEdit)}
-            onSubmit={(v) => {
+            onSubmit={(v, meta) => {
               const patch: Partial<BrewLogEntry> = {
                 doseG: v.doseG,
                 outG: v.outG,
@@ -192,6 +200,8 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
                 rating: v.rating,
                 notes: v.notes,
                 nextChange: v.nextChange,
+                // An untouched app-timed value stays 'app-timer'; any edited/typed time is the learner's own report.
+                timeSource: timeSourceForSave(v.timeSec, meta.timeTimedInApp),
               };
               learnerActions.updateJournalEntry(entry.id, patch);
               setEditing(false);
@@ -223,7 +233,17 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
             </div>
             <div>
               <dt>{t(S.time)}</dt>
-              <dd className="cl-num">{entry.timeSec != null ? formatClock(entry.timeSec * 1000) : <span className="cl-muted">{t(S.none)}</span>}</dd>
+              <dd className="cl-num">
+                {entry.timeSec != null ? formatClock(entry.timeSec * 1000) : <span className="cl-muted">{t(S.none)}</span>}
+                {timedInApp && (
+                  <>
+                    {' '}
+                    <Tag tone="info" icon="clock" data-testid="entry-time-source">
+                      {t(S.timed)}
+                    </Tag>
+                  </>
+                )}
+              </dd>
             </div>
             {entry.grind && (
               <div>
@@ -239,6 +259,11 @@ export function EntryDetail({ entryId, fresh }: { entryId: string; fresh: boolea
             )}
           </dl>
           {ratio !== null && <p className="cl-muted jr-small">{t(espresso ? S.ratioNoteE : S.ratioNoteB)}</p>}
+          {timedInApp && (
+            <p className="jr-small jr-timed-note">
+              <EvidenceBadge kind="observed_by_app" locale={locale} /> {t(S.timedNote)}
+            </p>
+          )}
           {entry.tasteTags && entry.tasteTags.length > 0 && (
             <div className="jr-tags" aria-label={t(S.taste)}>
               {entry.tasteTags.map((x) => (

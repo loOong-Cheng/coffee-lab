@@ -6,25 +6,33 @@
  *   ?log=1&attemptOf=<id> log another attempt of an earlier cup
  *   ?drink=<id>           journal filtered by drink
  */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router';
 import { useDocumentTitle } from '../../app/useDocumentTitle';
 import type { DrinkCategory, LocalizedText } from '../../domain/contracts';
 import { formatRatio } from '../../domain/brew';
 import { useI18n } from '../../i18n';
-import { learnerActions, useLearner } from '../../state';
-import { Callout, Card, EmptyState, EvidenceBadge, Illustration, Tag } from '../../ui';
+import { getLearnerState, learnerActions, useLearner } from '../../state';
+import { Callout, Card, EmptyState, EvidenceBadge, Icon, Illustration, Tag } from '../../ui';
 import { CATEGORY_TEXT } from '../atlas/text';
 import { gearStatus } from '../atlas/filters';
 import { drinks, entryContext, entryDrinkLabel, getDrink, guidedPractices, lessonTitle, resolvePlan } from '../practice/catalog';
 import { formatClock } from '../practice/timer';
 import { BrewLogForm } from './BrewLogForm';
+import { DialInChart } from './DialInChart';
+import { pickDialInDrink } from './dialIn';
 import { EntryDetail } from './EntryDetail';
 import { formatWhen } from './format';
 import { attemptNumber, drinkIdsInJournal, entryRatio, filterByDrink, findEntry, sortNewestFirst } from './model';
 import { suggestNextChange } from './advice';
 import { tasteLabel } from './taste';
+import { migrateLegacyTimeSource, timeSourceOf } from './timeSource';
 import './journal.css';
+
+const isEspressoDrink = (id: string) => {
+  const c = getDrink(id)?.category;
+  return c === 'espresso' || c === 'espresso-milk';
+};
 
 const S = {
   title: { zh: '练习与冲煮日志', en: 'Practice & brew journal' },
@@ -60,6 +68,7 @@ const S = {
   noMatch: { zh: '这个饮品还没有记录。', en: 'No cups logged for this drink yet.' },
   showAll: { zh: '显示全部', en: 'Show all' },
   attempt: (n: number) => ({ zh: `第 ${n} 次`, en: `Attempt ${n}` }),
+  timedShort: { zh: '应用计时', en: 'timed in app' },
   next: { zh: '下次：', en: 'Next:' },
   openEntry: { zh: '查看', en: 'Open' },
   // new entry
@@ -81,6 +90,11 @@ const S = {
 
 export default function JournalPage() {
   const [params] = useSearchParams();
+  // One-time: fold the interim "timed in app" side key into the entries' timeSource field, then delete
+  // the key (later mounts find no key and return after a single storage read).
+  useEffect(() => {
+    migrateLegacyTimeSource(getLearnerState().journal, learnerActions.updateJournalEntry);
+  }, []);
   const entry = params.get('entry');
   if (entry) return <EntryDetail key={entry} entryId={entry} fresh={params.get('from') === 'practice' || params.get('from') === 'log'} />;
   if (params.get('log')) return <NewEntry key={params.toString()} attemptOf={params.get('attemptOf')} drinkParam={params.get('drink')} />;
@@ -108,6 +122,7 @@ function JournalHome({ drinkFilter }: { drinkFilter: string | null }) {
   const visible = filterByDrink(sorted, drinkFilter);
   const drinkOptions = drinkIdsInJournal(journal);
   const filterKnown = !drinkFilter || drinkOptions.some((d) => d.drinkId === drinkFilter);
+  const chartDrink = drinkFilter ?? pickDialInDrink(journal, isEspressoDrink);
 
   const firstGuide =
     guidedPractices.find((a) => a.id === (profile?.goal === 'pourover' ? 'po-first-real-cup-guide' : 'esp-first-real-shot-guide')) ?? guidedPractices[0];
@@ -193,6 +208,7 @@ function JournalHome({ drinkFilter }: { drinkFilter: string | null }) {
                 {!filterKnown && drinkFilter && <option value={drinkFilter}>{t(entryDrinkLabel({ drinkId: drinkFilter }))} (0)</option>}
               </select>
             </div>
+            {chartDrink && <DialInChart key={chartDrink} entries={journal} drinkId={chartDrink} auto={!drinkFilter} />}
             {visible.length === 0 ? (
               <p>
                 {t(S.noMatch)}{' '}
@@ -222,7 +238,17 @@ function JournalHome({ drinkFilter }: { drinkFilter: string | null }) {
                             {e.doseG != null && e.outG != null && <span aria-hidden="true">→</span>}
                             {e.outG != null && <span>{e.outG} g</span>}
                             {ratio !== null && <span className="jr-item__ratio">{formatRatio(ratio)}</span>}
-                            {e.timeSec != null && <span>{formatClock(e.timeSec * 1000)}</span>}
+                            {e.timeSec != null && (
+                              <span>
+                                {formatClock(e.timeSec * 1000)}
+                                {timeSourceOf(e) === 'app-timer' && (
+                                  <span className="jr-item__timed">
+                                    {' '}
+                                    <Icon name="clock" size={12} /> {t(S.timedShort)}
+                                  </span>
+                                )}
+                              </span>
+                            )}
                             {e.rating && <span>★ {e.rating}/5</span>}
                           </p>
                           {e.tasteTags && e.tasteTags.length > 0 && (

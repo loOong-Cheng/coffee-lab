@@ -50,6 +50,16 @@ export function pauseTimer(t: TimerState, now: number): TimerState {
   return { ...t, status: 'paused', startedAt: null, accumulatedMs: elapsedMs(t, now) };
 }
 
+/**
+ * Stop a stopwatch for good (status 'finished', elapsed frozen). Used by the shot timer and the pour
+ * schedule: "finished" means the learner tapped Stop, so the frozen value is the interval between their
+ * own Start and Stop taps — the one thing the app genuinely measured. Starting again restarts from 0.
+ */
+export function stopTimer(t: TimerState, now: number): TimerState {
+  if (t.status === 'idle' || t.status === 'finished') return t;
+  return { ...t, status: 'finished', startedAt: null, accumulatedMs: elapsedMs(t, now) };
+}
+
 export function resetTimer(t: TimerState): TimerState {
   return { ...t, status: 'idle', startedAt: null, accumulatedMs: 0 };
 }

@@ -2,7 +2,8 @@
 import { Link } from 'react-router';
 import { useI18n } from '../../i18n';
 import { Button, EvidenceBadge, Illustration } from '../../ui';
-import { BrewLogForm, type BrewValues } from '../journal/BrewLogForm';
+import { BrewLogForm, type BrewSubmitMeta, type BrewValues } from '../journal/BrewLogForm';
+import type { MeasuredTime } from './measured';
 import type { PracticePlan } from './plan';
 import type { StepTally } from './session';
 
@@ -16,6 +17,10 @@ const S = {
   logLead: {
     zh: '记下你实际看到和尝到的。不知道的就留空——应用不会替你填任何数值。',
     en: 'Note what you actually saw and tasted. Leave unknowns blank — the app never fills in values for you.',
+  },
+  logLeadCarried: {
+    zh: '记下你实际看到和尝到的。不知道的就留空。只有你选择带过来的计时已经填好（标注“应用计时”）——其余都由你填写。',
+    en: 'Note what you actually saw and tasted. Leave unknowns blank. Only the time you chose to carry over is filled in (marked “Timed in app”) — everything else is yours to enter.',
   },
   save: { zh: '保存到我的日志', en: 'Save to my journal' },
   skip: { zh: '这次不记录', en: 'Skip the log' },
@@ -31,13 +36,13 @@ const S = {
 export interface FinishViewProps {
   plan: PracticePlan;
   tally: StepTally;
-  stopwatchSec: number | null;
-  onSave(v: BrewValues): void;
+  measuredTime: MeasuredTime | null;
+  onSave(v: BrewValues, meta: BrewSubmitMeta): void;
   onSkip(): void;
   onBack(): void;
 }
 
-export function FinishView({ plan, tally, stopwatchSec, onSave, onSkip, onBack }: FinishViewProps) {
+export function FinishView({ plan, tally, measuredTime, onSave, onSkip, onBack }: FinishViewProps) {
   const { t, locale } = useI18n();
   return (
     <div className="kp-finish" data-testid="practice-finish">
@@ -56,11 +61,11 @@ export function FinishView({ plan, tally, stopwatchSec, onSave, onSkip, onBack }
 
       <section className="kp-section" aria-labelledby="kp-log-h">
         <h2 id="kp-log-h">{t(S.log)}</h2>
-        <p className="cl-muted">{t(S.logLead)}</p>
+        <p className="cl-muted">{t(measuredTime?.prefill && plan.logFields.includes('timeSec') ? S.logLeadCarried : S.logLead)}</p>
         <BrewLogForm
           fields={plan.logFields}
           brewKind={plan.brewKind}
-          stopwatchSec={stopwatchSec}
+          measuredTime={measuredTime}
           submitLabel={t(S.save)}
           onSubmit={onSave}
           secondary={

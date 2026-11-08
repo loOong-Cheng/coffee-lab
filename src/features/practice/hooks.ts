@@ -5,6 +5,9 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import type { Locale } from '../../domain/contracts';
+import { shotSlot } from './companion';
+import { isCarryRecord, pickMeasuredTime, type CarryRecord, type MeasuredTime, type TimerCandidate } from './measured';
+import type { PracticePlan } from './plan';
 import { createTimer, reviveTimer, tickTimer, type TimerMode, type TimerState } from './timer';
 
 // ───────────────────────── speech (opt-in, output only) ─────────────────────────
@@ -181,6 +184,75 @@ export function readStopwatchSeconds(planId: string, now = Date.now()): number |
   const ms = t.accumulatedMs + (t.status === 'running' && t.startedAt !== null ? Math.max(0, now - t.startedAt) : 0);
   const sec = Math.round(ms / 1000);
   return sec > 0 ? sec : null;
+}
+
+// ───────────────────────── "timed in app" carry-over ─────────────────────────
+
+const CARRY_SLOT = 'carry';
+
+export function readCarry(planId: string): CarryRecord | null {
+  try {
+    const raw = session()?.getItem(timerKey(planId, CARRY_SLOT));
+    const v: unknown = raw ? JSON.parse(raw) : null;
+    return isCarryRecord(v) ? v : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeCarry(planId: string, rec: CarryRecord | null): void {
+  try {
+    const s = session();
+    if (!s) return;
+    if (rec) s.setItem(timerKey(planId, CARRY_SLOT), JSON.stringify(rec));
+    else s.removeItem(timerKey(planId, CARRY_SLOT));
+  } catch {
+    /* the log still offers the time as a button */
+  }
+}
+
+/** Reactive carry record for one plan (companions write it; the brew log reads it). */
+export function useCarry(planId: string): [CarryRecord | null, (rec: CarryRecord | null) => void] {
+  const [carry, setCarry] = useState<CarryRecord | null>(() => readCarry(planId));
+  const set = useCallback(
+    (rec: CarryRecord | null) => {
+      writeCarry(planId, rec);
+      setCarry(rec);
+    },
+    [planId],
+  );
+  return [carry, set];
+}
+
+/** Which measured interval the brew log should offer (carried → prefilled; else a stopped timer as a button). */
+export function readMeasuredTime(plan: Pick<PracticePlan, 'id' | 'companion'>, now = Date.now()): MeasuredTime | null {
+  const c = plan.companion;
+  const candidates: TimerCandidate[] = [];
+  if (c?.kind === 'pour-schedule') candidates.push({ source: 'schedule', timer: loadTimer(timerKey(plan.id, 'schedule')) });
+  if (c?.kind === 'shot-timer') {
+    for (const g of [...c.groups].reverse()) candidates.push({ source: 'shot', timer: loadTimer(timerKey(plan.id, shotSlot(g))) });
+  }
+  candidates.push({ source: 'stopwatch', timer: loadTimer(timerKey(plan.id, 'stopwatch')) });
+  return pickMeasuredTime(readCarry(plan.id), candidates, now);
+}
+
+/** Small per-plan value in sessionStorage (e.g. the pour schedule's chosen dose). */
+export function readPlanNumber(planId: string, slot: string): number | null {
+  try {
+    const raw = session()?.getItem(timerKey(planId, slot));
+    const n = raw == null ? NaN : Number(raw);
+    return Number.isFinite(n) ? n : null;
+  } catch {
+    return null;
+  }
+}
+
+export function writePlanNumber(planId: string, slot: string, n: number): void {
+  try {
+    session()?.setItem(timerKey(planId, slot), String(n));
+  } catch {
+    /* in-memory only */
+  }
 }
 
 /**

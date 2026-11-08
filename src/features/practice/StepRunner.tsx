@@ -22,9 +22,12 @@ import {
   Switch,
   type StepState,
 } from '../../ui';
+import { companionGroupForStep, shotSlot } from './companion';
 import type { WakeLockStatus } from './hooks';
 import type { PracticePlan } from './plan';
+import { PourSchedule } from './PourSchedule';
 import type { PracticeAction, SessionPatch } from './session';
+import { ShotTimer } from './ShotTimer';
 import { CountdownCard, Stopwatch } from './Timers';
 
 const S = {
@@ -111,7 +114,17 @@ export function StepRunner(p: StepRunnerProps) {
   const showDetail = guidance === 'guided' || (guidance === 'assisted' && showMore);
   const illustration = step.illustration && hasIllustration(step.illustration) ? step.illustration : null;
   const isLast = idx === total - 1;
-  const referenceStep = !!step.timerSec && step.timerMode === 'reference';
+  // Espresso shot timer / pour-over schedule replace this step's generic timers (one clock at a time).
+  const companionGroup = companionGroupForStep(plan.companion, step.id);
+  const companion =
+    companionGroup && plan.companion ? (
+      plan.companion.kind === 'shot-timer' ? (
+        <ShotTimer key={shotSlot(companionGroup)} planId={plan.id} spec={plan.companion} group={companionGroup} speakOn={p.speakOn} />
+      ) : (
+        <PourSchedule key="pour-schedule" planId={plan.id} spec={plan.companion} speakOn={p.speakOn} />
+      )
+    ) : null;
+  const referenceStep = !companion && !!step.timerSec && step.timerMode === 'reference';
 
   const statusWord = (id: string) => {
     const st = session.stepStatus[id];
@@ -158,7 +171,8 @@ export function StepRunner(p: StepRunnerProps) {
         ))}
 
         {/* Timers sit right under the step + safety so they're visible without scrolling. */}
-        {step.timerSec && step.timerMode === 'countdown' ? (
+        {companion}
+        {!companion && step.timerSec && step.timerMode === 'countdown' ? (
           <CountdownCard key={step.id} planId={plan.id} stepId={step.id} seconds={step.timerSec} fromText={step.timerFromText} />
         ) : null}
         {referenceStep && <Stopwatch planId={plan.id} referenceSec={step.timerSec} prominent />}
@@ -188,7 +202,7 @@ export function StepRunner(p: StepRunnerProps) {
         )}
       </article>
 
-      {!referenceStep && <Stopwatch planId={plan.id} />}
+      {!referenceStep && !companion && <Stopwatch planId={plan.id} />}
 
       {guidance === 'independent' && (
         <section className="kp-checklist" aria-labelledby="kp-checklist-h">

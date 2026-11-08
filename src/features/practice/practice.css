@@ -405,3 +405,192 @@
   width: 120px;
   flex: none;
 }
+
+/* ── brew companions: shot timer + pour schedule ───────────────── */
+.kp-companion {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-crema-soft);
+  border: 1px solid var(--color-crema);
+}
+.kp-companion > p,
+.kp-companion p {
+  margin: 0;
+}
+.kp-companion__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+.kp-companion__title {
+  margin: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+.kp-companion__how {
+  font-size: var(--text-base);
+}
+.kp-companion__clock {
+  display: block;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: clamp(3rem, 2.4rem + 3vw, 4.5rem);
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+}
+.kp-companion__clock[data-status='running'] {
+  color: var(--color-accent);
+}
+.kp-companion__facts {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+  gap: var(--space-2);
+  margin: 0;
+}
+.kp-companion__facts > div {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.kp-companion__facts dt {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.kp-companion__facts dd {
+  margin: 0;
+  font-size: var(--text-lg);
+  font-weight: var(--weight-bold);
+}
+.kp-companion__status {
+  font-weight: var(--weight-medium);
+}
+.kp-companion__result {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.kp-companion__result-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-lg);
+}
+.kp-companion__carried {
+  display: grid;
+  gap: var(--space-2);
+}
+.kp-companion__carried p {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-weight: var(--weight-medium);
+  color: var(--color-success);
+}
+.kp-companion__actions {
+  display: grid;
+  gap: var(--space-2);
+}
+.kp-companion__actions--split {
+  grid-template-columns: repeat(auto-fit, minmax(9rem, 1fr));
+}
+
+/* pour schedule */
+.kp-dose {
+  display: grid;
+  gap: var(--space-2);
+}
+.kp-dose__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-3);
+}
+.kp-dose__label {
+  flex: 1 0 100%;
+  font-weight: var(--weight-medium);
+}
+.kp-dose__value {
+  min-width: 4.5ch;
+  text-align: center;
+  font-size: var(--text-2xl);
+  font-weight: var(--weight-bold);
+}
+.kp-dose__total {
+  font-weight: var(--weight-medium);
+}
+.kp-pour__now {
+  display: grid;
+  gap: var(--space-2);
+  text-align: center;
+}
+.kp-pour__phase {
+  font-size: var(--text-xl);
+  font-weight: var(--weight-bold);
+  line-height: var(--leading-tight);
+}
+.kp-pour__detail {
+  font-size: var(--text-base);
+}
+.kp-pour__graph {
+  display: block;
+  width: 100%;
+  height: 72px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.kp-pour__graph-window {
+  fill: var(--color-surface-2);
+}
+.kp-pour__graph-line {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.kp-pour__graph-now {
+  stroke: var(--color-text);
+  stroke-width: 2;
+  vector-effect: non-scaling-stroke;
+}
+.kp-pour__tl-h {
+  margin: 0 0 var(--space-1);
+}
+.kp-pour__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 2px;
+}
+.kp-pour__list li {
+  display: grid;
+  grid-template-columns: 6.5rem 1fr auto;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-sm);
+  border-left: 4px solid transparent;
+  font-size: var(--text-sm);
+}
+.kp-pour__list li[aria-current='step'] {
+  background: var(--color-accent-soft);
+  border-left-color: var(--color-accent);
+  font-weight: var(--weight-bold);
+}
+.kp-pour__when,
+.kp-pour__g {
+  font-variant-numeric: tabular-nums;
+}

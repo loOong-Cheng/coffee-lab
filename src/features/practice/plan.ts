@@ -13,6 +13,7 @@ import type {
   GuidedPracticeActivity,
   LocalizedText,
 } from '../../domain/contracts';
+import { companionForActivity, companionForDrink, type CompanionSpec } from './companion';
 
 export type LogField = GuidedPracticeActivity['logFields'][number];
 
@@ -66,6 +67,8 @@ export interface PracticePlan {
   brewKind: BrewKind;
   steps: PracticeStep[];
   logFields: LogField[];
+  /** Espresso shot timer or pour-over schedule shown on the extraction/pour steps (user-started; never completes a step). */
+  companion?: CompanionSpec;
 }
 
 export const DRINK_PREFIX = 'drink:';
@@ -157,8 +160,11 @@ export function planFromActivity(a: GuidedPracticeActivity, knownDrinkIds?: Read
       illustration: s.illustration,
     })),
     logFields: a.logFields.length > 0 ? [...a.logFields] : ['taste', 'rating', 'notes'],
+    ...withCompanion(companionForActivity(a)),
   };
 }
+
+const withCompanion = (c: CompanionSpec | undefined): { companion?: CompanionSpec } => (c ? { companion: c } : {});
 
 // ───────────────────────── drink → plan ─────────────────────────
 
@@ -259,6 +265,7 @@ export function planFromDrink(d: DrinkRecipe): PracticePlan {
       };
     }),
     logFields,
+    ...withCompanion(companionForDrink(d, d.steps.map((_, i) => `s${i + 1}`))),
   };
 }
 

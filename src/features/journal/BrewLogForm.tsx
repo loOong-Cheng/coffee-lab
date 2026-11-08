@@ -6,7 +6,8 @@ import { useId, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import type { BrewLogEntry } from '../../domain/contracts';
 import { formatBrewRatio, tryBrewRatio } from '../../domain/brew';
 import { useI18n } from '../../i18n';
-import { Button, Chip, SegmentedControl } from '../../ui';
+import { Button, Chip, SegmentedControl, Tag } from '../../ui';
+import type { MeasuredTime } from '../practice/measured';
 import type { BrewKind, LogField } from '../practice/plan';
 import { formatClock } from '../practice/timer';
 import { formatDurationInput, parseDuration, parseGrams } from './model';
@@ -24,6 +25,12 @@ export interface BrewValues {
   nextChange?: string;
 }
 
+/** Provenance that is NOT a BrewLogEntry field yet (see journal/timeSource.ts). */
+export interface BrewSubmitMeta {
+  /** The time field holds, unchanged, the interval an in-app timer measured between the learner's taps. */
+  timeTimedInApp: boolean;
+}
+
 const S = {
   dose: { zh: '咖啡粉（粉量）', en: 'Coffee in (dose)' },
   doseHint: { zh: '放进粉碗或滤杯的咖啡粉重量。', en: 'Weight of ground coffee you used.' },
@@ -35,7 +42,13 @@ const S = {
   time: { zh: '时间', en: 'Brew time' },
   timeHint: { zh: '秒数（如 28）或 分:秒（如 3:30）。', en: 'Seconds (28) or minutes:seconds (3:30).' },
   useStopwatch: { zh: '使用应用秒表的读数', en: 'Use the in-app stopwatch' },
-  stopwatchNote: { zh: '来自你在本应用里运行的秒表。', en: 'From the stopwatch you ran in this app.' },
+  useShot: { zh: '使用萃取计时的读数', en: 'Use the shot timer' },
+  useSchedule: { zh: '使用注水时间表的总时间', en: 'Use the pour schedule’s total time' },
+  timed: { zh: '应用计时', en: 'Timed in app' },
+  timedNote: {
+    zh: '这个时间是应用在你两次点按（开始/停止）之间测得的；改动它就会变成自我报告。其余字段都是你自己的报告。',
+    en: 'The app measured this time between your own Start and Stop taps; editing it makes it self-reported. Every other field is your own report.',
+  },
   grind: { zh: '研磨设置', en: 'Grinder setting' },
   grindHint: { zh: '按你的磨豆机的刻度写，例如“8”或“比上次细 2 格”。', en: 'As your grinder labels it, e.g. “8” or “2 clicks finer”.' },
   taste: { zh: '味道如何？（可多选，也可不选）', en: 'How did it taste? (pick any, or none)' },
@@ -68,11 +81,16 @@ export interface BrewLogFormProps {
   initial?: BrewValues;
   /** Previous attempt: shown as placeholders + an explicit copy button (inputs only, never results). */
   reference?: BrewLogEntry;
-  /** Seconds measured by the in-app stopwatch, offered (not auto-filled) for the time field. */
-  stopwatchSec?: number | null;
+  /**
+   * A time an in-app timer measured between the learner's taps. Prefilled only when the learner chose to
+   * carry it over; otherwise offered as a button. Either way it is marked "Timed in app" until edited.
+   */
+  measuredTime?: MeasuredTime | null;
+  /** Editing an entry whose time is still the app-timed value. */
+  initialTimedInApp?: boolean;
   showNextChange?: boolean;
   submitLabel: string;
-  onSubmit(values: BrewValues): void;
+  onSubmit(values: BrewValues, meta: BrewSubmitMeta): void;
   secondary?: ReactNode;
 }
 
@@ -81,7 +99,8 @@ export function BrewLogForm({
   brewKind,
   initial,
   reference,
-  stopwatchSec,
+  measuredTime,
+  initialTimedInApp,
   showNextChange,
   submitLabel,
   onSubmit,
@@ -94,14 +113,15 @@ export function BrewLogForm({
 
   const [dose, setDose] = useState(initial?.doseG != null ? String(initial.doseG) : '');
   const [out, setOut] = useState(initial?.outG != null ? String(initial.outG) : '');
-  const [time, setTime] = useState(formatDurationInput(initial?.timeSec));
+  const prefill = measuredTime?.prefill && initial?.timeSec == null ? measuredTime : null;
+  const [time, setTime] = useState(formatDurationInput(prefill ? prefill.sec : initial?.timeSec));
   const [grind, setGrind] = useState(initial?.grind ?? '');
   const [tags, setTags] = useState<string[]>(initial?.tasteTags ?? []);
   const [rating, setRating] = useState<BrewValues['rating']>(initial?.rating);
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [nextChange, setNextChange] = useState(initial?.nextChange ?? '');
   const [errors, setErrors] = useState<Partial<Record<NumKey, string>>>({});
-  const [usedStopwatch, setUsedStopwatch] = useState(false);
+  const [timedInApp, setTimedInApp] = useState(!!prefill || (!!initialTimedInApp && initial?.timeSec != null));
   const refs = { doseG: useRef<HTMLInputElement>(null), outG: useRef<HTMLInputElement>(null), timeSec: useRef<HTMLInputElement>(null) };
 
   const outLabel = brewKind === 'espresso' ? S.outEspresso : brewKind === 'brew' ? S.outBrew : S.outOther;
@@ -140,7 +160,7 @@ export function BrewLogForm({
     if (has('rating') && rating) v.rating = rating;
     if (has('notes') && notes.trim()) v.notes = notes.trim();
     if (showNextChange && nextChange.trim()) v.nextChange = nextChange.trim();
-    onSubmit(v);
+    onSubmit(v, { timeTimedInApp: timedInApp && v.timeSec !== undefined });
   };
 
   const numField = (key: NumKey, label: string, hint: string, value: string, set: (s: string) => void, unit?: string, placeholder?: string) => (
@@ -241,27 +261,36 @@ export function BrewLogForm({
             time,
             (s) => {
               setTime(s);
-              setUsedStopwatch(false);
+              setTimedInApp(false);
             },
             undefined,
             reference?.timeSec != null ? `${t(S.prevWas)}: ${formatDurationInput(reference.timeSec)}` : undefined,
           )}
-          {stopwatchSec ? (
+          {measuredTime && !timedInApp ? (
             <div className="jr-field jr-field--action">
               <Button
                 variant="secondary"
                 size="md"
                 icon="clock"
                 onClick={() => {
-                  setTime(formatDurationInput(stopwatchSec));
-                  setUsedStopwatch(true);
+                  setTime(formatDurationInput(measuredTime.sec));
+                  setTimedInApp(true);
                 }}
+                data-testid="log-use-timer"
               >
-                {t(S.useStopwatch)} ({formatClock(stopwatchSec * 1000)})
+                {t(measuredTime.source === 'shot' ? S.useShot : measuredTime.source === 'schedule' ? S.useSchedule : S.useStopwatch)} (
+                {formatClock(measuredTime.sec * 1000)})
               </Button>
-              {usedStopwatch && <p className="jr-field__hint">{t(S.stopwatchNote)}</p>}
             </div>
           ) : null}
+        </div>
+      )}
+      {has('timeSec') && timedInApp && (
+        <div className="jr-time-source" data-testid="log-time-source">
+          <Tag tone="info" icon="clock">
+            {t(S.timed)}
+          </Tag>
+          <p className="jr-field__hint">{t(S.timedNote)}</p>
         </div>
       )}
 

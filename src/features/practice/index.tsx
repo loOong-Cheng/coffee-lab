@@ -14,10 +14,11 @@ import type { Guidance, LocalizedText } from '../../domain/contracts';
 import { useI18n } from '../../i18n';
 import { getLearnerState, learnerActions, useLearner } from '../../state';
 import { announce, Button, Card, Dialog, EmptyState, EvidenceBadge, Illustration } from '../../ui';
-import type { BrewValues } from '../journal/BrewLogForm';
+import type { BrewSubmitMeta, BrewValues } from '../journal/BrewLogForm';
+import { timeSourceForSave } from '../journal/timeSource';
 import { resolvePlan } from './catalog';
 import { FinishView, PracticeDone } from './FinishView';
-import { clearPlanTimers, readKeepAwakePref, readStopwatchSeconds, speak, speechSupported, stopSpeaking, useWakeLock, writeKeepAwakePref } from './hooks';
+import { clearPlanTimers, readKeepAwakePref, readMeasuredTime, speak, speechSupported, stopSpeaking, useWakeLock, writeKeepAwakePref } from './hooks';
 import type { PracticePlan } from './plan';
 import { Preflight } from './Preflight';
 import { isFinishPhase, reducePractice, resumeDecision, sessionSummaryNote, tallySteps, type PracticeAction } from './session';
@@ -227,8 +228,10 @@ function KitchenMode({ plan }: { plan: PracticePlan }) {
     else announce(stepSpeech(mine.stepIndex));
   };
 
-  const finishWithLog = (v: BrewValues) => {
-    const entry = learnerActions.addJournalEntry({ drinkId: plan.drinkId, activityId: plan.id, ...v });
+  const finishWithLog = (v: BrewValues, meta: BrewSubmitMeta) => {
+    // The time is the one value the app measured (between the learner's taps); everything else stays self-reported.
+    const timeSource = meta.timeTimedInApp ? timeSourceForSave(v.timeSec, true) : undefined;
+    const entry = learnerActions.addJournalEntry({ drinkId: plan.drinkId, activityId: plan.id, ...v, ...(timeSource ? { timeSource } : {}) });
     learnerActions.endPractice();
     clearPlanTimers(plan.id);
     audio.play('correct');
@@ -326,7 +329,7 @@ function KitchenMode({ plan }: { plan: PracticePlan }) {
         <FinishView
           plan={plan}
           tally={tallySteps(mine.stepStatus, stepIds)}
-          stopwatchSec={readStopwatchSeconds(plan.id)}
+          measuredTime={readMeasuredTime(plan)}
           onSave={finishWithLog}
           onSkip={finishWithoutLog}
           onBack={() => dispatch({ type: 'back' })}

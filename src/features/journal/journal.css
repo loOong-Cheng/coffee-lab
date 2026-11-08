@@ -475,3 +475,172 @@
     margin-top: 0;
   }
 }
+
+/* ── dial-in chart (original SVG; tokens only) ─────────────────── */
+.jr-dialin {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+}
+.jr-dialin > p,
+.jr-dialin > h3 {
+  margin: 0;
+}
+.jr-dialin__empty-title {
+  margin: 0;
+}
+.jr-dialin__figure {
+  margin: 0;
+  display: grid;
+  gap: var(--space-2);
+}
+.jr-dialin__figure figcaption {
+  color: var(--color-text-muted);
+}
+.jr-dialin__svg {
+  display: block;
+  width: 100%;
+  max-width: 36rem;
+  height: auto;
+  overflow: visible;
+  font-family: var(--font-body);
+}
+.jr-dialin__grid {
+  stroke: var(--color-border);
+  stroke-width: 1;
+}
+.jr-dialin__axis {
+  stroke: var(--color-border-strong);
+  stroke-width: 1;
+}
+.jr-dialin__tick text,
+.jr-dialin__axis-label {
+  fill: var(--color-text-muted);
+  font-size: 11px;
+  font-variant-numeric: tabular-nums;
+}
+.jr-dialin__zone rect {
+  fill: var(--color-crema-soft);
+  stroke: var(--color-crema);
+  stroke-width: 1;
+}
+.jr-dialin__path {
+  fill: none;
+  stroke: var(--color-text-muted);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  opacity: 0.6;
+}
+.jr-dialin__pt {
+  cursor: pointer;
+  outline: none;
+}
+.jr-dialin__hit {
+  fill: transparent;
+  stroke: none;
+}
+.jr-dialin__dot {
+  fill: var(--color-text-muted);
+  stroke: var(--color-surface);
+  stroke-width: 2;
+}
+.jr-dialin__pt.is-latest .jr-dialin__dot {
+  fill: var(--color-accent);
+}
+.jr-dialin__halo {
+  fill: none;
+  stroke: var(--color-accent);
+  stroke-width: 2;
+}
+.jr-dialin__pt:hover .jr-dialin__dot {
+  stroke: var(--color-accent);
+}
+.jr-dialin__pt:focus-visible .jr-dialin__hit {
+  stroke: var(--color-focus);
+  stroke-width: 3;
+}
+.jr-dialin__pt-label {
+  fill: var(--color-text);
+  font-size: 11px;
+  font-weight: var(--weight-bold);
+  paint-order: stroke;
+  stroke: var(--color-surface);
+  stroke-width: 3px;
+  stroke-linejoin: round;
+}
+.jr-dialin__legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-4);
+  color: var(--color-text-muted);
+}
+.jr-dialin__legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+.jr-dialin__key {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  flex: none;
+}
+.jr-dialin__key--older {
+  background: var(--color-text-muted);
+}
+.jr-dialin__key--latest {
+  background: var(--color-accent);
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--color-accent);
+}
+.jr-dialin__key--zone {
+  width: 18px;
+  border-radius: 3px;
+  background: var(--color-crema-soft);
+  border: 1px solid var(--color-crema);
+}
+.jr-dialin__caption {
+  text-align: left;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  padding-bottom: var(--space-2);
+}
+.jr-dialin__rowlink {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+.jr-time-source {
+  display: grid;
+  gap: var(--space-1);
+  justify-items: start;
+}
+.jr-time-source .jr-field__hint {
+  margin: 0;
+}
+.jr-timed-note {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+.jr-item__timed {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.jr-dialin__pt-label {
+  pointer-events: none;
+}
+.jr-dialin__nowrap {
+  white-space: nowrap;
+}
