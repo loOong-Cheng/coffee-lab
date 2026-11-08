@@ -5,9 +5,8 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**Phase 4 — real-world + culture depth (2026-11-08 ~02:30, ~3h into window).** Since last update: audio composer/culture moods/render QA `81fe1d3`; QA gate #1 fixes `b5547ae` (QA-01/03/06/07/08, lesson resume, narrow-phone nav, MusicControl in header); culture contract types committed.
-Lead verification at `b5547ae`: typecheck ✓, unit 414/414 ✓, shell+smoke e2e ✓ (fixer: full e2e 230 pass / 14 skip / 0 fail).
-Running: xr-engineer (mission picker + station-tour + pourover-bloom + QA-05), curriculum-atlas (culture map places + timeline data), web engineer D (Culture Explorer `/culture`), web engineer E (shot timer → app-timed log value, pour-schedule companion, dial-in chart).
+**Phase 5 — learning quality (2026-11-08 ~03:10, ~3.75h into window).** New since phase 4: culture map/timeline data `84f1b10`, Culture Explorer `/culture` `b6dafce`, `BrewLogEntry.timeSource` contract, brew companions (shot timer, pour schedule, dial-in chart) `40db012`, GlossaryTerm contract.
+Running: xr-engineer (mission picker + station-tour + pourover-bloom + QA-05 — long-running), curriculum (cross-module consistency audit + glossary data), web engineer F (glossary page + inline term help).
 
 ## Working user-visible flows (evidence = lead re-run at af54ea0)
 - [x] Onboarding (skip/edit) and course navigation; desktop course map vs phone "today" home — e2e learn.spec (desktop+mobile)
@@ -31,8 +30,13 @@ Running: xr-engineer (mission picker + station-tour + pourover-bloom + QA-05), c
 - No headset → XR hardware-unverified by design.
 - Phone testing by user requires `npm run dev:lan` on the same LAN (not run by agents).
 
-## Last anti-drift check (Phase 1 start)
-1. Usable loop? Not yet (no code). 2. Platform differences? Planned in briefs (desktop 2D, mobile kitchen copilot, XR spatial). 3. Honest physical guidance? Encoded in contracts §9. 4. User-facing value? Phase 1 is foundation + real content in parallel. 5. Done claims? None made. 6. In mission? Yes; breadth expansion (atlas/culture/music) is user-approved (U3).
+## Last anti-drift check (2026-11-08 ~03:10)
+1. Usable beginner loop now? **Yes** — onboarding → lessons (9 activity kinds, tiers) → kitchen mode real cup → journal → next step; Café Counter, Atlas, Culture Explorer.
+2. Platforms genuinely different? **Yes** — desktop course map/2D labs; phone "today" home + kitchen mode + timers; XR spatial missions (hardware-unverified).
+3. Honest physical guidance? **Yes** — self-report everywhere; only app-timed seconds are `observed_by_app`; models labeled illustrative; legends flagged.
+4. User-facing value vs abstraction? Last 2 hours shipped user features (Café, culture, companions, audio); no generator abstraction work.
+5. Done claims evidenced? Lead re-runs typecheck/unit/targeted e2e before each commit; full QA gate #2 pending.
+6. Next work in mission? Yes — XR missions (brief §5 XR-only learner), consistency + glossary (beginner jargon, §4), then QA gate #2 + delivery.
 
 ## Commits / worktrees
 - `main`: `1adf53e` (user: handoff package), `d54a7cd` (lead: .gitignore). Single working tree, ownership-separated; no worktrees.
