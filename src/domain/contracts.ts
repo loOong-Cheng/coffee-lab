@@ -414,3 +414,39 @@ export interface LearnerState {
   /** Last place the learner was, for "continue". */
   lastLocation?: { route: string; at: string };
 }
+
+// ─────────────────────── culture explorer (map + timeline) ───────────────────────
+/** A place on the culture map. Coordinates are approximate (city/region level), WGS84 degrees. */
+export interface CulturePlace {
+  id: string;
+  name: LocalizedText;
+  kind: 'origin' | 'producer' | 'drink-culture' | 'coffeehouse';
+  lat: number;
+  lon: number;
+  summary: LocalizedText;
+  /** True if coffee is grown here (coffee belt). */
+  producing?: boolean;
+  relatedDrinkIds: string[];
+  relatedLessonIds: string[];
+  sources: string[];
+  confidence: Confidence;
+}
+
+/** A dated moment in coffee history. Legends and disputed dates must say so. */
+export interface CultureTimelineEvent {
+  id: string;
+  /** Sortable year (negative = BCE). Use the best-supported/earliest plausible year; explain uncertainty in yearLabel. */
+  year: number;
+  /** Display label, e.g. "c. 15th century", "1671 (first written)", "1686 or 1689". */
+  yearLabel: LocalizedText;
+  title: LocalizedText;
+  body: LocalizedText;
+  kind: 'legend' | 'history' | 'innovation' | 'culture';
+  /** Set when sources disagree on the date or facts. */
+  disputed?: boolean;
+  placeId?: string;
+  relatedDrinkIds: string[];
+  relatedLessonIds: string[];
+  sources: string[];
+  confidence: Confidence;
+}
