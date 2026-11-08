@@ -344,7 +344,7 @@ export interface Preferences {
   sfx: boolean;
   music: boolean;
   /** Generative music mood (matches audio MusicMood). */
-  musicMood: 'cafe' | 'focus' | 'lab';
+  musicMood: 'cafe' | 'focus' | 'lab' | 'bossa' | 'kissa' | 'bar';
   /** 0..1 */
   volume: number;
   reducedMotion: 'system' | 'on' | 'off';

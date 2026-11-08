@@ -75,10 +75,10 @@ function useOrders(level: CafeLevelId, seed: number): Order[] {
 
 const SFX_FOR: Record<StationId, SfxName> = {
   method: 'select',
-  shots: 'grind',
+  shots: 'espresso',
   water: 'pour',
-  milk: 'steam',
-  ice: 'drip',
+  milk: 'milkSteam',
+  ice: 'ice',
   extras: 'tap',
   cup: 'snap',
 };
@@ -125,7 +125,7 @@ export function Round({ level, seed, guidance, onGuidance, timerOn, mode, phone,
     (patch: Partial<Build>, station: StationId) => {
       setBuild((b) => ({ ...b, ...patch }));
       setMissing((m) => m.filter((s) => s !== station));
-      if (station === 'milk' && patch.milk) sfx(patch.milk === 'cold' ? 'pour' : patch.milk === 'none' ? 'tap' : 'steam');
+      if (station === 'milk' && patch.milk) sfx(patch.milk === 'cold' ? 'milkPour' : patch.milk === 'none' ? 'tap' : 'milkSteam');
       else sfx(SFX_FOR[station]);
     },
     [sfx],
@@ -142,7 +142,7 @@ export function Round({ level, seed, guidance, onGuidance, timerOn, mode, phone,
       return;
     }
     const evaluation = evaluate(build, spec);
-    sfx('whoosh');
+    sfx('serve');
     window.setTimeout(() => sfx(evaluation.correct ? 'correct' : 'incorrect'), 180);
     const notes = [`level=${level}`, recipePeeked ? 'recipe-card-viewed' : '', evaluation.diffs.length ? `off=${evaluation.diffs.map((d) => d.component).join(',')}` : '']
       .filter(Boolean)

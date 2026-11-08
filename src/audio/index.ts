@@ -1,6 +1,7 @@
 /**
  * Coffee Lab audio — procedural Web Audio only (no audio files, no licensing risk).
- * The exported API/types below are the contract other modules code against (CONTRACTS.md §6).
+ * The `AudioEngine` API is a contract other modules code against (CONTRACTS.md §6);
+ * changes here are ADDITIVE only.
  *
  * Behaviour:
  * - Never throws. Without Web Audio (jsdom, very old browsers) `available` is false and every call is a no-op.
@@ -8,16 +9,24 @@
  * - SFX are on by default (the shell syncs prefs); music is OFF until `setMusicEnabled(true)`.
  * - Music fades in/out, follows master volume, pauses with the tab (visibilitychange) to save battery.
  */
-import { makeImpulse, makeNoiseBuffer } from './kit';
+import { buildGraph, MUSIC_LEVEL, volumeToGain } from './graph';
 import type { Kit } from './kit';
+import { isMusicMood } from './moods';
+import type { MusicMoodId } from './moods';
 import { MusicGenerator } from './music';
-import { MIN_GAP, SFX } from './sfx';
+import { MIN_GAP, SFX, SFX_TRIM } from './sfx';
 
 export type SfxName =
   | 'tap' | 'select' | 'correct' | 'incorrect' | 'complete' | 'levelUp'
-  | 'grind' | 'pour' | 'steam' | 'drip' | 'timer' | 'snap' | 'whoosh' | 'reset';
+  | 'grind' | 'pour' | 'steam' | 'drip' | 'timer' | 'snap' | 'whoosh' | 'reset'
+  // ── added for the Café Counter / XR (additive) ──
+  | 'espresso' | 'serve' | 'ice' | 'milkSteam' | 'milkPour' | 'tamp' | 'knock' | 'orderBell' | 'bloom';
 
+/** Moods persisted in Preferences.musicMood (contract). See MusicMoodId for every playable mood. */
 export type MusicMood = 'cafe' | 'focus' | 'lab';
+
+export type { MusicMoodId, CoreMusicMood, CultureMusicMood, MoodInfo } from './moods';
+export { MUSIC_MOODS, MUSIC_MOOD_IDS, CORE_MUSIC_MOODS, CULTURE_MUSIC_MOODS, isMusicMood } from './moods';
 
 export interface AudioEngine {
   /** Call from a user gesture; safe to call repeatedly. */
@@ -27,21 +36,22 @@ export interface AudioEngine {
   setSfxEnabled(on: boolean): void;
   /** Starts/stops generative music (only audible after unlock). */
   setMusicEnabled(on: boolean): void;
-  setMusicMood(mood: MusicMood): void;
+  /** Accepts the persisted moods and the additional culture moods (MusicMoodId). */
+  setMusicMood(mood: MusicMoodId): void;
   /** Master volume 0..1 */
   setVolume(v: number): void;
   readonly available: boolean;
+  /** Additive: current mood (falls back to 'cafe'). */
+  getMusicMood?(): MusicMoodId;
+  /** Additive: whether music is enabled AND the audio context is actually running. */
+  isMusicPlaying?(): boolean;
 }
 
 export const SFX_NAMES: readonly SfxName[] = [
   'tap', 'select', 'correct', 'incorrect', 'complete', 'levelUp',
   'grind', 'pour', 'steam', 'drip', 'timer', 'snap', 'whoosh', 'reset',
+  'espresso', 'serve', 'ice', 'milkSteam', 'milkPour', 'tamp', 'knock', 'orderBell', 'bloom',
 ];
-
-/** Relative bus levels: music sits well under SFX and speech. */
-const MUSIC_LEVEL = 0.32;
-const SFX_LEVEL = 0.9;
-const REVERB_LEVEL = 0.22;
 
 type ContextFactory = () => AudioContext;
 
@@ -58,8 +68,6 @@ function defaultFactory(): ContextFactory | null {
 }
 
 const clamp = (v: number, lo: number, hi: number) => (Number.isFinite(v) ? Math.min(hi, Math.max(lo, v)) : lo);
-/** Perceptual taper so the slider feels even. */
-const volumeToGain = (v: number) => Math.pow(clamp(v, 0, 1), 1.6);
 
 class WebAudioEngine implements AudioEngine {
   private factory: ContextFactory | null;
@@ -72,7 +80,7 @@ class WebAudioEngine implements AudioEngine {
   private broken = false;
   private sfxOn = true;
   private musicOn = false;
-  private mood: MusicMood = 'cafe';
+  private mood: MusicMoodId = 'cafe';
   private volume = 0.7;
   private lastPlayed = new Map<SfxName, number>();
   private stopMusicTimer: ReturnType<typeof setTimeout> | null = null;
@@ -112,7 +120,7 @@ class WebAudioEngine implements AudioEngine {
       this.lastPlayed.set(name, now);
 
       const g = ctx.createGain();
-      g.gain.value = clamp(opts?.volume ?? 1, 0, 1);
+      g.gain.value = clamp(opts?.volume ?? 1, 0, 1) * (SFX_TRIM[name] ?? 1);
       let tail: AudioNode = g;
       if (opts?.pan && typeof ctx.createStereoPanner === 'function') {
         const p = ctx.createStereoPanner();
@@ -130,7 +138,7 @@ class WebAudioEngine implements AudioEngine {
         } catch {
           /* already gone */
         }
-      }, 3000);
+      }, 4000);
     } catch {
       /* never throw from a sound */
     }
@@ -145,14 +153,22 @@ class WebAudioEngine implements AudioEngine {
     this.syncMusic();
   }
 
-  setMusicMood(mood: MusicMood): void {
-    if (mood !== 'cafe' && mood !== 'focus' && mood !== 'lab') return;
+  setMusicMood(mood: MusicMoodId): void {
+    if (!isMusicMood(mood)) return;
     this.mood = mood;
     try {
       this.music?.setMood(mood);
     } catch {
       /* ignore */
     }
+  }
+
+  getMusicMood(): MusicMoodId {
+    return this.mood;
+  }
+
+  isMusicPlaying(): boolean {
+    return this.musicOn && this.ctx?.state === 'running' && Boolean(this.music?.running);
   }
 
   setVolume(v: number): void {
@@ -176,42 +192,13 @@ class WebAudioEngine implements AudioEngine {
       this.broken = true;
       return;
     }
-    const master = ctx.createGain();
-    master.gain.value = volumeToGain(this.volume);
-    let out: AudioNode = ctx.destination;
-    if (typeof ctx.createDynamicsCompressor === 'function') {
-      const comp = ctx.createDynamicsCompressor();
-      comp.threshold.value = -16;
-      comp.knee.value = 12;
-      comp.ratio.value = 3;
-      comp.attack.value = 0.005;
-      comp.release.value = 0.2;
-      comp.connect(ctx.destination);
-      out = comp;
-    }
-    master.connect(out);
-
-    const reverb = ctx.createConvolver();
-    reverb.buffer = makeImpulse(ctx);
-    const reverbReturn = ctx.createGain();
-    reverbReturn.gain.value = REVERB_LEVEL;
-    reverb.connect(reverbReturn);
-    reverbReturn.connect(master);
-
-    const sfxBus = ctx.createGain();
-    sfxBus.gain.value = SFX_LEVEL;
-    sfxBus.connect(master);
-
-    const musicBus = ctx.createGain();
-    musicBus.gain.value = 0.0001;
-    musicBus.connect(master);
-
+    const g = buildGraph(ctx, { volume: this.volume });
     this.ctx = ctx;
-    this.master = master;
-    this.sfxBus = sfxBus;
-    this.musicBus = musicBus;
-    this.kit = { ctx, noise: makeNoiseBuffer(ctx), reverb };
-    this.music = new MusicGenerator(this.kit, musicBus);
+    this.master = g.master;
+    this.sfxBus = g.sfxBus;
+    this.musicBus = g.musicBus;
+    this.kit = g.kit;
+    this.music = new MusicGenerator(this.kit, g.musicBus);
     this.music.setMood(this.mood);
 
     if (typeof document !== 'undefined' && typeof document.addEventListener === 'function') {

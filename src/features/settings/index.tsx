@@ -5,7 +5,7 @@
 import { useEffect, useRef, useState, type ChangeEvent } from 'react';
 import { Link } from 'react-router';
 import { useDocumentTitle } from '../../app/useDocumentTitle';
-import { audio, type MusicMood } from '../../audio';
+import { audio, MUSIC_MOOD_IDS, MUSIC_MOODS } from '../../audio';
 import type { Locale, LocalizedText, Preferences } from '../../domain/contracts';
 import { useI18n } from '../../i18n';
 import { usePwaStatus } from '../../platform';
@@ -26,7 +26,8 @@ const S = {
   music: { zh: '背景音乐', en: 'Background music' },
   musicDesc: { zh: '应用实时生成的原创咖啡馆氛围音乐。', en: 'Original café ambience generated live by the app.' },
   mood: { zh: '音乐氛围', en: 'Music mood' },
-  moods: { cafe: { zh: '咖啡馆', en: 'Café' }, focus: { zh: '专注', en: 'Focus' }, lab: { zh: '实验室', en: 'Lab' } } satisfies Record<MusicMood, LocalizedText>,
+  cultureGroup: { zh: '咖啡文化灵感', en: 'Inspired by coffee cultures' },
+  coreGroup: { zh: '基础氛围', en: 'Core moods' },
   volume: { zh: '音量', en: 'Volume' },
   test: { zh: '试听', en: 'Test sound' },
   noAudio: { zh: '这个浏览器不支持网页音频，应用会保持安静。', en: 'This browser doesn’t support web audio — the app will stay silent.' },
@@ -221,15 +222,36 @@ export default function SettingsPage() {
         <Switch checked={prefs.sfx} onChange={(v) => pref('sfx', v)} label={t(S.sfx)} description={t(S.sfxDesc)} data-testid="settings-sfx" />
         <Switch checked={prefs.music} onChange={(v) => pref('music', v)} label={t(S.music)} description={t(S.musicDesc)} data-testid="settings-music" />
         <div className="st-field">
-          <span className="st-label" id="st-mood-l">
+          <label className="st-label" htmlFor="st-mood">
             {t(S.mood)}
-          </span>
-          <SegmentedControl<MusicMood>
-            labelledBy="st-mood-l"
+          </label>
+          <select
+            id="st-mood"
+            className="st-select"
+            data-testid="settings-mood"
             value={prefs.musicMood}
-            onChange={(m) => pref('musicMood', m)}
-            options={[opt('cafe', S.moods.cafe), opt('focus', S.moods.focus), opt('lab', S.moods.lab)]}
-          />
+            aria-describedby="st-mood-desc"
+            onChange={(e) => pref('musicMood', e.target.value as Preferences['musicMood'])}
+          >
+            <optgroup label={t(S.coreGroup)}>
+              {MUSIC_MOOD_IDS.filter((id) => !MUSIC_MOODS[id].culture).map((id) => (
+                <option key={id} value={id}>
+                  {t(MUSIC_MOODS[id].label)}
+                </option>
+              ))}
+            </optgroup>
+            <optgroup label={t(S.cultureGroup)}>
+              {MUSIC_MOOD_IDS.filter((id) => MUSIC_MOODS[id].culture).map((id) => (
+                <option key={id} value={id}>
+                  {t(MUSIC_MOODS[id].label)}
+                </option>
+              ))}
+            </optgroup>
+          </select>
+          <p id="st-mood-desc" className="st-hint">
+            {t(MUSIC_MOODS[prefs.musicMood].description)}
+            {MUSIC_MOODS[prefs.musicMood].inspiration ? <> {t(MUSIC_MOODS[prefs.musicMood].inspiration!)}</> : null}
+          </p>
         </div>
         <div className="st-field">
           <label className="st-label" htmlFor="st-volume">

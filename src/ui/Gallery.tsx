@@ -6,7 +6,9 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import type { Guidance, Locale } from '../domain/contracts';
 import { audio, SFX_NAMES } from '../audio';
-import type { MusicMood } from '../audio';
+import { MUSIC_MOOD_IDS } from '../audio';
+import type { MusicMoodId } from '../audio';
+import { MusicControl } from './MusicControl';
 import {
   Button,
   Callout,
@@ -98,7 +100,9 @@ export default function Gallery() {
   const [sheet, setSheet] = useState(false);
   const [part, setPart] = useState<string | null>('group-head');
   const [music, setMusic] = useState(false);
-  const [mood, setMood] = useState<MusicMood>('cafe');
+  const [mood, setMood] = useState<MusicMoodId>('cafe');
+  const [volume, setVolume] = useState(0.7);
+  const [sfxOn, setSfxOn] = useState(true);
 
   const setDocTheme = (t: 'light' | 'dark') => {
     setTheme(t);
@@ -328,29 +332,53 @@ export default function Gallery() {
               </Button>
             ))}
           </div>
-          <div className="cl-row">
-            <Switch
-              checked={music}
-              onChange={async (on) => {
-                await audio.unlock();
+          <div className="cl-row" style={{ alignItems: 'flex-start', gap: 24 }}>
+            <MusicControl
+              locale={locale}
+              playing={music}
+              onPlayingChange={(on) => {
                 setMusic(on);
                 audio.setMusicEnabled(on);
               }}
-              label="Music"
-            />
-            <SegmentedControl<MusicMood>
-              label="Mood"
-              value={mood}
-              onChange={(m) => {
+              mood={mood}
+              moods={MUSIC_MOOD_IDS}
+              onMoodChange={(m) => {
                 setMood(m);
                 audio.setMusicMood(m);
               }}
-              options={[
-                { value: 'cafe', label: 'Café' },
-                { value: 'focus', label: 'Focus' },
-                { value: 'lab', label: 'Lab' },
-              ]}
+              volume={volume}
+              onVolumeChange={(v) => {
+                setVolume(v);
+                audio.setVolume(v);
+              }}
+              sfx={sfxOn}
+              onSfxChange={(on) => {
+                setSfxOn(on);
+                audio.setSfxEnabled(on);
+              }}
             />
+            <div style={{ maxWidth: 380, flex: '1 1 320px' }}>
+              <MusicControl
+                variant="panel"
+                locale={locale}
+                playing={music}
+                onPlayingChange={(on) => {
+                  setMusic(on);
+                  audio.setMusicEnabled(on);
+                }}
+                mood={mood}
+                moods={MUSIC_MOOD_IDS}
+                onMoodChange={(m) => {
+                  setMood(m);
+                  audio.setMusicMood(m);
+                }}
+                volume={volume}
+                onVolumeChange={(v) => {
+                  setVolume(v);
+                  audio.setVolume(v);
+                }}
+              />
+            </div>
           </div>
         </Section>
       </main>

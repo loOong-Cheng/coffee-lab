@@ -44,5 +44,7 @@ export type { EmptyStateProps } from './primitives/misc';
 export { KitchenActionBar } from './primitives/KitchenActionBar';
 export type { KitchenActionBarProps } from './primitives/KitchenActionBar';
 export { cx, pick } from './primitives/util';
+export { MusicControl } from './MusicControl';
+export type { MusicControlProps } from './MusicControl';
 
 export * from './illustrations';

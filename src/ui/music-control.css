@@ -1,0 +1,158 @@
+/* MusicControl — compact header control + popover / inline panel. */
+
+.cl-music {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+}
+
+.cl-music__play,
+.cl-music__mood {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  border-radius: var(--radius-pill);
+  color: var(--color-text);
+  transition: background-color var(--dur-fast) var(--ease-out), color var(--dur-fast) var(--ease-out);
+}
+.cl-music__play {
+  width: var(--tap-min);
+}
+.cl-music__play:hover,
+.cl-music__mood:hover {
+  background: var(--color-surface-2);
+}
+.cl-music__play.is-on {
+  background: var(--color-accent);
+  color: var(--color-accent-contrast);
+}
+.cl-music__mood {
+  padding: 0 var(--space-3) 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  max-width: 14rem;
+}
+.cl-music__mood-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+@media (max-width: 30rem) {
+  .cl-music__mood-label {
+    display: none;
+  }
+  .cl-music__mood {
+    padding: 0 var(--space-2);
+  }
+}
+
+/* Tiny animated equaliser = "music is playing" (static under reduced motion). */
+.cl-eq {
+  display: inline-flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 16px;
+}
+.cl-eq span {
+  width: 3px;
+  height: 100%;
+  border-radius: 1px;
+  background: currentColor;
+  transform-origin: bottom;
+  transform: scaleY(0.5);
+}
+.cl-eq.is-playing span {
+  animation: cl-eq 1.1s ease-in-out infinite;
+}
+.cl-eq.is-playing span:nth-child(2) {
+  animation-delay: -0.35s;
+}
+.cl-eq.is-playing span:nth-child(3) {
+  animation-delay: -0.7s;
+}
+@keyframes cl-eq {
+  0%,
+  100% {
+    transform: scaleY(0.35);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+.cl-music__popover {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  right: 0;
+  z-index: var(--z-overlay);
+  width: min(23rem, calc(100vw - 2 * var(--space-3)));
+  max-height: min(75dvh, 40rem);
+  overflow: auto;
+  overscroll-behavior: contain;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow-3);
+  animation: cl-pop var(--dur-med) var(--ease-out);
+}
+
+.cl-music-panel {
+  display: grid;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+.cl-music-panel--inline {
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.cl-music-panel__heading {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-body);
+  font-size: var(--text-md);
+  font-weight: var(--weight-bold);
+}
+.cl-music-panel__field {
+  display: grid;
+  gap: var(--space-2);
+}
+.cl-music-panel__label {
+  display: flex;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+  color: var(--color-text);
+}
+.cl-music-panel__label output {
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+.cl-music-panel .cl-seg--stacked {
+  grid-template-columns: 1fr;
+}
+.cl-music-panel__inspiration {
+  display: block;
+  margin-top: var(--space-1);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+.cl-music-panel__note,
+.cl-music-panel__footnote {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+.cl-music-panel__volume {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  color: var(--color-text-muted);
+}

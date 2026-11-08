@@ -1,0 +1,822 @@
+{
+  "sampleRate": 44100,
+  "userAgent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/158.0.8127.18 Safari/537.36",
+  "music": [
+    {
+      "mood": "cafe",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -12.855518471413488,
+        "rmsDbfs": -27.319720572803444,
+        "integratedLufs": -25.74913664194255,
+        "loudnessRangeLu": 7.212752944620778,
+        "maxMomentaryLufs": -20.8151911659562,
+        "maxImpulseLufs": -19.71277739729616,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0008222526809416451
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -12.855518471413488,
+        "rmsDbfs": -26.874537395934336,
+        "integratedLufs": -25.29066345468063,
+        "loudnessRangeLu": 5.465244402484728,
+        "maxMomentaryLufs": -20.815191165956488,
+        "maxImpulseLufs": -19.731875904578747,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0008870935196493066
+      },
+      "bands": {
+        "low": 0.40201054415664844,
+        "high": 0.000037173740012637056,
+        "mid": 0.597952282103339
+      },
+      "bars": 15,
+      "sections": [
+        "intro",
+        "A"
+      ]
+    },
+    {
+      "mood": "focus",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -17.575090719011087,
+        "rmsDbfs": -31.374731630396,
+        "integratedLufs": -29.784376382046478,
+        "loudnessRangeLu": 5.297320521264243,
+        "maxMomentaryLufs": -25.721993429727085,
+        "maxImpulseLufs": -24.930062838824217,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000001468644079607634
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -17.575090719011087,
+        "rmsDbfs": -31.02527667006466,
+        "integratedLufs": -29.40159424419108,
+        "loudnessRangeLu": 3.073769038588974,
+        "maxMomentaryLufs": -25.721993429726734,
+        "maxImpulseLufs": -24.988035620477945,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000002318707787540631
+      },
+      "bands": {
+        "low": 0.38472215761646994,
+        "high": 0.000003911614755485212,
+        "mid": 0.6152739307687747
+      },
+      "bars": 11,
+      "sections": [
+        "intro",
+        "A"
+      ]
+    },
+    {
+      "mood": "lab",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -13.595168694955271,
+        "rmsDbfs": -30.14927682356006,
+        "integratedLufs": -28.45028644326257,
+        "loudnessRangeLu": 6.028955329372316,
+        "maxMomentaryLufs": -22.945025590591552,
+        "maxImpulseLufs": -21.309857112752383,
+        "silentShare": 0.017857142857142856,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0011610426755771718
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -13.595168694955271,
+        "rmsDbfs": -29.776305860008605,
+        "integratedLufs": -28.275767485647528,
+        "loudnessRangeLu": 2.860341698872219,
+        "maxMomentaryLufs": -22.945025590591552,
+        "maxImpulseLufs": -21.306499737218864,
+        "silentShare": 0.010309278350515464,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0012035270961862233
+      },
+      "bands": {
+        "low": 0.5613405268959057,
+        "high": 0.00006554249525064554,
+        "mid": 0.4385939306088436
+      },
+      "bars": 17,
+      "sections": [
+        "intro",
+        "A"
+      ]
+    },
+    {
+      "mood": "bossa",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -13.416539044109822,
+        "rmsDbfs": -26.853936860249274,
+        "integratedLufs": -25.539165400459908,
+        "loudnessRangeLu": 4.782457062817329,
+        "maxMomentaryLufs": -21.14446238054764,
+        "maxImpulseLufs": -19.931278692263977,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.000031203129279792166
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -13.416539044109822,
+        "rmsDbfs": -26.483230843874516,
+        "integratedLufs": -25.14772312577985,
+        "loudnessRangeLu": 2.142510992578277,
+        "maxMomentaryLufs": -21.14446238054764,
+        "maxImpulseLufs": -19.924658383738763,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0000327132880969834
+      },
+      "bands": {
+        "low": 0.5405661675106102,
+        "high": 0.000051715215996641026,
+        "mid": 0.45938211727339323
+      },
+      "bars": 24,
+      "sections": [
+        "intro",
+        "A",
+        "B"
+      ]
+    },
+    {
+      "mood": "kissa",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -14.848414787009688,
+        "rmsDbfs": -29.21297114573692,
+        "integratedLufs": -27.87963592918172,
+        "loudnessRangeLu": 5.532533807842388,
+        "maxMomentaryLufs": -22.77555086891393,
+        "maxImpulseLufs": -21.66819597374349,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0005307918619832237
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -14.848414787009688,
+        "rmsDbfs": -28.867950772090648,
+        "integratedLufs": -27.538380607931376,
+        "loudnessRangeLu": 4.769475915961177,
+        "maxMomentaryLufs": -22.77555086891394,
+        "maxImpulseLufs": -21.73257918233374,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0005129936712142232
+      },
+      "bands": {
+        "low": 0.5267378773610053,
+        "high": 0.00045905022162650455,
+        "mid": 0.4728030724173682
+      },
+      "bars": 13,
+      "sections": [
+        "intro",
+        "A"
+      ]
+    },
+    {
+      "mood": "bar",
+      "full": {
+        "durationSec": 45,
+        "peakDbfs": -12.710725763086783,
+        "rmsDbfs": -26.955143418869984,
+        "integratedLufs": -25.621454750378664,
+        "loudnessRangeLu": 4.447894315240408,
+        "maxMomentaryLufs": -20.9115921150712,
+        "maxImpulseLufs": -19.833512519647112,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0011986275357369297
+      },
+      "body": {
+        "durationSec": 39,
+        "peakDbfs": -12.710725763086783,
+        "rmsDbfs": -26.610238017143484,
+        "integratedLufs": -25.281272005934337,
+        "loudnessRangeLu": 1.723876082248772,
+        "maxMomentaryLufs": -20.91159211507232,
+        "maxImpulseLufs": -19.861238275828732,
+        "silentShare": 0,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0013268399250694687
+      },
+      "bands": {
+        "low": 0.5463385752732224,
+        "high": 0.00005605237788367054,
+        "mid": 0.4536053723488939
+      },
+      "bars": 20,
+      "sections": [
+        "intro",
+        "A"
+      ]
+    }
+  ],
+  "variety": [
+    {
+      "mood": "cafe",
+      "minutes": 10,
+      "bars": 201,
+      "cycles": 6,
+      "sections": {
+        "intro": 1,
+        "A": 18,
+        "B": 6,
+        "break": 2
+      },
+      "distinctProgressions": 24,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 27,
+      "distinctChords": 45,
+      "keys": [
+        5,
+        8,
+        10
+      ],
+      "tempoRange": [
+        78.66160269733518,
+        81.86564193107188
+      ],
+      "meanEventsPerBar": 20.263681592039802,
+      "maxEventsPerBar": 25,
+      "melodyNotesPerMinute": 34.3,
+      "energyRange": [
+        0.4382912676838035,
+        0.9454491043655303
+      ]
+    },
+    {
+      "mood": "focus",
+      "minutes": 10,
+      "bars": 151,
+      "cycles": 5,
+      "sections": {
+        "intro": 1,
+        "A": 13,
+        "B": 5,
+        "break": 2
+      },
+      "distinctProgressions": 17,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 21,
+      "distinctChords": 17,
+      "keys": [
+        2,
+        7
+      ],
+      "tempoRange": [
+        59.80804753024131,
+        61.242397151654586
+      ],
+      "meanEventsPerBar": 3.814569536423841,
+      "maxEventsPerBar": 8,
+      "melodyNotesPerMinute": 12.2,
+      "energyRange": [
+        0.3916266823637753,
+        0.7303738147681452
+      ]
+    },
+    {
+      "mood": "lab",
+      "minutes": 10,
+      "bars": 226,
+      "cycles": 7,
+      "sections": {
+        "intro": 1,
+        "A": 20,
+        "B": 7,
+        "break": 3
+      },
+      "distinctProgressions": 18,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 31,
+      "distinctChords": 19,
+      "keys": [
+        0
+      ],
+      "tempoRange": [
+        88.00937686942052,
+        91.98005996807478
+      ],
+      "meanEventsPerBar": 27.057522123893804,
+      "maxEventsPerBar": 33,
+      "melodyNotesPerMinute": 42,
+      "energyRange": [
+        0.46135450781956877,
+        0.918672029658191
+      ]
+    },
+    {
+      "mood": "bossa",
+      "minutes": 10,
+      "bars": 321,
+      "cycles": 10,
+      "sections": {
+        "intro": 1,
+        "A": 29,
+        "B": 9,
+        "break": 4
+      },
+      "distinctProgressions": 29,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 43,
+      "distinctChords": 33,
+      "keys": [
+        0,
+        2
+      ],
+      "tempoRange": [
+        125.26448936611413,
+        130.86327533572913
+      ],
+      "meanEventsPerBar": 29.07165109034268,
+      "maxEventsPerBar": 32,
+      "melodyNotesPerMinute": 36.1,
+      "energyRange": [
+        0.443897634606229,
+        0.8836031029861806
+      ]
+    },
+    {
+      "mood": "kissa",
+      "minutes": 10,
+      "bars": 165,
+      "cycles": 5,
+      "sections": {
+        "intro": 1,
+        "A": 15,
+        "B": 5,
+        "break": 2
+      },
+      "distinctProgressions": 23,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 23,
+      "distinctChords": 32,
+      "keys": [
+        3,
+        8
+      ],
+      "tempoRange": [
+        64.48107350212521,
+        66.91012409438845
+      ],
+      "meanEventsPerBar": 16.64848484848485,
+      "maxEventsPerBar": 22,
+      "melodyNotesPerMinute": 25.2,
+      "energyRange": [
+        0.3986672975016875,
+        0.7957607801645524
+      ]
+    },
+    {
+      "mood": "bar",
+      "minutes": 10,
+      "bars": 261,
+      "cycles": 8,
+      "sections": {
+        "intro": 1,
+        "A": 23,
+        "B": 8,
+        "break": 3
+      },
+      "distinctProgressions": 25,
+      "exactSectionRepeats": 0,
+      "sectionInstances": 35,
+      "distinctChords": 34,
+      "keys": [
+        5,
+        7
+      ],
+      "tempoRange": [
+        102.21593633387238,
+        106.27700492097065
+      ],
+      "meanEventsPerBar": 26.1455938697318,
+      "maxEventsPerBar": 32,
+      "melodyNotesPerMinute": 47.5,
+      "energyRange": [
+        0.47840075700202495,
+        0.9162303053845839
+      ]
+    }
+  ],
+  "sfx": [
+    {
+      "name": "tap",
+      "stats": {
+        "durationSec": 1.9,
+        "peakDbfs": -8.704418073677985,
+        "rmsDbfs": -37.80588296972858,
+        "integratedLufs": -28.344415138671813,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -28.344415138671813,
+        "maxImpulseLufs": -22.32382436219571,
+        "silentShare": 0.75,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000013168016089800617
+      },
+      "tailSec": 0.10573696145124717
+    },
+    {
+      "name": "select",
+      "stats": {
+        "durationSec": 2.05,
+        "peakDbfs": -12.847206039807295,
+        "rmsDbfs": -38.03169965129123,
+        "integratedLufs": -28.471474201924543,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -27.741701742855916,
+        "maxImpulseLufs": -21.954198610199324,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000005018160237787467
+      },
+      "tailSec": 0.23476190476190475
+    },
+    {
+      "name": "correct",
+      "stats": {
+        "durationSec": 2.6,
+        "peakDbfs": -13.10705083516768,
+        "rmsDbfs": -34.55695067107039,
+        "integratedLufs": -24.347821422995445,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -22.326118748287232,
+        "maxImpulseLufs": -18.940752159609435,
+        "silentShare": 0.5,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000013239821799271787
+      },
+      "tailSec": 1.4679365079365079
+    },
+    {
+      "name": "incorrect",
+      "stats": {
+        "durationSec": 2.35,
+        "peakDbfs": -13.103699988685165,
+        "rmsDbfs": -35.17762603560346,
+        "integratedLufs": -26.20198430021342,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -25.245459492978256,
+        "maxImpulseLufs": -20.985328379895503,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -7.096543464366986e-7
+      },
+      "tailSec": 0.438140589569161
+    },
+    {
+      "name": "complete",
+      "stats": {
+        "durationSec": 3.4000226757369614,
+        "peakDbfs": -11.339366847323626,
+        "rmsDbfs": -32.3178058549999,
+        "integratedLufs": -23.695432210288256,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -20.585409657870624,
+        "maxImpulseLufs": -18.89889257730953,
+        "silentShare": 0.625,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000005316328820595584
+      },
+      "tailSec": 1.6906122448979592
+    },
+    {
+      "name": "levelUp",
+      "stats": {
+        "durationSec": 3.6,
+        "peakDbfs": -10.024490633823685,
+        "rmsDbfs": -32.16111707754516,
+        "integratedLufs": -22.114404367993142,
+        "loudnessRangeLu": 13.355641353667927,
+        "maxMomentaryLufs": -19.549422743644303,
+        "maxImpulseLufs": -17.746315050469196,
+        "silentShare": 0.5555555555555556,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000011555862327401153
+      },
+      "tailSec": 1.7754421768707482
+    },
+    {
+      "name": "grind",
+      "stats": {
+        "durationSec": 3.6,
+        "peakDbfs": -11.705874479991948,
+        "rmsDbfs": -27.72594976580157,
+        "integratedLufs": -22.06072059969252,
+        "loudnessRangeLu": 1.271421848206792,
+        "maxMomentaryLufs": -20.886077509919982,
+        "maxImpulseLufs": -19.994816205130046,
+        "silentShare": 0.4444444444444444,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.00001423096578239331
+      },
+      "tailSec": 1.748390022675737
+    },
+    {
+      "name": "pour",
+      "stats": {
+        "durationSec": 3.5,
+        "peakDbfs": -8.978793170234946,
+        "rmsDbfs": -29.089713570004992,
+        "integratedLufs": -22.024119036581958,
+        "loudnessRangeLu": 1.0071667899514622,
+        "maxMomentaryLufs": -20.983203858499795,
+        "maxImpulseLufs": -20.02231548213261,
+        "silentShare": 0.5,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000005827663276985156
+      },
+      "tailSec": 1.6097732426303855
+    },
+    {
+      "name": "steam",
+      "stats": {
+        "durationSec": 3.4000226757369614,
+        "peakDbfs": -16.193551348702893,
+        "rmsDbfs": -37.32008344415631,
+        "integratedLufs": -26.70943520322964,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -22.9255535369719,
+        "maxImpulseLufs": -19.95156846236048,
+        "silentShare": 0.625,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.00002031714809463089
+      },
+      "tailSec": 1.3193877551020408
+    },
+    {
+      "name": "drip",
+      "stats": {
+        "durationSec": 2.6,
+        "peakDbfs": -8.785915446033666,
+        "rmsDbfs": -32.6375413721108,
+        "integratedLufs": -24.447227822648767,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -23.121179066692246,
+        "maxImpulseLufs": -20.0619949328921,
+        "silentShare": 0.6666666666666666,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.00003705338700613635
+      },
+      "tailSec": 1.581201814058957
+    },
+    {
+      "name": "timer",
+      "stats": {
+        "durationSec": 3.3,
+        "peakDbfs": -16.78857915466664,
+        "rmsDbfs": -34.98018686243344,
+        "integratedLufs": -24.68528846644379,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -22.272392673206706,
+        "maxImpulseLufs": -18.98440884277294,
+        "silentShare": 0.625,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000007234395443542283
+      },
+      "tailSec": 1.4200226757369614
+    },
+    {
+      "name": "snap",
+      "stats": {
+        "durationSec": 1.95,
+        "peakDbfs": -9.18164141293657,
+        "rmsDbfs": -36.87697033638139,
+        "integratedLufs": -28.218648157834057,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -28.218648157834057,
+        "maxImpulseLufs": -22.198058939170533,
+        "silentShare": 0.75,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.0000947985985653746
+      },
+      "tailSec": 0.13047619047619047
+    },
+    {
+      "name": "whoosh",
+      "stats": {
+        "durationSec": 2.2000226757369616,
+        "peakDbfs": -13.135200124621772,
+        "rmsDbfs": -38.55525475999457,
+        "integratedLufs": -28.00355473260697,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -27.505058254961686,
+        "maxImpulseLufs": -22.004454060120374,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -3.4311782492189336e-7
+      },
+      "tailSec": 0.3988888888888889
+    },
+    {
+      "name": "reset",
+      "stats": {
+        "durationSec": 2.2000226757369616,
+        "peakDbfs": -8.470971844177505,
+        "rmsDbfs": -37.462111168490765,
+        "integratedLufs": -27.669036638686197,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -27.25771042965207,
+        "maxImpulseLufs": -22.07510582822672,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.00001424088223746173
+      },
+      "tailSec": 0.3826530612244898
+    },
+    {
+      "name": "espresso",
+      "stats": {
+        "durationSec": 4.1,
+        "peakDbfs": -15.968454068248478,
+        "rmsDbfs": -30.44291996338982,
+        "integratedLufs": -27.58366850034704,
+        "loudnessRangeLu": 4.457139639330489,
+        "maxMomentaryLufs": -22.521293113669152,
+        "maxImpulseLufs": -20.046625929077646,
+        "silentShare": 0.4,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.000011562800945401456
+      },
+      "tailSec": 2.283605442176871
+    },
+    {
+      "name": "serve",
+      "stats": {
+        "durationSec": 2.2000226757369616,
+        "peakDbfs": -11.410307620025598,
+        "rmsDbfs": -37.4497056583131,
+        "integratedLufs": -27.685503970742207,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -25.846286756290876,
+        "maxImpulseLufs": -20.004272223257722,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.00001670847907633819
+      },
+      "tailSec": 0.8862131519274377
+    },
+    {
+      "name": "ice",
+      "stats": {
+        "durationSec": 2.5,
+        "peakDbfs": -10.196546032030898,
+        "rmsDbfs": -35.07789638052913,
+        "integratedLufs": -23.02849579826954,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -21.661848002547192,
+        "maxImpulseLufs": -19.954325828575737,
+        "silentShare": 0.6666666666666666,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000022173325631429074
+      },
+      "tailSec": 0.5528571428571428
+    },
+    {
+      "name": "milkSteam",
+      "stats": {
+        "durationSec": 4.5,
+        "peakDbfs": -15.53535509197902,
+        "rmsDbfs": -37.33244365330017,
+        "integratedLufs": -26.692071128818736,
+        "loudnessRangeLu": 9.24600922251484,
+        "maxMomentaryLufs": -22.376426286922133,
+        "maxImpulseLufs": -20.042943444935116,
+        "silentShare": 0.5454545454545454,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000013629748406570137
+      },
+      "tailSec": 2.1862131519274377
+    },
+    {
+      "name": "milkPour",
+      "stats": {
+        "durationSec": 3.3,
+        "peakDbfs": -9.620103663414236,
+        "rmsDbfs": -28.929243104991574,
+        "integratedLufs": -21.97966112012282,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -20.742814459500003,
+        "maxImpulseLufs": -19.98116944057652,
+        "silentShare": 0.5,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.000003440554537267395
+      },
+      "tailSec": 1.4189795918367347
+    },
+    {
+      "name": "tamp",
+      "stats": {
+        "durationSec": 2.05,
+        "peakDbfs": -10.065385359833904,
+        "rmsDbfs": -35.101409383451916,
+        "integratedLufs": -26.336055593529913,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -26.336055593529913,
+        "maxImpulseLufs": -20.338391014382307,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.000060587601493436365
+      },
+      "tailSec": 0.21582766439909298
+    },
+    {
+      "name": "knock",
+      "stats": {
+        "durationSec": 2.1,
+        "peakDbfs": -10.215928165373514,
+        "rmsDbfs": -34.156422981643736,
+        "integratedLufs": -28.785341214086106,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -26.14021389569611,
+        "maxImpulseLufs": -20.126979759030345,
+        "silentShare": 0.8,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": -0.00011411809947737102
+      },
+      "tailSec": 0.21197278911564627
+    },
+    {
+      "name": "orderBell",
+      "stats": {
+        "durationSec": 3.3,
+        "peakDbfs": -18.166640101607893,
+        "rmsDbfs": -37.022798157537764,
+        "integratedLufs": -25.924324994884618,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -22.508106311689165,
+        "maxImpulseLufs": -18.97193764854673,
+        "silentShare": 0.625,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.0000028488048623866326
+      },
+      "tailSec": 1.384126984126984
+    },
+    {
+      "name": "bloom",
+      "stats": {
+        "durationSec": 3.3,
+        "peakDbfs": -11.960582059036165,
+        "rmsDbfs": -36.030858266446884,
+        "integratedLufs": -26.845928999670484,
+        "loudnessRangeLu": 0,
+        "maxMomentaryLufs": -24.016053632945507,
+        "maxImpulseLufs": -20.958210658788747,
+        "silentShare": 0.5,
+        "clippedSamples": 0,
+        "nanSamples": 0,
+        "dcOffset": 0.00003938666995466504
+      },
+      "tailSec": 1.2712244897959184
+    }
+  ]
+}

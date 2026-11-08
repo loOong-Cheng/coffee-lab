@@ -1,14 +1,17 @@
 /**
  * Tiny Web Audio synthesis kit shared by SFX and music. Everything is procedural:
  * oscillators, filtered noise and a generated reverb impulse — no audio files.
+ * Works on any BaseAudioContext (live AudioContext or OfflineAudioContext for QA renders).
  */
 
 export interface Kit {
-  ctx: AudioContext;
+  ctx: BaseAudioContext;
   /** 2 s of mono white noise, looped by noise sources. */
   noise: AudioBuffer;
   /** Shared reverb send input. */
   reverb: AudioNode;
+  /** Deterministic-able random source (QA renders seed it). */
+  random: () => number;
 }
 
 export const midiToHz = (m: number) => 440 * Math.pow(2, (m - 69) / 12);
@@ -26,8 +29,9 @@ export function envelope(p: AudioParam, t: number, attack: number, peak: number,
 export interface ToneOpts {
   type?: OscillatorType;
   freq: number;
-  /** Optional glide target reached at the end of attack+decay. */
+  /** Optional glide target reached at the end of attack+decay (or at `glide` seconds). */
   freqEnd?: number;
+  glide?: number;
   t: number;
   attack?: number;
   decay?: number;
@@ -42,7 +46,7 @@ export function tone(k: Kit, dest: AudioNode, o: ToneOpts): void {
   const osc = ctx.createOscillator();
   osc.type = o.type ?? 'sine';
   osc.frequency.setValueAtTime(o.freq, o.t);
-  if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(o.freqEnd, o.t + attack + decay);
+  if (o.freqEnd) osc.frequency.exponentialRampToValueAtTime(o.freqEnd, o.t + (o.glide ?? attack + decay));
   if (o.detune) osc.detune.setValueAtTime(o.detune, o.t);
   const g = ctx.createGain();
   envelope(g.gain, o.t, attack, o.peak ?? 0.2, decay);
@@ -63,7 +67,7 @@ export interface NoiseOpts {
   attack?: number;
 }
 
-/** Filtered noise burst. Returns the envelope gain so callers can add modulation. */
+/** Filtered noise burst. Returns the envelope gain (callers may add modulation) and the filter. */
 export function noise(k: Kit, dest: AudioNode, o: NoiseOpts): GainNode {
   const { ctx } = k;
   const src = ctx.createBufferSource();
@@ -80,7 +84,7 @@ export function noise(k: Kit, dest: AudioNode, o: NoiseOpts): GainNode {
   src.connect(f);
   f.connect(g);
   g.connect(dest);
-  src.start(o.t, Math.random() * 1.5);
+  src.start(o.t, k.random() * 1.5);
   src.stop(o.t + o.dur + 0.05);
   return g;
 }
@@ -98,16 +102,41 @@ export function bell(k: Kit, dest: AudioNode, freq: number, t: number, peak = 0.
   }
 }
 
-export function makeNoiseBuffer(ctx: AudioContext, seconds = 2): AudioBuffer {
+/** Ceramic/glass "tink": inharmonic partials typical of a cup or saucer. */
+export function ceramic(k: Kit, dest: AudioNode, base: number, t: number, peak = 0.1, decay = 0.35): void {
+  const partials: Array<[number, number]> = [
+    [1, 1],
+    [2.32, 0.55],
+    [4.25, 0.3],
+    [6.63, 0.15],
+  ];
+  for (const [r, a] of partials) {
+    tone(k, dest, { freq: base * r, t, attack: 0.001, decay: decay / Math.sqrt(r), peak: peak * a });
+  }
+}
+
+/** Seeded PRNG (mulberry32) — deterministic renders and tests. */
+export function seededRandom(seed: number): () => number {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+export function makeNoiseBuffer(ctx: BaseAudioContext, seconds = 2, random: () => number = Math.random): AudioBuffer {
   const len = Math.max(1, Math.floor(ctx.sampleRate * seconds));
   const buf = ctx.createBuffer(1, len, ctx.sampleRate);
   const data = buf.getChannelData(0);
-  for (let i = 0; i < len; i++) data[i] = Math.random() * 2 - 1;
+  for (let i = 0; i < len; i++) data[i] = random() * 2 - 1;
   return buf;
 }
 
 /** Warm room impulse response: decaying stereo noise with high frequencies dying faster. */
-export function makeImpulse(ctx: AudioContext, seconds = 2.2): AudioBuffer {
+export function makeImpulse(ctx: BaseAudioContext, seconds = 2.2, random: () => number = Math.random): AudioBuffer {
   const len = Math.max(1, Math.floor(ctx.sampleRate * seconds));
   const buf = ctx.createBuffer(2, len, ctx.sampleRate);
   for (let ch = 0; ch < 2; ch++) {
@@ -115,7 +144,7 @@ export function makeImpulse(ctx: AudioContext, seconds = 2.2): AudioBuffer {
     let lp = 0;
     for (let i = 0; i < len; i++) {
       const tNorm = i / len;
-      const white = Math.random() * 2 - 1;
+      const white = random() * 2 - 1;
       const smooth = 0.25 + 0.6 * tNorm; // darker tail
       lp = lp + (white - lp) * (1 - smooth);
       d[i] = lp * Math.pow(1 - tNorm, 2.6);

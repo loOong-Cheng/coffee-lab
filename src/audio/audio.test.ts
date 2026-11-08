@@ -1,5 +1,5 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { audio, createAudioEngine, SFX_NAMES } from './index';
+import { audio, createAudioEngine, MUSIC_MOOD_IDS, SFX_NAMES } from './index';
 
 /** Minimal fake Web Audio graph: records node creation and accepts every scheduling call. */
 class FakeParam {
@@ -163,7 +163,7 @@ describe('audio engine with a (fake) AudioContext', () => {
     expect(c.nodes).toBe(idle); // no music unless asked
 
     engine.setMusicEnabled(true);
-    for (const mood of ['cafe', 'focus', 'lab'] as const) {
+    for (const mood of MUSIC_MOOD_IDS) {
       engine.setMusicMood(mood);
       for (let i = 0; i < 40; i++) {
         c.currentTime += 0.25;
@@ -171,6 +171,10 @@ describe('audio engine with a (fake) AudioContext', () => {
       }
     }
     expect(c.nodes).toBeGreaterThan(idle);
+    expect(engine.getMusicMood?.()).toBe(MUSIC_MOOD_IDS[MUSIC_MOOD_IDS.length - 1]);
+    expect(engine.isMusicPlaying?.()).toBe(true);
+    engine.setMusicMood('nonsense' as never);
+    expect(engine.getMusicMood?.()).toBe(MUSIC_MOOD_IDS[MUSIC_MOOD_IDS.length - 1]);
 
     engine.setMusicEnabled(false);
     vi.advanceTimersByTime(2500); // fade-out then scheduler stops
@@ -178,5 +182,6 @@ describe('audio engine with a (fake) AudioContext', () => {
     c.currentTime += 5;
     vi.advanceTimersByTime(1000);
     expect(c.nodes).toBe(stopped);
+    expect(engine.isMusicPlaying?.()).toBe(false);
   });
 });

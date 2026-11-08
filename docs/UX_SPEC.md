@@ -43,7 +43,17 @@ No streaks, daily goals, push notifications, XP, loss-aversion copy or meaningle
 
 ## 6. Motion and sound
 - **Motion** only explains a change: state change, cause and effect, a hint pulse on a pin. Use the `--dur-*` tokens. The only loops are the hint pulse and the spinner. Reduced motion (OS setting or `[data-reduced-motion="on"]`) collapses all durations to 1ms and stops the pulses. `="off"` lets a user override the OS setting.
-- **Sound** is all procedural Web Audio (`src/audio`); there are no audio files. SFX are on by default but can only play after the first gesture (`unlock()`). **Music is off by default** and is never auto-played. Moods: `focus` for lessons and quizzes, `lab` for labs and XR, `cafe` for home, atlas, culture and the journal. One master volume; mute lives in the header. No sound carries meaning on its own: every sound has visible feedback. `incorrect` is a soft "hmm", never a buzzer. In kitchen mode the timer ding comes with a visual change.
+- **Sound** is all procedural Web Audio (`src/audio`); there are no audio files. SFX are on by default but can only play after the first gesture (`unlock()`). **Music is off by default** and is never auto-played. One master volume. Put `MusicControl` (compact) in the header; use the `panel` variant in a drawer or in Settings. No sound carries meaning on its own: every sound has visible feedback. `incorrect` is a soft "hmm", never a buzzer. In kitchen mode the timer ding comes with a visual change.
+- **Music is a generative score, not a loop.**
+  - Song form: intro → A A B A, plus a sparse "breather" section every 2 cycles.
+  - Each section has 2–3 progression variants, with light reharmonisation and occasional key and tempo drift.
+  - Chords are voice-led; melodies are built from motifs (call → rest → varied call → resolve) and never sit a minor 9th above a chord tone.
+  - Dynamics come from section energy plus a phrase swell.
+  - Moods: `focus` (no drums) for lessons and quizzes; `lab` for labs and XR; `cafe` for home, atlas and journal.
+  - Culture moods (`bossa` for Brazil, `kissa` for Japan's jazz-listening cafés, `bar` for the Italian espresso-bar morning) suit the Atlas and the culture track.
+  - Culture moods take their *harmony and rhythm* from the tradition (bossa syncopation, piano-trio ballads, bright two-feel). They avoid caricature instruments (no accordion or mandolin clichés) and never quote real songs. Each mood carries a bilingual description and an "inspired by" line (`MUSIC_MOODS`).
+- **SFX palette (23):** UI (`tap select snap reset whoosh`) ≈ −22 LUFS; feedback (`correct incorrect complete levelUp timer orderBell`) ≈ −19; coffee (`grind pour steam drip espresso serve ice milkSteam milkPour tamp knock bloom`) ≈ −20. Loudness is calibrated with `SFX_TRIM`; music sits ≥4 LU below the median SFX.
+- **Audio QA:** `node src/audio/__render__/run-audio-qa.mjs` renders everything offline in headless Chromium through the live mixing graph. It writes `reports/AUDIO_QA.md` with pass/fail checks and WAV previews to `reports/audio/`. Re-run it after any audio change.
 
 ## 7. Accessibility checklist (apply to every screen)
 - [ ] Every control is reachable by keyboard; focus is visible (`:focus-visible` ring); no keyboard traps outside modals.

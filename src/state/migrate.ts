@@ -65,7 +65,7 @@ const OUTCOMES: readonly LearningEvent['outcome'][] = ['completed', 'retry', 'sk
 const STEP_STATUS = ['done', 'skipped', 'help'] as const;
 const REDUCED_MOTION: readonly Preferences['reducedMotion'][] = ['system', 'on', 'off'];
 const THEMES: readonly Preferences['theme'][] = ['system', 'light', 'dark'];
-const MOODS: readonly Preferences['musicMood'][] = ['cafe', 'focus', 'lab'];
+const MOODS: readonly Preferences['musicMood'][] = ['cafe', 'focus', 'lab', 'bossa', 'kissa', 'bar'];
 
 type Obj = Record<string, unknown>;
 const isObj = (v: unknown): v is Obj => typeof v === 'object' && v !== null && !Array.isArray(v);
