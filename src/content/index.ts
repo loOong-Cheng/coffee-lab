@@ -13,6 +13,8 @@ import { sources as coreSources } from './sources';
 import { sources as atlasSources } from './sources.atlas';
 import { equipment as equipmentCatalog } from './equipment';
 import { drinks as drinkCatalog } from './drinks';
+import { places as culturePlaces } from './culture-map';
+import type { CulturePlace } from '../domain/contracts';
 
 const modules = [literacy, espresso, pourover, explore, culture];
 
@@ -41,6 +43,11 @@ export const getActivity = (id: string): Activity | undefined => activityIndex.g
 export const getSource = (id: string): SourceRef | undefined => sourceIndex.get(id);
 export const getEquipment = (id: string): Equipment | undefined => equipmentIndex.get(id);
 export const getDrink = (id: string): DrinkRecipe | undefined => drinkIndex.get(id);
+
+/** Culture Explorer: map places + history timeline (timeline is authored in ascending `year`). */
+export { places, timeline } from './culture-map';
+const placeIndex = byId(culturePlaces);
+export const getPlace = (id: string): CulturePlace | undefined => placeIndex.get(id);
 
 /** Lessons of a track in the track's declared order. */
 export function getTrackLessons(trackId: string): Lesson[] {

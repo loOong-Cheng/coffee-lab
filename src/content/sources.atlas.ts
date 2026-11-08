@@ -228,4 +228,61 @@ export const sources: SourceRef[] = [
     title: 'Common café practice (rule of thumb) — drink sizes and ratios vary by café, region and era',
     note: 'Used for illustrative starting recipes. Not a standard: names like "macchiato" or "flat white" mean different drinks in different places.',
   },
+  // ── Culture Explorer (map + timeline) additions ──
+  {
+    id: 'atlas-wiki-instant-coffee',
+    title: 'Wikipedia — Instant coffee (Kato 1901; Washington c. 1909–10; Nescafé 1938; earlier competing claims)',
+    url: 'https://en.wikipedia.org/wiki/Instant_coffee',
+    accessed: ACCESSED,
+    note: 'Several secondary sources agree on Nescafé 1938; "first inventor" is contested (e.g. an 1890 New Zealand patent claim).',
+  },
+  {
+    id: 'atlas-unesco-colombia',
+    title: 'UNESCO World Heritage Centre — Coffee Cultural Landscape of Colombia (inscribed 2011)',
+    url: 'https://whc.unesco.org/en/list/1121',
+    accessed: ACCESSED,
+  },
+  {
+    id: 'atlas-wiki-saint-domingue',
+    title: 'Wikipedia — Saint-Domingue (coffee and sugar economy; enslaved labour; 1791 revolution)',
+    url: 'https://en.wikipedia.org/wiki/Saint-Domingue',
+    accessed: ACCESSED,
+    note: 'Share figures differ: ~60% of coffee consumed in Europe (1780s) vs "over half of world supply" (other scholarship) — content gives a range.',
+  },
+  {
+    id: 'atlas-wiki-brazil-coffee',
+    title: 'Wikipedia — Coffee production in Brazil (largest producer from the 1840s; slavery; abolition 1888)',
+    url: 'https://en.wikipedia.org/wiki/Coffee_production_in_Brazil',
+    accessed: ACCESSED,
+    note: 'Cross-checked with a Cambridge University Press chapter summary (Brazil ~half of world production by 1850).',
+  },
+  {
+    id: 'atlas-wiki-vietnam-production',
+    title: 'Wikipedia — Coffee production in Vietnam (Đổi Mới 1986; second-largest producer; mostly robusta; Buôn Ma Thuột)',
+    url: 'https://en.wikipedia.org/wiki/Coffee_production_in_Vietnam',
+    accessed: ACCESSED,
+  },
+  {
+    id: 'atlas-wiki-kenya-coffee',
+    title: 'Wikipedia — Coffee production in Kenya (French Spiritan missionaries, Bura 1893; St Austin’s Mission c. 1899)',
+    url: 'https://en.wikipedia.org/wiki/Coffee_production_in_Kenya',
+    accessed: ACCESSED,
+  },
+  {
+    id: 'atlas-wiki-wbc',
+    title: 'Wikipedia — World Barista Championship (first held 2000, Monte Carlo; winner Robert Thoresen, Norway)',
+    url: 'https://en.wikipedia.org/wiki/World_Barista_Championship',
+    accessed: ACCESSED,
+  },
+  {
+    id: 'atlas-history-starbucks',
+    title: 'HISTORY.com — First Starbucks opens in Seattle’s Pike Place Market (30 March 1971)',
+    url: 'https://www.history.com/this-day-in-history/march-30/first-starbucks-opens-seattle-pike-place-market',
+    accessed: ACCESSED,
+  },
+  {
+    id: 'atlas-general-reference',
+    title: 'General reference knowledge — NOT fetched during review (flagged in docs/CONTENT_SOURCES_ATLAS.md)',
+    note: 'Used only for low-risk context (e.g. Caffè Florian 1720, Swedish fika, post-war Italian/Greek migration and Melbourne café culture, Cuban colada, Central American export history). Lower confidence; needs verification.',
+  },
 ];

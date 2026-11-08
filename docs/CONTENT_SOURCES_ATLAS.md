@@ -48,3 +48,15 @@ Owner: coffee-curriculum (atlas). Accessed / reviewed: **2026-11-07**. Source id
 - Human expert review (barista trainer + historian) of all `verified` culture claims and of regional recipes, ideally by people from those traditions.
 - Primary-source checks: SCA Water Quality Handbook, Peçevi chronicle dating, Bezzera/Gaggia patents, HK ICH office inventory wording.
 - Not yet covered: egg coffee (Hanoi), Irish/alcoholic coffees (deliberately skipped), Korean/Chinese café culture depth, decaf processing, home roasting (deliberately excluded for safety scope), latte art technique.
+
+## Culture Explorer — map places + timeline (`src/content/culture-map.ts`)
+
+Added 2026-11-08 (research accessed 2026-11-07/08). 34 places (origin 3, coffeehouse 8, drink-culture 12, producer 11) and 37 timeline events (3 `legend`, 14 `disputed`). Tests: `src/content/culture-map.test.ts`.
+
+- **Coordinates** are approximate pins for a representative city/region (e.g. "Brazil" pinned in south Minas Gerais). Producer/origin pins all lie within ±30° latitude.
+- **Legends** (`kind: 'legend'`, yearLabel starts "Legend"/"传说"): Kaldi goats (set c. 9th c., first written 1671), Baba Budan's seven seeds (17th c.), Kolschitzky's Vienna café (1683). Legend-like details inside history events are flagged in text (Palheta bouquet, de Clieu water ration, moka "laundry boiler", café de olla Revolution story).
+- **Disputed** (range in yearLabel): Istanbul 1554/55, Venice 1640s–1683, Oxford 1650/51, Procope 1686/1689, Martinique 1720/1723, Saint-Domingue share (~half to 60%), Vietnam 1857 (unverified), Yunnan 1892–1904, instant coffee "first" (Kato 1901 / Washington c.1910 / earlier claims), Gaggia late 1930s–40s, frappé 1957, flat white 1980s AU vs NZ, third-wave article 2002/03.
+- **Colonial & enslaved labour** stated briefly and factually: Java (Dutch plantations, later forced cultivation), Martinique/Caribbean, Saint-Domingue (enslaved labour; 1791 revolution → Haiti), Brazil (enslaved labour until abolition 1888).
+- **New sources:** atlas-wiki-instant-coffee, atlas-unesco-colombia (2011), atlas-wiki-saint-domingue, atlas-wiki-brazil-coffee, atlas-wiki-vietnam-production, atlas-wiki-kenya-coffee (Bura 1893), atlas-wiki-wbc (2000, Robert Thoresen), atlas-history-starbucks (30 Mar 1971).
+- **`atlas-general-reference` (not fetched — lower confidence, needs verification):** Caffè Florian 1720; Swedish fika and Nordic per-capita consumption; post-war Italian/Greek migration shaping Melbourne cafés; Cuban colada/espumita customs; Central American coffee becoming a major 19th-century export; Brazilian cafezinho; Harar "natural" coffees; Java forced-cultivation (19th c. Cultivation System) mentioned without a date; Kaffa↔"coffee" etymology described only as disputed.
+- Ethiopia "one of Africa's largest producers" and Vietnam "second-largest producer" kept general (no statistics quoted).
