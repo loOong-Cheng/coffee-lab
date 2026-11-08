@@ -94,5 +94,5 @@ Theme: light default + dark via `prefers-color-scheme` and `[data-theme]` on `<h
 - Brew log `drinkId`: real drink id (e.g. `espresso-shot`) when known; display resolves drink → activity title → raw text.
 - XR or 3D task completion detected by the app's own collision/rules → `simulated` (it's a simulation) — never "real skill".
 - Real-world guide steps and brew logs → `self_report`; UI labels them "self-reported".
-- `observed_by_app` only for things the app truly measured (e.g. a timer the user ran in-app).
+- `observed_by_app` only for things the app truly measured (e.g. a timer the user ran in-app). In the journal this is `BrewLogEntry.timeSource: 'app-timer'` (seconds between the learner's own start/stop taps) — shown as "Timed in app"; editing the value makes it `self_report`. The entry itself stays `self_report`.
 - Any simulated extraction/taste output carries an "illustrative model" label.
