@@ -4,6 +4,7 @@ A beginner-first coffee learning game built as **one web app** with intentionall
 
 - **Desktop** — 2D concept learning: illustrated lessons, step ordering, ratio lab, diagnosis.
 - **Mobile** — touch-first lessons plus a hands-busy **real-cup coach** for your own espresso machine / pour-over kit (completion is always *self-reported*).
+- **Also:** a Drink Atlas of 29 drinks, a Café Counter order game, a Coffee Culture Explorer (map + timeline), a brew journal, and original generative café music + sound effects (off by default).
 - **WebXR (optional)** — an immersive espresso-station practice scene for headsets that support `immersive-vr`. Never required; every device without XR gets a working 2D alternative.
 
 Bilingual UI (中文 / English toggle). Progress is stored locally in your browser (no account, no server, no network calls at runtime). Canonical product brief: `COFFEE_LAB_HANDOFF.md`.
@@ -70,11 +71,13 @@ src/
   i18n/               useI18n(), locale detection, LocalizedText helpers
   platform/           capability detection (touch, speech, wake lock, WebXR), suggestMode(), PWA/service worker
   content/            curriculum, equipment, drinks (data only)
-  features/           route pages (home, onboarding, lesson, practice, journal, atlas, settings)
+  features/           route pages: home, onboarding, lesson (+ activities), practice (kitchen mode),
+                      journal, atlas (Drink Atlas), cafe (Café Counter game), culture (map + timeline), settings
   ui/ styles/ audio/  design system, tokens, procedural sound
   xr/                 WebXR route (Babylon.js, lazy-loaded only on /xr)
 public/               web app manifest + original app icons (SVG sources, PNG renders)
-tests/e2e/            Playwright smoke tests
+tests/e2e/            Playwright suites: smoke, shell, learn, practice, cafe, culture, offline + independent QA (qa-*)
+reports/              QA log, delivery report, screenshots, audio QA (+ WAV previews in reports/audio/)
 ```
 
 Key architecture decisions and integration contracts: `docs/DECISIONS.md`, `docs/CONTRACTS.md`.
