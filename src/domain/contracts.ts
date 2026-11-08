@@ -456,3 +456,20 @@ export interface CultureTimelineEvent {
   sources: string[];
   confidence: Confidence;
 }
+
+// ─────────────────────────── glossary ───────────────────────────
+/** A bilingual coffee term. `match` lists surface forms the UI may auto-link inside lesson text. */
+export interface GlossaryTerm {
+  id: string;
+  term: LocalizedText;
+  /** Short plain-language definition (1–2 sentences). */
+  definition: LocalizedText;
+  /** Optional longer note: common confusion, example, or "rule of thumb" context. */
+  note?: LocalizedText;
+  /** Surface forms to recognise in text, per language (case-insensitive for en). Keep specific to avoid false matches. */
+  match: { zh: string[]; en: string[] };
+  category: 'brewing' | 'espresso' | 'milk' | 'equipment' | 'sensory' | 'origin' | 'culture' | 'safety';
+  relatedLessonIds: string[];
+  seeAlso: string[];
+  confidence: Confidence;
+}
