@@ -29,7 +29,7 @@ export const POUR = {
   pourEndGapSec: 0.4,
   /** Measured pours from the action list: steady flow and the largest single pulse. */
   pulseFlowGps: 4,
-  maxPulseG: 100,
+  maxPulseG: 300,
   /** Water held by wet grounds (g per g coffee). */
   retainedPerDose: 2,
   drainBaseGps: 1.5,

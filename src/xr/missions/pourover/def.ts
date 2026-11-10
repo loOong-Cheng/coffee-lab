@@ -189,7 +189,8 @@ export const pouroverMission: MissionDef<PourState, PourAction> = {
   },
   readout(s) {
     const step = currentPourStep(s);
-    if (!s.filterIn && s.rinseG === 0 && s.brewG === 0) return null;
+    // Shown whenever water can flow, so the stream is always labelled as an illustrative model.
+    if (!s.filterIn && s.rinseG === 0 && s.brewG === 0 && !s.items.kettle.heldBy) return null;
     const target = step === 'bloom' ? POUR.bloomIdealG : step === 'rinse' ? POUR.rinseMinG + 5 : POUR.targetWaterG;
     const poured = s.groundsIn ? s.brewG : s.rinseG;
     const near = cuesOf(s).yieldCue && kettleFlow(s) > 0 && poured >= target - (target > 100 ? 15 : 6);

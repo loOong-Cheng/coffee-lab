@@ -175,7 +175,7 @@ export const P = {
     bloom: { en: 'Bloom: {s} s (aim 30–45 s)', zh: '闷蒸：{s} 秒（目标 30–45 秒）' },
     rinse: { en: 'Rinse water: {g} g', zh: '冲洗水：{g} 克' },
   },
-  readout: { en: 'poured {w} g · target {t} g · flow {f} g/s · illustrative', zh: '已注 {w} 克 · 目标 {t} 克 · 流量 {f} 克/秒 · 示意' },
+  readout: { en: 'poured {w} g · target {t} g · flow {f} g/s · illustrative model', zh: '已注 {w} 克 · 目标 {t} 克 · 流量 {f} 克/秒 · 示意模型' },
   stats: {
     bloom: { en: 'Bloom water / wait', zh: '闷蒸水量 / 时间' },
     water: { en: 'Total water (target 250 g)', zh: '总注水（目标 250 克）' },

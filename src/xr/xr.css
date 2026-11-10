@@ -170,9 +170,12 @@
   color: #e8dccd;
 }
 .xr-player[data-mode='3d'] .xr-readout {
+  /* Bottom centre = the empty front edge of the counter: never covers a tool you need to grab. */
   position: absolute;
-  left: var(--space-3);
+  left: 50%;
   bottom: var(--space-3);
+  transform: translateX(-50%);
+  max-width: calc(100% - 2 * var(--space-3));
 }
 .xr-readout {
   pointer-events: none;

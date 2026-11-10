@@ -65,7 +65,7 @@ export default function XrRoute() {
           store={playing.store}
           mode={playing.mode}
           xrSupported={entry.canEnterVR}
-          touch={!!caps?.touch}
+          mobile={caps?.screen === 'mobile'}
           onExit={() => {
             setGuidance(playing.store.getState().guidance);
             setPlaying(null);

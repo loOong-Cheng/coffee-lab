@@ -19,6 +19,8 @@ export function MissionHud({
 }) {
   const { t } = useI18n();
   const v = useMissionSelector(store, (s) => def.hud(s), (a, b) => JSON.stringify(a) === JSON.stringify(b));
+  // Hovering the tool you just inspected would repeat the same sentence — show it once.
+  const showHover = !!hover && !(v.feedback && t(v.feedback.text).startsWith(t(hover.name)));
   return (
     <div className="xr-hud" data-testid="xr-hud">
       <p className="xr-hud__meta">
@@ -59,7 +61,7 @@ export function MissionHud({
           </span>
         </p>
       ) : null}
-      {hover ? (
+      {hover && showHover ? (
         <p className="xr-hud__tool">
           <strong>{t(hover.name)}</strong> — {t(hover.purpose)}
         </p>

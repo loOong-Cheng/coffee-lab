@@ -39,11 +39,12 @@ export interface MissionPlayerProps {
   store: AnyStore;
   mode: '3d' | 'list';
   xrSupported: boolean;
-  touch: boolean;
+  /** Phone/tablet-class screen → the simulated result is recorded under the `mobile` mode (else `desktop`). */
+  mobile: boolean;
   onExit(): void;
 }
 
-export function MissionPlayer({ def, store, mode: initialMode, xrSupported, touch, onExit }: MissionPlayerProps) {
+export function MissionPlayer({ def, store, mode: initialMode, xrSupported, mobile, onExit }: MissionPlayerProps) {
   const { t, locale, setLocale } = useI18n();
   const reducedMotion = useReducedMotion();
   const [mode, setMode] = useState(initialMode);
@@ -162,12 +163,12 @@ export function MissionPlayer({ def, store, mode: initialMode, xrSupported, touc
     done.add(attempt);
     recorded.set(store, done);
     try {
-      learnerActions.recordEvent(completionEvent(def, r, { immersive: lab?.inXR() ?? false, touch }));
+      learnerActions.recordEvent(completionEvent(def, r, { immersive: lab?.inXR() ?? false, touch: mobile }));
       setSaved(true);
     } catch {
       setSaved(false);
     }
-  }, [status, attempt, store, lab, touch, def]);
+  }, [status, attempt, store, lab, mobile, def]);
 
   // ── keyboard shortcuts: H = hint, P = pause/resume ──
   useEffect(() => {

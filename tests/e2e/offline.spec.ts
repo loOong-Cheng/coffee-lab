@@ -130,11 +130,26 @@ test.describe('offline after first load (PWA)', () => {
     await goOffline(context, page);
     await page.reload();
 
-    // /xr is the mission picker; deep-link straight to a mission brief to reach "Play in 3D".
+    // /xr is the mission picker: it opens offline and lists every mission.
+    await page.goto('/#/xr');
+    await expect(h1(page)).toHaveText('XR coffee lab');
+    await expect(page.locator('.xr-missions > li')).toHaveCount(3);
+    // Deep-link straight to a mission brief to reach "Play in 3D".
     await page.goto('/#/xr?mission=espresso-first-shot');
     await expect(h1(page)).toBeVisible();
     await page.getByTestId('xr-play-3d').click();
     await expect(page.getByRole('alert').filter({ hasText: /3D scene could not start/ })).toBeVisible();
+    // The same mission keeps going from the action list (offered right there).
+    await page.getByRole('button', { name: 'Play with the action list only' }).click();
+    await expect(page.getByTestId('xr-station-status')).toBeVisible();
+    await page.locator('.xr-action[data-recommended]').first().click();
+    await expect(page.getByTestId('xr-feedback')).toBeVisible();
+    // Pour-over too: action list straight from its brief.
+    await page.getByRole('button', { name: 'Exit', exact: true }).click();
+    await page.goto('/#/xr?mission=pourover-bloom');
+    await page.getByTestId('xr-play-list').click();
+    await page.locator('.xr-action[data-action-id="filter"]').click();
+    await expect(page.getByTestId('xr-station-status')).toContainText('Filter: in place');
     await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
     expect(errors).toEqual([]);
   });
