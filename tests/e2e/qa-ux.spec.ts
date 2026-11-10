@@ -136,7 +136,7 @@ test.describe('layout sanity + evidence screenshots', () => {
   }
 });
 
-test.describe('PWA notices (commit 36c5ab8/204e096; fixed in a9eb479)', () => {
+test.describe('PWA notices (commit 5910ff9/1afc723; fixed in 8509fdf)', () => {
   test.use({ serviceWorkers: 'allow' });
   /** First load → wait until the service worker is active and controls the page (= offline-ready). */
   async function waitOfflineReady(page: Page) {
