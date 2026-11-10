@@ -2,7 +2,7 @@ import type { LocalizedText } from '../domain/contracts';
 
 /** Shell UI strings (colocated, CONTRACTS §4). */
 export const S = {
-  brand: { zh: 'Coffee Lab · 咖啡实验室', en: 'Coffee Lab · 咖啡实验室' },
+  brand: { zh: '咖啡实验室', en: 'Coffee Lab' },
   brandShort: { zh: '咖啡实验室', en: 'Coffee Lab' },
   skip: { zh: '跳到主要内容', en: 'Skip to main content' },
   primaryNav: { zh: '主导航', en: 'Primary' },

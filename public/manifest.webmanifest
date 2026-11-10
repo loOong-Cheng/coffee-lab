@@ -1,7 +1,7 @@
 {
-  "name": "Coffee Lab · 咖啡实验室",
+  "name": "Coffee Lab",
   "short_name": "Coffee Lab",
-  "description": "Beginner-first coffee learning game: concepts on desktop, a hands-busy real-cup coach on mobile, optional WebXR practice. 咖啡入门学习游戏。",
+  "description": "Beginner-first coffee learning game: concepts on desktop, a hands-busy real-cup coach on mobile, optional WebXR practice.",
   "id": "./",
   "start_url": "./",
   "scope": "./",

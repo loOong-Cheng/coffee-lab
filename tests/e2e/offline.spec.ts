@@ -71,7 +71,7 @@ test.describe('offline after first load (PWA)', () => {
     const href = await page.locator('link[rel="manifest"]').getAttribute('href');
     expect(href).toBeTruthy();
     const manifest = await (await request.get(new URL(href!, page.url()).href)).json();
-    expect(manifest.name).toBe('Coffee Lab · 咖啡实验室');
+    expect(manifest.name).toBe('Coffee Lab');
     expect(manifest.display).toBe('standalone');
     expect(manifest.icons.some((i: { purpose?: string }) => i.purpose === 'maskable')).toBe(true);
     for (const icon of manifest.icons as Array<{ src: string }>) {
