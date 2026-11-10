@@ -36,7 +36,7 @@ Status: DONE / PARTIAL / TODO / BLOCKED.
 - [ ] TODO — Independent QA gate #2
 
 ## P2 — optional if time
-- [ ] TODO — Data-only future skill schema validation and example generator prompt
+- [ ] TODO — Data-only future skill schema validation and example generator prompt (apply `docs/GENERATOR_LESSONS.md`, e.g. L1 just-in-time profiling)
 - [ ] TODO — Real device integration interface (no unsupported claimed hardware access)
 - [ ] TODO — More elaborate coffee lab missions, content breadth and optional LLM adapter
 - [ ] TODO — Human expert review of zh/en coffee content (cannot be done by agents)
