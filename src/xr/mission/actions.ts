@@ -53,7 +53,8 @@ export function availableActions(s: MissionState): PanelAction[] {
       `putback-${held}`,
       fmt(ACTION_LABEL.putBack, { item: ITEM_NAME[held] }),
       [{ type: 'RELEASE', hand: HAND, source: 'panel' }],
-      false,
+      // Holding the wrong thing for the current step → suggest putting it back.
+      !!cue && (cue.kind === 'grab' || cue.kind === 'place') && cue.item !== held,
     );
   } else {
     for (const item of ['portafilter', 'tamper', 'cup'] as const) {

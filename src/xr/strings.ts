@@ -35,7 +35,7 @@ export const S = {
   playList: { en: 'Play with the action list only', zh: '只用操作列表来玩' },
   startForVR: { en: 'Start the scene (then Enter VR)', zh: '启动场景（然后进入 VR）' },
   backToLessons: { en: 'Back to the espresso lessons', zh: '返回意式咖啡课程' },
-  workflowLesson: { en: 'Espresso workflow lesson (2D)', zh: '意式流程课程（2D）' },
+  workflowLesson: { en: 'The matching 2D lesson', zh: '对应的 2D 课程' },
   hardwareUnverified: {
     en: 'Hardware-unverified: the VR mode has not been tested on a real headset yet. The 3D and action-list modes were tested in a desktop browser.',
     zh: '未经硬件验证：VR 模式尚未在真实头显上测试。3D 模式和操作列表模式已在桌面浏览器中测试。',
@@ -115,5 +115,20 @@ export const S = {
   autoStopped: { en: 'The simulated machine cut the shot off.', zh: '模拟咖啡机自动停止了萃取。' },
   tiltNote: { en: 'Tamp tilt (simulated)', zh: '压粉倾斜（模拟）' },
   seconds: { en: 's', zh: '秒' },
+  // lab / picker
+  labTitle: { en: 'XR coffee lab', zh: 'XR 咖啡实验室' },
+  labIntro: {
+    en: 'Hands-on spatial practice at a virtual coffee counter. Each mission works in a VR headset, in 3D with mouse or touch, or with a keyboard action list — and teaches the basics inside the mission, so you can learn here even without the 2D lessons.',
+    zh: '在虚拟咖啡吧台上动手做空间练习。每个任务都能在 VR 头显中、用鼠标或触屏的 3D 版本、或用键盘操作列表完成，并在任务里讲解基础知识——即使不看 2D 课程也能在这里学。',
+  },
+  missionsHeading: { en: 'Missions', zh: '任务' },
+  allMissions: { en: 'All XR missions', zh: '全部 XR 任务' },
+  minutes: { en: '{a}–{b} min', zh: '{a}–{b} 分钟' },
+  completedOn: { en: 'Completed ×{n} · last: {tier} · {score} (simulated)', zh: '已完成 {n} 次 · 最近：{tier} · {score}（模拟）' },
+  notYet: { en: 'Not tried yet', zh: '还没试过' },
+  open: { en: 'Open mission', zh: '打开任务' },
+  youPractise: { en: 'You practise', zh: '你会练习' },
+  notTrained: { en: 'Not trained', zh: '不能练习' },
+  playingAt: { en: 'Guidance for your next run', zh: '下一次的引导等级' },
   grams: { en: 'g', zh: '克' },
 } satisfies Record<string, LocalizedText | LocalizedText[]>;

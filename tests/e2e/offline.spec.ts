@@ -130,7 +130,8 @@ test.describe('offline after first load (PWA)', () => {
     await goOffline(context, page);
     await page.reload();
 
-    await page.goto('/#/xr');
+    // /xr is the mission picker; deep-link straight to a mission brief to reach "Play in 3D".
+    await page.goto('/#/xr?mission=espresso-first-shot');
     await expect(h1(page)).toBeVisible();
     await page.getByTestId('xr-play-3d').click();
     await expect(page.getByRole('alert').filter({ hasText: /3D scene could not start/ })).toBeVisible();
@@ -141,7 +142,7 @@ test.describe('offline after first load (PWA)', () => {
   test('3D chunks are runtime-cached after one online /xr visit (cross-origin never cached)', async ({ page }) => {
     await seed(page);
     await loadOnlineAndWaitForServiceWorker(page);
-    await page.goto('/#/xr');
+    await page.goto('/#/xr?mission=espresso-first-shot');
     await page.getByTestId('xr-play-3d').click();
     // Wait until the lazy 3D module settled (ready or WebGL-unavailable fallback) — either way it was fetched.
     await expect(page.getByText('Setting up the coffee counter…')).toHaveCount(0, { timeout: 30_000 });

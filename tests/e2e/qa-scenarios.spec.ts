@@ -285,7 +285,7 @@ test.describe('QA §12 scenario (c): XR without a headset', () => {
     const errors = collectErrors(page);
     await removeWebXR(page);
     await seedProfile(page);
-    await page.goto('/?xrtest#/xr');
+    await page.goto('/?xrtest#/xr?mission=espresso-first-shot');
     await page.getByTestId('xr-play-3d').click();
     await expect(page.getByTestId('xr-canvas')).toBeVisible();
     await page.waitForFunction(() => !!(window as unknown as { __coffeeLabXr?: unknown }).__coffeeLabXr, null, { timeout: 75_000 });

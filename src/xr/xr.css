@@ -108,7 +108,7 @@
   position: static;
 }
 .xr-hud {
-  max-width: min(36rem, 100%);
+  max-width: min(30rem, 100%);
   background: rgb(36 24 17 / 0.88);
   border: 1px solid #c98a3b;
   border-radius: var(--radius-md);
@@ -168,6 +168,11 @@
 .xr-hud__why {
   font-weight: var(--weight-regular);
   color: #e8dccd;
+}
+.xr-player[data-mode='3d'] .xr-readout {
+  position: absolute;
+  left: var(--space-3);
+  bottom: var(--space-3);
 }
 .xr-readout {
   pointer-events: none;
@@ -371,4 +376,55 @@
     -webkit-box-orient: vertical;
     overflow: hidden;
   }
+}
+
+/* ── lab picker + pour controls ── */
+.xr-section-h {
+  font-size: var(--text-xl);
+  font-family: var(--font-display);
+}
+.xr-missions {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: var(--space-4);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+.xr-mission h3 {
+  font-size: var(--text-lg);
+}
+.xr-mission[data-completed='true'] {
+  border-color: var(--color-success);
+}
+.xr-hud__progress {
+  font-size: var(--text-sm);
+  color: #b9d9f3;
+}
+.xr-pour {
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+}
+.xr-pour__label {
+  display: grid;
+  gap: var(--space-1);
+  font-weight: var(--weight-medium);
+}
+.xr-pour input[type='range'] {
+  width: 100%;
+  min-height: var(--tap-min);
+}
+
+/* Touch targets (QA-05): every non-inline link and option on /xr is at least 44 px tall. */
+.xr-route .xr-row a:not(.cl-btn),
+.xr-route .xr-eyebrow a,
+.xr-route .xr-mission h3 a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+.xr-route .cl-seg__opt {
+  min-height: var(--tap-min);
 }

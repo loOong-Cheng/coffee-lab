@@ -10,6 +10,7 @@
 import type { Guidance, LocalizedText } from '../../domain/contracts';
 import type {
   ButtonId,
+  InspectableId,
   FeedbackCode,
   FeedbackKind,
   HandId,
@@ -179,7 +180,7 @@ export function currentStep(s: MissionState): StepId | null {
 }
 
 export type CueTarget =
-  | { kind: 'look'; part: 'espresso-machine' }
+  | { kind: 'look'; part: InspectableId }
   /** Pick up `item`; `zone` is where it should go next (for ghost previews). */
   | { kind: 'grab'; item: ItemId; zone?: ZoneId }
   | { kind: 'place'; item: ItemId; zone: ZoneId }

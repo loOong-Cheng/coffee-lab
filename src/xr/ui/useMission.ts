@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { MissionState } from '../mission/types';
-import type { MissionStore } from '../mission/store';
+import type { CoreState, Store } from '../mission/core';
 
 export function shallowEqual<T>(a: T, b: T): boolean {
   if (Object.is(a, b)) return true;
@@ -16,7 +15,11 @@ export function shallowEqual<T>(a: T, b: T): boolean {
  * Subscribe to a slice of mission state. The scene dispatches a TICK every
  * frame, so components only re-render when their (rounded) slice changes.
  */
-export function useMissionSelector<T>(store: MissionStore, selector: (s: MissionState) => T, isEqual: (a: T, b: T) => boolean = shallowEqual): T {
+export function useMissionSelector<S extends CoreState, T>(
+  store: Pick<Store<S, never>, 'getState' | 'subscribe'>,
+  selector: (s: S) => T,
+  isEqual: (a: T, b: T) => boolean = shallowEqual,
+): T {
   const [value, setValue] = useState(() => selector(store.getState()));
   const selRef = useRef(selector);
   const eqRef = useRef(isEqual);

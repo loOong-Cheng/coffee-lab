@@ -35,7 +35,10 @@ export type MatName =
   | 'ringSnap'
   | 'ghost'
   | 'arrow'
-  | 'hand';
+  | 'hand'
+  | 'glass'
+  | 'paper'
+  | 'kettle';
 
 const hex = (h: string) => Color3.FromHexString(h);
 
@@ -81,6 +84,9 @@ const SPECS: Record<MatName, Spec> = {
   ghost: { d: '#8ec5e6', e: '#5fa8d8', a: 0.35, unlit: true },
   arrow: { d: '#f0b93a', e: '#f0b93a', unlit: true },
   hand: { d: '#e8d7c3', s: 0.2, p: 16, a: 0.9 },
+  glass: { d: '#dfeef2', s: 0.9, p: 96, a: 0.3 },
+  paper: { d: '#f3ead9', s: 0.05, p: 8 },
+  kettle: { d: '#34343a', s: 0.5, p: 48 },
 };
 
 export type Materials = Record<MatName, StandardMaterial>;

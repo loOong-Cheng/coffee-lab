@@ -10,7 +10,7 @@ import { Vector3 } from '@babylonjs/core/Maths/math.vector';
 import type { Scene } from '@babylonjs/core/scene';
 import type { ButtonId, InspectableId, ItemId } from '../mission/types';
 import type { Materials, MatName } from './materials';
-import { BUTTON_POS, COUNTER, ZONE_POS, type Vec3 } from './layout';
+import { BUTTON_POS, ZONE_POS, type Vec3 } from './layout';
 
 export type PickMeta =
   | { kind: 'item'; id: ItemId }
@@ -22,7 +22,7 @@ export interface ItemRig {
   meshes: Mesh[];
 }
 
-export interface Station {
+export interface EspressoProps {
   root: TransformNode;
   items: Record<ItemId, ItemRig>;
   buttons: Record<ButtonId, Mesh>;
@@ -32,7 +32,6 @@ export interface Station {
   cupLiquid: Mesh;
   streams: { espresso: Mesh; flush: Mesh; grind: Mesh };
   knockPile: Mesh;
-  cabinet: Mesh;
   scaleDisplay: Mesh;
   /** Every mesh we created (for draw-call accounting / disposal). */
   all: AbstractMesh[];
@@ -40,9 +39,8 @@ export interface Station {
 
 type Parent = TransformNode;
 
-export function buildStation(scene: Scene, mats: Materials): Station {
+export function buildEspressoProps(scene: Scene, mats: Materials, root: TransformNode): EspressoProps {
   const all: AbstractMesh[] = [];
-  const root = new TransformNode('station', scene);
 
   const track = <T extends AbstractMesh>(m: T, meta?: PickMeta): T => {
     all.push(m);
@@ -83,14 +81,6 @@ export function buildStation(scene: Scene, mats: Materials): Station {
     merged.parent = parent;
     return track(merged, meta);
   };
-
-  // ── counter + cabinet ──
-  const cw = COUNTER.maxX - COUNTER.minX;
-  const cd = COUNTER.maxZ - COUNTER.minZ;
-  const cz = (COUNTER.maxZ + COUNTER.minZ) / 2;
-  track(box('counter-top', cw, COUNTER.thickness, cd, [0, -COUNTER.thickness / 2, cz], root, 'wood'));
-  // Cabinet height follows the counter height (scaled in setCounterHeight).
-  const cabinet = track(box('cabinet', cw - 0.04, 1, cd - 0.06, [0, -0.5 - COUNTER.thickness, cz + 0.02], root, 'cabinet'));
 
   // ── espresso machine ──
   const machineBody = track(box('machine-body', 0.42, 0.4, 0.34, [0, 0.2, 0.25], root, 'machine'), {
@@ -191,7 +181,6 @@ export function buildStation(scene: Scene, mats: Materials): Station {
     cupLiquid: cup.liquid,
     streams: { espresso: streamEspresso, flush: streamFlush, grind: streamGrind },
     knockPile,
-    cabinet,
     scaleDisplay,
     all,
   };

@@ -14,13 +14,66 @@ afterEach(() => {
   vi.useRealTimers();
 });
 
-function renderRoute() {
+function renderRoute(path = '/xr?mission=espresso-first-shot') {
   return render(
-    <MemoryRouter initialEntries={['/xr']}>
+    <MemoryRouter initialEntries={[path]}>
       <XrRoute />
     </MemoryRouter>,
   );
 }
+
+describe('XR lab picker', () => {
+  it('lists three missions with practice/limits/time and deep links, showing simulated completions', () => {
+    act(() => {
+      learnerActions.recordEvent({ activityId: 'po-ratio-bloom-xr', lessonId: 'po-ratio-bloom', mode: 'desktop', guidance: 'assisted', evidence: 'simulated', outcome: 'completed', score: 0.82 });
+    });
+    renderRoute('/xr');
+    expect(screen.getByRole('heading', { level: 1, name: 'XR coffee lab' })).toBeInTheDocument();
+    for (const id of ['station-tour', 'espresso-first-shot', 'pourover-bloom']) {
+      const card = screen.getByTestId(`xr-mission-${id}`);
+      expect(within(card).getByText(/You practise/)).toBeInTheDocument();
+      expect(within(card).getByText(/Not trained/)).toBeInTheDocument();
+      expect(within(card).getByText(/min ·/)).toBeInTheDocument();
+      expect(within(card).getByRole('link', { name: 'Open mission' })).toHaveAttribute('href', `/xr?mission=${id}`);
+    }
+    expect(screen.getByTestId('xr-mission-pourover-bloom')).toHaveAttribute('data-completed', 'true');
+    expect(screen.getByTestId('xr-mission-status-pourover-bloom')).toHaveTextContent('Completed ×1 · last: Assisted · 82% (simulated)');
+    expect(screen.getByTestId('xr-mission-status-station-tour')).toHaveTextContent('Not tried yet');
+  });
+
+  it('deep link opens the pour-over brief; unknown ids fall back to the picker', () => {
+    renderRoute('/xr?mission=pourover-bloom');
+    expect(screen.getByRole('heading', { level: 1, name: 'Pour-over: bloom and steady pours' })).toBeInTheDocument();
+    expect(screen.getByText(/Controlling flow with kettle tilt/)).toBeInTheDocument();
+  });
+
+  it('unknown mission id shows the picker', () => {
+    renderRoute('/xr?mission=bogus');
+    expect(screen.getByTestId('xr-picker')).toBeInTheDocument();
+  });
+
+  it('the station tour is completable from the action list and records its own activity', () => {
+    renderRoute('/xr?mission=station-tour');
+    act(() => void fireEvent.click(screen.getByTestId('xr-play-list')));
+    const click = (name: RegExp) => act(() => void fireEvent.click(screen.getByRole('button', { name })));
+    for (const tool of [/Inspect the Electric grinder/, /Inspect the Scale/, /Inspect the Tamper/, /Inspect the Knock box/]) click(tool);
+    expect(screen.getByTestId('xr-step-title')).toHaveTextContent('Point at the grinder');
+    click(/Inspect the Electric grinder/);
+    click(/Pick up the tamper/);
+    click(/Put the tamper back/);
+    click(/Pick up the portafilter/);
+    click(/grinder fork/);
+    click(/Inspect the Group head/);
+    click(/Pick up the cup/);
+    click(/Put the cup on the scale/);
+    click(/Inspect the Knock box/);
+    const summary = screen.getByTestId('xr-summary');
+    expect(within(summary).getByText('Simulated')).toBeInTheDocument();
+    const ev = getLearnerState().events.filter((e) => e.activityId === 'esp-meet-the-machine-xr');
+    expect(ev).toHaveLength(1);
+    expect(ev[0]).toMatchObject({ lessonId: 'esp-meet-the-machine', evidence: 'simulated', outcome: 'completed', mode: 'desktop' });
+  });
+});
 
 describe('XR route fallback (jsdom: no navigator.xr, no WebGL)', () => {
   it('renders the brief with honest limits and no Enter VR button', async () => {
@@ -33,7 +86,7 @@ describe('XR route fallback (jsdom: no navigator.xr, no WebGL)', () => {
     expect(within(cap).queryByRole('button', { name: /Enter VR|Start the scene/ })).toBeNull();
     expect(within(cap).queryByRole('button', { name: /Play in 3D/ })).toBeNull();
     expect(within(cap).getByRole('button', { name: /action list/ })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /Espresso workflow lesson/ })).toHaveAttribute('href', '/learn/esp-workflow');
+    expect(screen.getByRole('link', { name: /matching 2D lesson/ })).toHaveAttribute('href', '/learn/esp-workflow');
   });
 
   it('the whole mission is completable from the keyboard action list and records simulated progress', async () => {

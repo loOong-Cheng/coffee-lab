@@ -77,12 +77,12 @@ export function distXZ(a: Vec3, b: Vec3): number {
  * Nearest compatible zone to an anchor. `planar` (mouse/touch dragging on a
  * plane) ignores height; XR uses true 3D distance.
  */
-export function nearestZone(
+export function nearestZone<Z extends string = ZoneId>(
   anchor: Vec3,
-  zones: ReadonlyArray<{ zone: ZoneId; pos: Vec3 }>,
+  zones: ReadonlyArray<{ zone: Z; pos: Vec3 }>,
   planar: boolean,
-): { zone: ZoneId; distanceM: number } | null {
-  let best: { zone: ZoneId; distanceM: number } | null = null;
+): { zone: Z; distanceM: number } | null {
+  let best: { zone: Z; distanceM: number } | null = null;
   for (const z of zones) {
     const d = planar ? distXZ(anchor, z.pos) : dist3(anchor, z.pos);
     if (!best || d < best.distanceM) best = { zone: z.zone, distanceM: d };
