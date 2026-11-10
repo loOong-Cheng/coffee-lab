@@ -564,6 +564,8 @@ function buildPouroverStation(rt: Rt): Station {
         const meta = p?.hit ? metaOf(p.pickedMesh) : null;
         if (!meta) return;
         if (meta.kind === 'item') {
+          // One pointer "hand": reaching for another tool sets the poised kettle back on its base first.
+          if (meta.id !== 'kettle' && kettleInPointer()) store.dispatch({ type: 'RELEASE', hand: 'pointer', source: 'pointer' } as never);
           store.dispatch({ type: 'GRAB', item: meta.id, hand: 'pointer', source: 'pointer' } as never);
           if (st().items[meta.id].heldBy === 'pointer') {
             drag = { item: meta.id, from: st().items[meta.id].zone };

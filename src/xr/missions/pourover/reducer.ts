@@ -355,7 +355,10 @@ export function pourReducer(s: PourState, a: PourAction): PourState {
       } else if (step === 'drawdown' || (step === 'discard' && freeWaterG(d) > 0)) {
         d.carafeG += freeWaterG(d);
         d.bedG -= freeWaterG(d);
-        if (step === 'drawdown') d.drawdownSkipped = true;
+        if (step === 'drawdown') {
+          d.drawdownSkipped = true;
+          d.drawdownDoneSec = d.metrics.elapsedSec; // done now, not on the next tick (no double "skip")
+        }
         say('info', 'skipped', P.fb.skipped);
       } else say('info', 'nothing-to-skip', P.fb['nothing-to-skip']);
       break;
@@ -543,5 +546,3 @@ function finalize(prev: PourState, d: PourState, explicit: boolean, t: Pick<Tool
     t.sound('complete');
   }
 }
-
-export const pourCues = (s: PourState) => cuesOf(s);

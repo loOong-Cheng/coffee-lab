@@ -3,7 +3,7 @@ import type { MissionDef, MissionResult, PanelAction } from '../../mission/core'
 import { baseResult, cuesOf } from '../../mission/core';
 import type { HandId, ItemId, MissionAction } from '../../mission/types';
 import { ACTION_LABEL, ITEM_NAME, ZONE_NAME, fmt } from '../../mission/content';
-import { ITEM_HOME, zonesFor } from '../../mission/reducer';
+import { zonesFor } from '../../mission/reducer';
 import type { StationView } from '../../mission/stationView';
 import { MODEL } from '../../mission/extraction';
 import { S } from '../../strings';
@@ -154,5 +154,3 @@ export const tourMission: MissionDef<TourState, MissionAction> = {
   xrButtons: () => [],
   loadScene: () => import('../../scene/espressoStation').then((m) => m.espressoStationFactory((s) => tourView(s as TourState), tourInfo)),
 };
-
-export { ITEM_HOME };

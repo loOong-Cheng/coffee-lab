@@ -7,7 +7,7 @@
 import type { Guidance, LocalizedText } from '../../../domain/contracts';
 import type { FeedbackKind, HandId, InputSource, InspectableId, ItemId, ItemState, MissionAction } from '../../mission/types';
 import type { CoreState, CoreFeedback } from '../../mission/core';
-import { cuesOf, emptyMetrics, hintWindow, reduceMeta } from '../../mission/core';
+import { emptyMetrics, hintWindow, reduceMeta } from '../../mission/core';
 import { TIERS, evaluateSnap } from '../../mission/tiers';
 import { GUIDANCE_LABEL, FEEDBACK, TOOL_INFO, ZONE_NAME, fmt } from '../../mission/content';
 import { ITEM_HOME, ZONE_ACCEPTS, type CueTarget } from '../../mission/reducer';
@@ -213,9 +213,3 @@ export function tourReducer(s: TourState, a: MissionAction): TourState {
       return s;
   }
 }
-
-export function tourCues(s: TourState) {
-  return cuesOf(s);
-}
-
-export { TIERS };

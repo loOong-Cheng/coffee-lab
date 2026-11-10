@@ -21,7 +21,7 @@ import type { HandId, InspectableId, ItemId, ZoneId } from '../mission/types';
 import type { CoreState, SceneFactory } from '../mission/core';
 import { TIERS } from '../mission/tiers';
 import { MODEL } from '../mission/extraction';
-import { ITEM_HOME, zonesFor } from '../mission/reducer';
+import { zonesFor } from '../mission/reducer';
 import type { InfoLookup, StationView } from '../mission/stationView';
 import { buildEspressoProps, type PickMeta } from './props';
 import { createTag } from './panels';
@@ -588,6 +588,3 @@ export function makeArrow(rt: Rt): Mesh {
   m.isVisible = false;
   return m;
 }
-
-/** Items' home zones (re-exported for the tour reducer's world). */
-export { ITEM_HOME };

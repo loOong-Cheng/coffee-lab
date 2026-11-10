@@ -6,7 +6,7 @@ import { baseResult, cuesOf } from '../../mission/core';
 import { fmt } from '../../mission/content';
 import { S } from '../../strings';
 import { POUR, FLOW_MODEL_NOTE, flowSummary, targetAccuracy, tiltForFlow } from './model';
-import { P, POUR_STEPS, pourInfo } from './content';
+import { P, POUR_STEPS } from './content';
 import {
   createPour,
   currentPourStep,
@@ -227,5 +227,3 @@ export const pouroverMission: MissionDef<PourState, PourAction> = {
   },
   loadScene: () => import('../../scene/pouroverStation').then((m) => m.pouroverStationFactory),
 };
-
-export { pourInfo };

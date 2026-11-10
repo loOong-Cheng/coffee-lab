@@ -83,6 +83,7 @@ async function open3d(page: Page, id: MissionId): Promise<void> {
 }
 
 async function project(page: Page, target: string, atLocalY?: number) {
+  await page.getByTestId('xr-canvas').evaluate((el) => el.scrollIntoView({ block: 'center', behavior: 'instant' })); // side-panel clicks may have scrolled it away
   const p = await page.evaluate(
     ([t, y]) => (window as unknown as { __coffeeLabXr: Hook & { project(t: string, y?: number): { x: number; y: number } | null } }).__coffeeLabXr.project(t as string, y as number | undefined),
     [target, atLocalY] as const,
@@ -117,6 +118,17 @@ async function mouseDrag(page: Page, from: { x: number; y: number }, to: { x: nu
   await page.mouse.down();
   await page.mouse.move((from.x + to.x) / 2, (from.y + to.y) / 2, { steps: 6 });
   await page.mouse.move(to.x, to.y, { steps: 6 });
+}
+
+/** Drag a tool onto a zone in the 3D scene; `planeY` = the station-local height the tool is dragged at. */
+async function drag3d(page: Page, isMobile: boolean, item: string, zone: string, planeY: number) {
+  const from = await project(page, item);
+  const to = await project(page, zone, planeY);
+  if (isMobile) await touchDrag(page, from, to);
+  else {
+    await mouseDrag(page, from, to);
+    await page.mouse.up();
+  }
 }
 
 test.describe('XR lab picker + deep links', () => {
@@ -203,7 +215,7 @@ test.describe('XR lab picker + deep links', () => {
 
 test.describe('missions via the keyboard action list (no headset, no navigator.xr)', () => {
   test('station-tour: completes from the action list; saved as simulated and still shown after reload', async ({ page, isMobile }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     const errors = collectErrors(page);
     await removeWebXR(page);
     await seedProfile(page);
@@ -240,7 +252,7 @@ test.describe('missions via the keyboard action list (no headset, no navigator.x
   });
 
   test('pourover-bloom: measured pours from the action list reach 15 g : 250 g; saved as simulated after reload', async ({ page, isMobile }) => {
-    test.setTimeout(90_000);
+    test.setTimeout(180_000);
     const errors = collectErrors(page);
     await removeWebXR(page);
     await seedProfile(page);
@@ -292,112 +304,165 @@ test.describe('missions via the keyboard action list (no headset, no navigator.x
   });
 });
 
-test.describe('3D scene (headless Chromium, mouse on desktop, touch on Pixel 7)', () => {
-  test.describe.configure({ timeout: 150_000 });
+// Software-WebGL 3D pages are CPU-heavy: this spec opens them one at a time per project (serial) with generous
+// timeouts, so the whole suite stays stable when it runs fully parallel.
+test.describe('3D and WebXR (one 3D page at a time per project)', () => {
+  test.describe.configure({ mode: 'serial', timeout: 240_000 });
 
-  test('station-tour 3D: clicking/tapping a tool inspects it', async ({ page, isMobile }) => {
-    const errors = collectErrors(page);
-    await removeWebXR(page);
-    await seedProfile(page);
-    await open3d(page, 'station-tour');
-    await expect(page.getByTestId('xr-progress')).toHaveText('Inspected 0 of 4 tools');
-    await hit(page, isMobile, 'part:grinder');
-    await expect(page.getByTestId('xr-progress')).toHaveText('Inspected 1 of 4 tools', { timeout: 10_000 });
-    await expect(page.getByTestId('xr-feedback')).toContainText(/grinder/i);
-    await hit(page, isMobile, 'part:knock-box');
-    await expect(page.getByTestId('xr-progress')).toHaveText('Inspected 2 of 4 tools', { timeout: 10_000 });
-    if (!isMobile) await page.screenshot({ path: `${SHOTS}/xr-tour-3d-desktop-1280.png` });
-    const stats = await page.evaluate(() => (window as unknown as { __coffeeLabXr: Hook }).__coffeeLabXr.stats());
-    expect(stats.meshes).toBeGreaterThan(20);
-    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
-    expect(realErrors(errors)).toEqual([]);
-  });
+  test.describe('3D scene (headless Chromium, mouse on desktop, touch on Pixel 7)', () => {
 
-  test('espresso-first-shot 3D: clicking/tapping the machine completes the first step', async ({ page, isMobile }) => {
-    const errors = collectErrors(page);
-    await removeWebXR(page);
-    await seedProfile(page);
-    await open3d(page, 'espresso-first-shot');
-    const first = (await page.getByTestId('xr-step-title').textContent()) ?? '';
-    await hit(page, isMobile, 'espresso-machine');
-    await expect(page.getByTestId('xr-step-title')).not.toHaveText(first, { timeout: 10_000 });
-    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
-    expect(realErrors(errors)).toEqual([]);
-  });
-
-  test('pourover-bloom 3D: drag the filter into the dripper, then pour from the poised kettle', async ({ page, isMobile }) => {
-    const errors = collectErrors(page);
-    await removeWebXR(page);
-    await seedProfile(page);
-    await open3d(page, 'pourover-bloom');
-    await expect(page.getByTestId('xr-step-title')).toHaveText('Put a paper filter in the dripper');
-    // 1) drag a paper filter onto the dripper (mouse on desktop, one-finger touch drag on the phone)
-    const filter = await project(page, 'filter');
-    const dripper = await project(page, 'dripper', 0.3);
-    if (isMobile) await touchDrag(page, filter, dripper);
-    else {
-      await mouseDrag(page, filter, dripper);
-      await page.mouse.up();
-    }
-    await expect(page.getByTestId('xr-step-title')).toHaveText('Rinse the filter with hot water', { timeout: 10_000 });
-    await expect(page.getByTestId('xr-station-status')).toHaveCount(0); // 3D mode: the scene is the status
-    // 2) drag the kettle over the dripper and let go: it stays poised there
-    const kettle = await project(page, 'kettle');
-    const over = await project(page, 'dripper', 0.34);
-    if (isMobile) await touchDrag(page, kettle, over);
-    else {
-      await mouseDrag(page, kettle, over);
-      await page.mouse.up();
-    }
-    await expect(page.getByTestId('xr-pour-controls')).toBeVisible({ timeout: 10_000 });
-    // 3) pour: scroll wheel over the canvas (desktop) or the touch "Hold to pour" button (phone)
-    const readout = page.getByTestId('xr-readout');
-    if (isMobile) {
-      const hold = page.getByTestId('xr-hold-pour');
-      await hold.scrollIntoViewIfNeeded();
-      const b = (await hold.boundingBox())!;
-      const cdp = await page.context().newCDPSession(page);
-      const pt = [{ x: Math.round(b.x + b.width / 2), y: Math.round(b.y + b.height / 2), id: 2 }];
-      await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt });
-      await expect(readout).toContainText(/poured [1-9]\d* g/, { timeout: 15_000 });
-      await expect(readout).toContainText('illustrative');
-      await expect(page.getByTestId('xr-step-title')).toHaveText('Empty the rinse water', { timeout: 20_000 });
-      await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
-      await cdp.detach();
-    } else {
-      const c = await project(page, 'dripper', 0.2);
-      await page.mouse.move(c.x, c.y);
-      for (let i = 0; i < 12; i++) await page.mouse.wheel(0, 120);
-      await expect(readout).toContainText(/poured [1-9]\d* g/, { timeout: 15_000 });
-      await expect(readout).toContainText('illustrative');
-      await expect(page.getByTestId('xr-step-title')).toHaveText('Empty the rinse water', { timeout: 20_000 });
-      for (let i = 0; i < 14; i++) await page.mouse.wheel(0, -120); // tip it back upright
-    }
-    await expect(page.locator('[data-testid="xr-pour-controls"] input[type="range"]')).toHaveValue('0', { timeout: 5_000 });
-    if (!isMobile) await page.screenshot({ path: `${SHOTS}/xr-pourover-3d-desktop-1280.png` });
-    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
-    expect(realErrors(errors)).toEqual([]);
-  });
-});
-
-test.describe('WebXR path is feature-gated (HARDWARE-UNVERIFIED: no headset used)', () => {
-  test.describe.configure({ timeout: 150_000 });
-
-  test('a browser that reports immersive-vr but denies the session: honest note, clear alert, 3D keeps working', async ({ page }) => {
-    const errors = collectErrors(page);
-    await page.addInitScript(() => {
-      const fake = {
-        isSessionSupported: async (m: string) => m === 'immersive-vr',
-        requestSession: async () => {
-          throw new DOMException('No headset in this test', 'NotAllowedError');
-        },
-        addEventListener() {},
-        removeEventListener() {},
-      };
-      Object.defineProperty(Navigator.prototype, 'xr', { configurable: true, get: () => fake });
+    test('station-tour 3D: the whole tour can be played in the scene (no action list) and is saved as simulated spatial practice', async ({ page, isMobile }) => {
+      const errors = collectErrors(page);
+      await removeWebXR(page);
+      await seedProfile(page);
+      await open3d(page, 'station-tour');
+      const progress = page.getByTestId('xr-progress');
+      const drag = (item: string, zone: string, planeY: number) => drag3d(page, isMobile, item, zone, planeY);
+      // Explore: inspect four tools in the scene.
+      await expect(progress).toHaveText('Inspected 0 of 4 tools');
+      const parts = ['part:grinder', 'part:knock-box', 'part:scale'];
+      for (let i = 0; i < parts.length; i++) {
+        await hit(page, isMobile, parts[i]!);
+        await expect(progress).toHaveText(`Inspected ${i + 1} of 4 tools`, { timeout: 10_000 });
+        if (i === 0) await expect(page.getByTestId('xr-feedback')).toContainText(/grinder/i);
+      }
+      if (!isMobile) await page.screenshot({ path: `${SHOTS}/xr-tour-3d-desktop-1280.png` });
+      const stats = await page.evaluate(() => (window as unknown as { __coffeeLabXr: Hook }).__coffeeLabXr.stats());
+      expect(stats.meshes).toBeGreaterThan(20);
+      await hit(page, isMobile, 'part:espresso-machine');
+      await expect(progress).toHaveText('Challenge 1 of 6', { timeout: 10_000 });
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Point at the grinder');
+      await hit(page, isMobile, 'part:grinder');
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Pick up the tamper', { timeout: 10_000 });
+      await hit(page, isMobile, 'tamper'); // press = pick up; release = it goes back to its stand
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Put the portafilter on the grinder fork', { timeout: 10_000 });
+      await page.waitForTimeout(600); // tamper settles home
+      await drag('portafilter', 'grinder-fork', 0.17);
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Point at the group head', { timeout: 10_000 });
+      await hit(page, isMobile, 'part:group-head');
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Put the cup on the scale', { timeout: 10_000 });
+      await drag('cup', 'scale', 0.1);
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Point at the knock box', { timeout: 10_000 });
+      await hit(page, isMobile, 'part:knock-box');
+      const summary = page.getByTestId('xr-summary');
+      await expect(summary).toBeVisible({ timeout: 10_000 });
+      await expect(summary).toContainText('Picking up and placing tools (simulated)'); // spatial practice credited
+      const ev = (await readState(page)).events.filter((e: Ev) => e.activityId === 'esp-meet-the-machine-xr');
+      expect(ev[0]).toMatchObject({ evidence: 'simulated', outcome: 'completed', mode: isMobile ? 'mobile' : 'desktop' });
+      expect(ev[0]).not.toMatchObject({ mode: 'xr' });
+      await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+      expect(realErrors(errors)).toEqual([]);
     });
-    await seedProfile(page);
-    for (const id of ['station-tour', 'pourover-bloom'] as const) {
+
+    test('espresso-first-shot 3D: clicking/tapping the machine completes the first step', async ({ page, isMobile }) => {
+      const errors = collectErrors(page);
+      await removeWebXR(page);
+      await seedProfile(page);
+      await open3d(page, 'espresso-first-shot');
+      const first = (await page.getByTestId('xr-step-title').textContent()) ?? '';
+      await hit(page, isMobile, 'espresso-machine');
+      await expect(page.getByTestId('xr-step-title')).not.toHaveText(first, { timeout: 10_000 });
+      await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+      expect(realErrors(errors)).toEqual([]);
+    });
+
+    test('pourover-bloom 3D: filter, rinse pour from the poised kettle, discard, grounds, tare, bloom, pour, drawdown', async ({ page, isMobile }) => {
+      const errors = collectErrors(page);
+      await removeWebXR(page);
+      await seedProfile(page);
+      await open3d(page, 'pourover-bloom');
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Put a paper filter in the dripper');
+      // 1) drag a paper filter onto the dripper (mouse on desktop, one-finger touch drag on the phone)
+      const filter = await project(page, 'filter');
+      const dripper = await project(page, 'dripper', 0.3);
+      if (isMobile) await touchDrag(page, filter, dripper);
+      else {
+        await mouseDrag(page, filter, dripper);
+        await page.mouse.up();
+      }
+      await expect(page.getByTestId('xr-step-title')).toHaveText('Rinse the filter with hot water', { timeout: 10_000 });
+      await expect(page.getByTestId('xr-station-status')).toHaveCount(0); // 3D mode: the scene is the status
+      // 2) drag the kettle over the dripper and let go: it stays poised there
+      const kettle = await project(page, 'kettle');
+      const over = await project(page, 'dripper', 0.34);
+      if (isMobile) await touchDrag(page, kettle, over);
+      else {
+        await mouseDrag(page, kettle, over);
+        await page.mouse.up();
+      }
+      await expect(page.getByTestId('xr-pour-controls')).toBeVisible({ timeout: 10_000 });
+      // 3) pour: scroll wheel over the canvas (desktop) or the touch "Hold to pour" button (phone)
+      const readout = page.getByTestId('xr-readout');
+      if (isMobile) {
+        const hold = page.getByTestId('xr-hold-pour');
+        await hold.scrollIntoViewIfNeeded();
+        const b = (await hold.boundingBox())!;
+        const cdp = await page.context().newCDPSession(page);
+        const pt = [{ x: Math.round(b.x + b.width / 2), y: Math.round(b.y + b.height / 2), id: 2 }];
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: pt });
+        await expect(readout).toContainText(/poured [1-9]\d* g/, { timeout: 15_000 });
+        await expect(readout).toContainText('illustrative');
+        await expect(page.getByTestId('xr-step-title')).toHaveText('Empty the rinse water', { timeout: 20_000 });
+        await cdp.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] });
+        await cdp.detach();
+      } else {
+        const c = await project(page, 'dripper', 0.2);
+        await page.mouse.move(c.x, c.y);
+        for (let i = 0; i < 12; i++) await page.mouse.wheel(0, 120);
+        await expect(readout).toContainText(/poured [1-9]\d* g/, { timeout: 15_000 });
+        await expect(readout).toContainText('illustrative');
+        await expect(page.getByTestId('xr-step-title')).toHaveText('Empty the rinse water', { timeout: 20_000 });
+        for (let i = 0; i < 14; i++) await page.mouse.wheel(0, -120); // tip it back upright
+      }
+      await expect(page.locator('[data-testid="xr-pour-controls"] input[type="range"]')).toHaveValue('0', { timeout: 5_000 });
+      if (!isMobile) await page.screenshot({ path: `${SHOTS}/xr-pourover-3d-desktop-1280.png` });
+      // 4) the rest of the brew in the scene. Reaching for the carafe sets the poised kettle back on its base.
+      const step = page.getByTestId('xr-step-title');
+      await drag3d(page, isMobile, 'carafe', 'sink', 0.06);
+      await expect(page.getByTestId('xr-feedback')).toHaveAttribute('data-code', 'discard-ok', { timeout: 10_000 });
+      await drag3d(page, isMobile, 'carafe', 'scale', 0.06);
+      await expect(step).toHaveText('Add 15 g of ground coffee', { timeout: 10_000 });
+      await drag3d(page, isMobile, 'grounds', 'dripper', 0.3);
+      await expect(step).toHaveText('Tare the scale', { timeout: 10_000 });
+      await hit(page, isMobile, 'tare');
+      await expect(step).toHaveText('Bloom: pour about 30 g', { timeout: 10_000 });
+      await expect(readout).toContainText('0.0 g');
+      await drag3d(page, isMobile, 'kettle', 'dripper', 0.34);
+      await expect(page.getByTestId('xr-pour-controls')).toBeVisible({ timeout: 10_000 });
+      // Bloom + main pour with the side panel's measured pours (kettle stays poised in the scene).
+      await page.locator('.xr-action[data-action-id="to-target"]').click();
+      await expect(step).toHaveText('Wait 30–45 s while it blooms', { timeout: 10_000 });
+      await page.locator('.xr-action[data-action-id="skip"]').click();
+      await expect(step).toHaveText('Pour in stages to 250 g', { timeout: 10_000 });
+      await page.locator('.xr-action[data-action-id="to-target"]').click();
+      await expect(step).toHaveText('Let it draw down', { timeout: 10_000 });
+      await page.locator('.xr-action[data-action-id="skip"]').click();
+      const summary = page.getByTestId('xr-summary');
+      await expect(summary).toBeVisible({ timeout: 10_000 });
+      await expect(summary).toContainText('1:16.7');
+      await expect(summary).toContainText('Illustrative flow model');
+      await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+      expect(realErrors(errors)).toEqual([]);
+    });
+  });
+
+  test.describe('WebXR path is feature-gated (HARDWARE-UNVERIFIED: no headset used)', () => {
+    // One mission per project keeps the number of parallel 3D pages down; qa-scenarios covers espresso-first-shot.
+    test('a browser that reports immersive-vr but denies the session: honest note, clear alert, 3D keeps working', async ({ page, isMobile }) => {
+      const errors = collectErrors(page);
+      await page.addInitScript(() => {
+        const fake = {
+          isSessionSupported: async (m: string) => m === 'immersive-vr',
+          requestSession: async () => {
+            throw new DOMException('No headset in this test', 'NotAllowedError');
+          },
+          addEventListener() {},
+          removeEventListener() {},
+        };
+        Object.defineProperty(Navigator.prototype, 'xr', { configurable: true, get: () => fake });
+      });
+      await seedProfile(page);
+      const id = isMobile ? 'pourover-bloom' : 'station-tour';
       await page.goto(`/#/xr?mission=${id}`);
       await expect(page.getByTestId('xr-capability')).toHaveAttribute('data-reason', 'supported');
       await expect(page.getByTestId('xr-capability')).toContainText('Hardware-unverified');
@@ -409,9 +474,10 @@ test.describe('WebXR path is feature-gated (HARDWARE-UNVERIFIED: no headset used
       await expect(page.getByTestId('xr-canvas')).toBeVisible();
       await expect(page.locator('.xr-action').first()).toBeVisible(); // the action list still works
       await page.getByRole('button', { name: 'Exit', exact: true }).click();
-    }
-    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
-    expect(realErrors(errors)).toEqual([]);
+      await expect(page.getByTestId('xr-play-list')).toBeVisible(); // back on the brief, nothing stuck
+      await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+      expect(realErrors(errors)).toEqual([]);
+    });
   });
 });
 

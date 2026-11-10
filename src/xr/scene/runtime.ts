@@ -88,6 +88,8 @@ export interface Rt {
 }
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
+/** Seconds without input before the non-immersive fallback halves its draw rate. */
+const IDLE_AFTER_SEC = 1.5;
 
 export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) => Station): Promise<SceneHandle> {
   const { canvas, store, def } = opts;
@@ -244,8 +246,16 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
       return null;
     }
   };
+  // Perf (phones, software WebGL): when nobody is touching the non-immersive scene, draw every other
+  // frame (~30 fps). Input or camera motion restores full rate at once; the simulation still ticks every frame.
+  let lastInputAt = 0;
+  let frameNo = 0;
+  camera.onViewMatrixChangedObservable.add(() => {
+    lastInputAt = time;
+  });
   scene.onPointerObservable.add((pi) => {
     if (disposed) return;
+    lastInputAt = time;
     const ctrl = xrControllerFor(pi);
     if (ctrl) station.onXrPointer(pi, ctrl);
     else station.onPointer(pi);
@@ -440,7 +450,9 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
     station.frame(s, dt);
     renderMainPanel(s);
     renderMonitor(s);
-    scene.render();
+    frameNo += 1;
+    const idle = !inXR && time - lastInputAt > IDLE_AFTER_SEC;
+    if (!idle || frameNo % 2 === 0) scene.render();
     statTimer += dt;
     if (statTimer > 1) {
       statTimer = 0;
