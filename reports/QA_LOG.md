@@ -125,3 +125,10 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 | Platform | Result | Evidence | Notes |
 |---|---|---|---|
 | User's phone via Tailscale HTTPS (`tailscale serve` → `vite preview` @ `59214e8` build) | **User-reported: works** | user message "I started the app and it works okay now" | Self-reported by the user; no detailed checklist (kitchen mode, wake lock, offline install, audio) was reported. |
+
+## Publish + live deployment check (2026-11-10)
+- User approved: public repo `loOong-Cheng/coffee-lab`, GitHub Pages, MIT, history email rewritten to GitHub noreply (commit IDs in docs remapped).
+- Pre-push: typecheck ✓, unit 480/480 ✓, build ✓; history scanned for personal email / tailnet hostname: 0 hits.
+- Sub-path smoke (`vite preview --base /coffee-lab/`, desktop 1280×800 + Pixel 7): home, atlas, lesson, culture, café, settings, XR intro render; SW scope `/coffee-lab/`; offline reload of atlas works; 0 console errors; 0 HTTP ≥400.
+- Live: GitHub Actions run 42787047434 green; same smoke against https://looong-cheng.github.io/coffee-lab/ — identical PASS on both viewports.
+- Notes: Actions warns that checkout/setup-node/configure-pages/deploy-pages v4/v5 target Node 20 (forced to Node 24) — works; bump action majors later. Full Playwright suite was not run against the live URL (tests navigate root-relative).

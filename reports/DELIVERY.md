@@ -18,6 +18,8 @@
 12. **Your data stays on the device:** export / import / reset in Settings; no account, no network calls at runtime.
 
 ## How to launch
+**Live (GitHub Pages, HTTPS):** https://looong-cheng.github.io/coffee-lab/ · source: https://github.com/loOong-Cheng/coffee-lab (MIT). Deployed from `main` by `.github/workflows/deploy-pages.yml` (unit tests + typecheck + build on every push).
+
 ```sh
 npm install
 npx playwright install chromium   # only for e2e tests
@@ -38,6 +40,7 @@ Requires Node ≥ 22.22 (built on Node 24.19 / npm 11.17 / Windows 11).
 | E2E — all suites (`npx playwright test`) | **246 passed / 14 skipped / 0 failed** @ e6e7293 (desktop 1280×800 + Pixel 7; skips are viewport-scoped tests) | smoke, shell, learn, practice, brew, cafe, culture, offline (PWA) + independent QA suites |
 | Independent QA gate #1 (`tests/e2e/qa-*`) | 178 pass / 12 skip (2 identical runs); bugs QA-01…09 fixed except QA-05 | | phone-only + desktop-only scenarios, XR fallback, failure handling, axe WCAG A/AA on 17 screens × themes × viewports, zh pass, content honesty |
 | **Real phone** | **User-reported: works** (2026-11-08, opened via Tailscale HTTPS `tailscale serve` → `vite preview`) | reported by the user, no detailed checklist; not tested by agents |
+| **Live GitHub Pages site** | PASS (2026-11-10) — deploy workflow green; scripted smoke on desktop + Pixel 7 (Chromium): 7 routes render, service worker scope `/coffee-lab/`, offline reload works, 0 console errors, 0 HTTP errors | not re-run: full Playwright suite against the live URL (suite assumes root path); same build passes it locally |
 | **XR headset** | **NOT TESTED — no headset available** | WebXR controller code, comfort, frame rate are hardware-unverified; 3D fallback verified in headless Chromium (software WebGL) |
 | **Audio by ear** | **NOT HEARD by a human** | only no-throw/scheduling tests and (if present) `reports/AUDIO_QA.md` render metrics |
 | Browsers | Chromium only automated | Firefox/Safari not tested |

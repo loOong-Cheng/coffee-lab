@@ -5,6 +5,8 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
+**Post-session (2026-11-10):** published with user approval — public repo https://github.com/loOong-Cheng/coffee-lab (`main` only; `wip/phase5-unfinished` local only) and live app https://looong-cheng.github.io/coffee-lab/ (Pages workflow green, live smoke PASS). History rewritten to noreply email before first push; commit IDs in docs remapped. Generator-pipeline lessons recorded in `docs/GENERATOR_LESSONS.md` (L1 just-in-time profiling, L2 budget/auto-resume). No app code changes.
+
 **SESSION ENDED (2026-11-08 ~04:00)** — account 5-hour usage limit hit (HTTP 429 on workers) and user asked to conclude. `main` @ `e6e7293` is green and runnable.
 Final lead verification @ e6e7293: typecheck ✓ · unit 480/480 ✓ · build ✓ · **e2e 246 passed / 14 viewport-scoped skips / 0 failed** (desktop 1280×800 + Pixel 7).
 **Unfinished work saved on branch `wip/phase5-unfinished` (`780aad0`, NOT verified, NOT merged):** XR mission picker + station-tour + pourover-bloom (XR scene refactor in progress; includes QA-05 fix attempt and edits to offline/qa-scenarios specs), glossary UI (`src/features/glossary`, route + ExplainView/LessonIntro wiring) — glossary DATA (`src/content/glossary.ts`) never written. Content-consistency fixes from that branch were verified and merged to main (`e6e7293`).
