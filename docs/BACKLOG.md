@@ -30,8 +30,8 @@ Status: DONE / PARTIAL / TODO / BLOCKED.
 - [ ] TODO (P2) — Even out quieter moods (focus/lab/kissa are 2–4 LU below others); human listening pass on phone speakers
 
 ## Unfinished (branch `wip/phase5-unfinished`, not verified)
-- [ ] PARTIAL — XR mission picker + station-tour + pourover-bloom missions; QA-05 XR phone link size
-- [ ] PARTIAL — Glossary page + inline term help (UI started; data file missing)
+- [x] DONE (hardware-unverified) — XR mission picker + station-tour + pourover-bloom missions; QA-05 closed — merged @ `22c854b`; xr-missions.spec 22/22, full e2e 276/0 failed
+- [ ] PARKED — Glossary page + inline term help (UI started; data file missing). Not continued without a user request (2026-11-10).
 - [ ] PARTIAL — Content consistency report `docs/CONTENT_CONSISTENCY.md` (fixes merged `bb6dc59`; report not written)
 - [ ] TODO — Independent QA gate #2
 
