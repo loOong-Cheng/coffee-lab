@@ -555,8 +555,10 @@
 }
 .cl-seg--stacked .cl-seg__opt {
   display: grid;
-  grid-template-columns: auto 1fr;
+  /* minmax(0, 1fr): the text column may shrink to the card width, so long titles/badges wrap instead of overflowing */
+  grid-template-columns: auto minmax(0, 1fr);
   align-items: start;
+  align-content: start; /* cards in one row share a height: keep title + description at the top, no floating gap */
   justify-content: stretch;
   text-align: start;
   gap: var(--space-1) var(--space-3);
@@ -595,12 +597,23 @@
 }
 .cl-seg__title {
   display: inline-flex;
-  align-items: center;
+  align-items: flex-start; /* icon lines up with the first line of a wrapped title */
   gap: var(--space-2);
+  min-width: 0;
   font-weight: var(--weight-bold);
   font-size: var(--text-base);
 }
+/* Text wraps beside the icon; an inline badge (e.g. "Suggested for this device") wraps to its own line when narrow. */
+.cl-seg__label {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.cl-seg__label .cl-tag {
+  margin-block: 2px;
+}
 .cl-seg__desc {
+  min-width: 0;
+  overflow-wrap: anywhere;
   font-size: var(--text-sm);
   font-weight: var(--weight-regular);
   color: var(--color-text-muted);

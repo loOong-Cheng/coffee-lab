@@ -284,6 +284,7 @@ export default function OnboardingPage() {
               label: (
                 <>
                   {t(S.mode[m])}
+                  {m === suggested && ' '}
                   {m === suggested && (
                     <Tag tone="accent" size="sm" className="ob-suggested">
                       {t(S.suggested)}

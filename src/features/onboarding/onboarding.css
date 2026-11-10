@@ -110,7 +110,8 @@
   font-size: var(--text-lg);
 }
 .ob-suggested {
-  margin-inline-start: var(--space-2);
+  /* spacing is the space character before it (collapses at a line start, so a wrapped badge isn't indented) */
+  max-width: 100%;
 }
 .ob-error {
   margin: 0;
