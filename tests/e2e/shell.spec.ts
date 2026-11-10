@@ -83,7 +83,7 @@ for (const size of [
         expect(t.right, `${t.name} inside the viewport`).toBeLessThanOrEqual(m.vw + 0.5);
         expect(t.left).toBeGreaterThanOrEqual(-0.5);
       }
-      for (const t of m.tools.filter((x) => x.name && !/Coffee Lab/.test(x.name))) expect(t.w, `${t.name} width`).toBeGreaterThanOrEqual(44);
+      for (const t of m.tools.filter((x) => x.name && !/Coffee Lab|咖啡实验室/.test(x.name))) expect(t.w, `${t.name} width`).toBeGreaterThanOrEqual(44);
       expect(m.headerH, 'header stays one compact row').toBeLessThan(72);
 
       // Every nav destination is reachable by tap and lands on a page with one h1.

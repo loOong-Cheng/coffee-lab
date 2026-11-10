@@ -132,3 +132,8 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - Sub-path smoke (`vite preview --base /coffee-lab/`, desktop 1280×800 + Pixel 7): home, atlas, lesson, culture, café, settings, XR intro render; SW scope `/coffee-lab/`; offline reload of atlas works; 0 console errors; 0 HTTP ≥400.
 - Live: GitHub Actions run 42787047434 green; same smoke against https://looong-cheng.github.io/coffee-lab/ — identical PASS on both viewports.
 - Notes: Actions warns that checkout/setup-node/configure-pages/deploy-pages v4/v5 target Node 20 (forced to Node 24) — works; bump action majors later. Full Playwright suite was not run against the live URL (tests navigate root-relative).
+
+## Brand language + onboarding card fix, live re-check (2026-11-10)
+- `fead40b` brand/title one language at a time; `7a8b1aa` onboarding stacked cards (badge/description overflow, user screenshot). Lead re-check on merged main: typecheck ✓, unit 480/480 ✓, e2e onboarding-layout + learn + shell + qa-a11y + qa-scenarios 102 pass / 4 viewport skips / 0 fail. (One earlier unit run had 4 timeouts under parallel load; all passed on rerun.)
+- Force-push of alias-rewritten history (user-approved) → deploy run 42794156327 green.
+- Live checks on https://looong-cheng.github.io/coffee-lab/: header brand `Coffee Lab` (en) / `咖啡实验室` (zh), tab title in one language; onboarding mode cards 0 overflow at 1280 and 320 px in en and zh; smoke (routes, SW scope, offline, 0 console/HTTP errors) PASS on desktop + Pixel 7.

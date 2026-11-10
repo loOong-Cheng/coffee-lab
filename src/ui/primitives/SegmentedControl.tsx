@@ -131,7 +131,8 @@ export function SegmentedControl<V extends string = string>({
                 <span className="cl-seg__radio" aria-hidden="true" />
                 <span className="cl-seg__title">
                   {o.icon}
-                  {o.label}
+                  {/* Label wrapper: lets long text wrap beside the icon and any inline badge drop to its own line. */}
+                  <span className="cl-seg__label">{o.label}</span>
                 </span>
                 {o.description && (
                   <span id={descId} className="cl-seg__desc">
