@@ -70,6 +70,7 @@ export const lessons: Lesson[] = [
     activityIds: [
       'esp-meet-the-machine-cards',
       'esp-meet-the-machine-identify',
+      'esp-meet-the-machine-xr',
       'esp-meet-the-machine-quiz',
       'esp-meet-the-machine-reflect',
     ],
@@ -440,6 +441,33 @@ export const activities: Activity[] = [
         ],
         explanation: L('称两次：进去多少、出来多少。', 'Weigh twice: what goes in and what comes out.'),
       },
+    ],
+  },
+  {
+    id: 'esp-meet-the-machine-xr',
+    lessonId: 'esp-meet-the-machine',
+    kind: 'spatial-practice',
+    missionId: 'station-tour',
+    title: L('虚拟吧台导览：认识工具', 'Virtual Bar Tour: Meet the Tools'),
+    intro: L(
+      '走到虚拟意式吧台前，逐一查看每样工具，再完成几个“找一找、放一放”的小挑战。',
+      'Step up to a virtual espresso counter, inspect each tool, then take a few quick find-and-place challenges.',
+    ),
+    objectiveIds: ['esp.parts'],
+    supportedModes: ['xr', 'desktop', 'mobile'],
+    summary: L(
+      '指向或点击工具，了解它叫什么、做什么用；然后按提示找到磨豆机、冲煮头和敲渣桶，并把手柄和杯子放到正确位置。可选“引导 / 辅助 / 独立”三档提示；“独立”档只描述工具的用途，不说名字。没有头显时可以用鼠标、触屏或键盘操作列表完成。',
+      'Point at or click each tool to learn its name and job, then find the grinder, group head and knock box and put the portafilter and cup where they belong. Choose guided, assisted or independent cues — independent describes each tool by its job, not its name. Without a headset you can play with mouse, touch or the keyboard action list.',
+    ),
+    limits: L(
+      '这里练习的是认识工具和它们在吧台上的位置。它无法模拟真实工具的握感、重量或握力，也没有温度和味道——真实冲煮头和蒸汽很烫；各品牌机器的操作也不同，请以说明书为准。',
+      'This practises recognising tools and where they sit on a counter. It cannot reproduce the real grip, weight or force of tools, nor heat or taste — real group heads and steam are hot — and real machines differ, so follow your manual.',
+    ),
+    safetyNotes: [
+      L(
+        '使用头显时请清理周围空间，可坐着玩；感到不适随时摘下休息。',
+        'With a headset, clear the space around you; seated play is fine. Take it off and rest whenever you feel uncomfortable.',
+      ),
     ],
   },
   {

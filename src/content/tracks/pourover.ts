@@ -78,7 +78,7 @@ export const lessons: Lesson[] = [
       L('分段注水或连续注水都可以', 'Pulse or continuous pouring both work'),
       L('总时间是判断研磨的线索', 'Total time is a clue about grind'),
     ],
-    activityIds: ['po-ratio-bloom-cards', 'po-ratio-bloom-sim', 'po-ratio-bloom-order', 'po-ratio-bloom-quiz'],
+    activityIds: ['po-ratio-bloom-cards', 'po-ratio-bloom-sim', 'po-ratio-bloom-order', 'po-ratio-bloom-xr', 'po-ratio-bloom-quiz'],
     checkForUnderstanding: ['po-ratio-bloom-sim', 'po-ratio-bloom-order', 'po-ratio-bloom-quiz'],
     safetyNotes: [HOT_WATER],
     estimatedMinutes: 15,
@@ -573,6 +573,33 @@ export const activities: Activity[] = [
         laterStep: 'serve',
         feedback: L('还在滴就移开滤杯，杯里的咖啡会偏淡，也会滴得到处都是。', 'Removing the dripper mid-drip leaves your cup weaker and drips everywhere.'),
       },
+    ],
+  },
+  {
+    id: 'po-ratio-bloom-xr',
+    lessonId: 'po-ratio-bloom',
+    kind: 'spatial-practice',
+    missionId: 'pourover-bloom',
+    title: L('虚拟手冲台：闷蒸与分段注水', 'Virtual Pour-over: Bloom and Staged Pours'),
+    intro: L(
+      '在虚拟手冲台上按顺序冲一杯：冲洗滤纸、加 15 g 粉、去皮、闷蒸，再分段注水到 250 g。',
+      'Brew one cup at a virtual pour-over station: rinse the filter, add 15 g of coffee, tare, bloom, then pour in stages to 250 g.',
+    ),
+    objectiveIds: ['po.ratio-bloom'],
+    supportedModes: ['xr', 'desktop', 'mobile'],
+    summary: L(
+      '水壶倾斜决定水流，瞄准位置决定水落在粉层还是滤纸壁上；秤会显示你倒了多少水，结束时会算出你的粉水比。可选“引导 / 辅助 / 独立”三档提示；用键盘操作列表时可以“定量注水”，不需要掐准时机。',
+      'Kettle tilt sets the flow and your aim decides whether water lands on the bed or the filter wall; the scale shows how much you poured, and the end screen works out your ratio. Choose guided, assisted or independent cues; with the keyboard action list you can use measured pours, so no split-second timing is needed.',
+    ),
+    limits: L(
+      '这里练习的是手冲顺序、闷蒸和看秤注水到目标重量。水流只是示意模型，不是流体模拟，也不能预测味道；它无法模拟真实水壶的重量、平衡、热度和手上的注水控制，也无法反映你自己滤杯的滴滤速度。',
+      'This practises pour-over order, the bloom and pouring to a target weight on the scale. The flow is an illustrative model, not fluid physics, and cannot predict taste; it cannot reproduce a real kettle’s weight, balance and heat, real hand pour control, or how your own dripper drains.',
+    ),
+    safetyNotes: [
+      L(
+        '使用头显时请清理周围空间，可坐着玩；感到不适随时摘下休息。',
+        'With a headset, clear the space around you; seated play is fine. Take it off and rest whenever you feel uncomfortable.',
+      ),
     ],
   },
   {

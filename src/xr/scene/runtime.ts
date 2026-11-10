@@ -50,6 +50,8 @@ export interface Hand {
 export interface Station {
   /** Height above the counter the fallback camera looks at (default 0.14 m). */
   cameraTargetY?: number;
+  /** Fallback-camera distance (m) for landscape / portrait screens (default 1.3 / 1.25). */
+  cameraRadius?: { landscape: number; portrait: number };
   frame(s: CoreState, dt: number): void;
   onPointer(pi: PointerInfo): void;
   onPointerCancel(): void;
@@ -144,7 +146,7 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
     const portrait = engine.getAspectRatio(camera) < 1;
     camera.alpha = -Math.PI / 2;
     camera.beta = portrait ? 0.92 : 1.08;
-    camera.radius = portrait ? 1.25 : 1.3;
+    camera.radius = portrait ? camRadius.portrait : camRadius.landscape;
     camera.setTarget(v(root.position.x, root.position.y + targetY, root.position.z + 0.06));
   };
   camera.lowerAlphaLimit = -Math.PI / 2 - 0.75;
@@ -171,6 +173,7 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
   const monitor = createMonitor(scene, root);
 
   let targetY = 0.14;
+  let camRadius = { landscape: 1.3, portrait: 1.25 };
   let xr: WebXRDefaultExperience | null = null;
   let inXR = false;
   let disposed = false;
@@ -230,6 +233,7 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
 
   const station = buildStation(rt);
   targetY = station.cameraTargetY ?? 0.14;
+  if (station.cameraRadius) camRadius = station.cameraRadius;
 
   // ── pointer routing (mouse/touch vs XR controller rays) ──
   const xrControllerFor = (pi: PointerInfo): WebXRInputSource | null => {

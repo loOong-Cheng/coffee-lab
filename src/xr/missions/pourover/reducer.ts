@@ -10,7 +10,7 @@ import type { CoreAction, CoreState } from '../../mission/core';
 import { cuesOf, emptyMetrics, hintWindow, reduceMeta } from '../../mission/core';
 import { TIERS, evaluateSnap } from '../../mission/tiers';
 import { FEEDBACK, GUIDANCE_LABEL, fmt } from '../../mission/content';
-import { POUR, addFlow, classifyStream, drainRate, flowFromTilt, type FlowStats, type StreamSpot } from './model';
+import { POUR, addFlow, classifyStream, drainRate, flowFromTilt, tiltForFlow, type FlowStats, type StreamSpot } from './model';
 import { P, POUR_STEPS, pourInfo, type PourItem, type PourPart, type PourStep, type PourZone } from './content';
 
 export type PourAction =
@@ -19,6 +19,12 @@ export type PourAction =
   | { type: 'RELEASE'; hand: HandId; zone?: PourZone; distanceM?: number; source?: InputSource }
   /** Continuous kettle pose from the adapter: tilt (deg) and stream offset from the dripper centre (m, null = not over it). */
   | { type: 'KETTLE'; tiltDeg?: number; offsetM?: number | null; source?: InputSource }
+  /**
+   * A measured pour (action list / accessibility): tip the held kettle at a steady
+   * flow until about `grams` have left the spout, then tip it back. Simulated time
+   * advances by the pour's duration — no real-time reflexes needed.
+   */
+  | { type: 'POUR_PULSE'; grams: number; flowGps?: number; source?: InputSource }
   | { type: 'PRESS'; button: 'tare'; source?: InputSource }
   | { type: 'SKIP_WAIT'; source?: InputSource }
   | { type: 'LOCATE'; target: PourPart; source?: InputSource };
@@ -304,6 +310,25 @@ export function pourReducer(s: PourState, a: PourAction): PourState {
       const startsPour = !s.pour.active && kettleFlow(d) > 0 && kettleFlow(s) === 0;
       if (startsPour) learner(a.source);
       else if (d.tiltDeg === s.tiltDeg && d.offsetM === s.offsetM) return s;
+      break;
+    }
+    case 'POUR_PULSE': {
+      if (!d.items.kettle.heldBy || !(a.grams > 0)) return s;
+      learner(a.source);
+      const tools = { say, sound, mistake };
+      const want = Math.min(a.grams, POUR.maxPulseG);
+      const gps = Math.max(0.5, Math.min(POUR.maxFlowGps, a.flowGps ?? POUR.pulseFlowGps));
+      let poured = 0;
+      for (let i = 0; i < 2000 && poured < want - 0.01 && d.kettleG > 0; i++) {
+        d.tiltDeg = tiltForFlow(gps, d.kettleG / POUR.kettleCapacityG);
+        const f = kettleFlow(d);
+        if (!(f > 0)) break;
+        const before = d.kettleG;
+        tick(d, Math.min(0.1, (want - poured) / f), tools);
+        poured += before - d.kettleG;
+      }
+      d.tiltDeg = 0;
+      tick(d, POUR.pourEndGapSec, tools); // the pause that ends this pour
       break;
     }
     case 'PRESS': {

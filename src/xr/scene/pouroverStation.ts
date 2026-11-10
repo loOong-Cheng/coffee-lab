@@ -43,6 +43,8 @@ const DRIPPER_TOP = 0.225;
 const TARE_POS: Vec3 = [0.045, 0.012, -0.066];
 const DRAG_Y: Record<PourItem, number> = { filter: 0.3, grounds: 0.3, carafe: 0.06, kettle: 0.34 };
 const KETTLE_BODY = new Vector3(0.17, -0.09, 0);
+/** Letting go of the kettle with its spout within this distance of the dripper centre keeps it poised there. */
+const POISE_MAX_OFFSET_M = 0.1;
 const v3 = (p: Vec3) => new Vector3(p[0], p[1], p[2]);
 
 export const pouroverStationFactory: SceneFactory = (opts) => createRuntime(opts, buildPouroverStation);
@@ -307,27 +309,42 @@ function buildPouroverStation(rt: Rt): Station {
     const { item, from } = drag;
     drag = null;
     camera.attachControl(true);
+    if (item === 'kettle' && st().status === 'playing') {
+      // Let go over the dripper → the kettle stays poised there, upright (touch-friendly):
+      // pour with the wheel, ↑/↓, or the side-panel pour controls; drag it away to put it down.
+      const off = spoutOffset(rt.localOf(rootNodes.kettle.computeWorldMatrix(true).getTranslation()));
+      if (off !== null && off <= POISE_MAX_OFFSET_M) {
+        delete holdNear.pointer;
+        store.dispatch({ type: 'KETTLE', tiltDeg: 0, offsetM: off, source: 'pointer' } as never);
+        return;
+      }
+    }
     const h = holdNear.pointer;
     delete holdNear.pointer;
     const putBack = !!h && h.zone === from && h.d <= TIERS[st().guidance].nearRadiusM;
     store.dispatch({ type: 'RELEASE', hand: 'pointer', zone: item === 'kettle' ? undefined : (h?.zone ?? undefined), distanceM: h?.zone ? (putBack ? 0 : h.d) : undefined, source: 'pointer' } as never);
   }
+  const canvas = rt.engine.getRenderingCanvas();
+  const kettleInPointer = () => st().items.kettle.heldBy === 'pointer';
+  // Capture phase + stopImmediatePropagation: while the kettle is in hand the wheel tilts it instead of zooming.
   const onWheel = (e: WheelEvent) => {
-    if (drag?.item !== 'kettle') return;
+    if (!kettleInPointer()) return;
     e.preventDefault();
+    e.stopImmediatePropagation();
     const s = st();
     store.dispatch({ type: 'KETTLE', tiltDeg: Math.max(0, Math.min(90, s.tiltDeg + (e.deltaY > 0 ? 4 : -4))), source: 'pointer' } as never);
   };
   const onKey = (e: KeyboardEvent) => {
-    if (drag?.item !== 'kettle' || (e.key !== 'ArrowUp' && e.key !== 'ArrowDown')) return;
+    if ((e.key !== 'ArrowUp' && e.key !== 'ArrowDown') || !kettleInPointer()) return;
+    const target = e.target as HTMLElement | null;
+    if (!drag && target && target !== canvas && target !== document.body) return; // never steal arrows from sliders/lists
     e.preventDefault();
     store.dispatch({ type: 'KETTLE', tiltDeg: Math.max(0, Math.min(90, st().tiltDeg + (e.key === 'ArrowUp' ? 4 : -4))), source: 'pointer' } as never);
   };
-  const canvas = rt.engine.getRenderingCanvas();
-  canvas?.addEventListener('wheel', onWheel, { passive: false });
+  canvas?.addEventListener('wheel', onWheel, { passive: false, capture: true });
   window.addEventListener('keydown', onKey);
   scene.onDisposeObservable.add(() => {
-    canvas?.removeEventListener('wheel', onWheel);
+    canvas?.removeEventListener('wheel', onWheel, { capture: true });
     window.removeEventListener('keydown', onKey);
   });
 
@@ -530,6 +547,7 @@ function buildPouroverStation(rt: Rt): Station {
 
   return {
     cameraTargetY: 0.24,
+    cameraRadius: { landscape: 1.12, portrait: 1.0 },
     frame: (s, dt) => frame(s as unknown as PourState, dt),
     onPointer(pi) {
       if (pi.type === PointerEventTypes.POINTERMOVE) {

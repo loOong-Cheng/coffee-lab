@@ -18,7 +18,7 @@ export function PourControls({ store }: { store: AnyStore }) {
   if (!v.held) return null;
   const set = (tiltDeg: number) => store.dispatch({ type: 'KETTLE', tiltDeg, source: 'pointer' } as never);
   return (
-    <div className="xr-pour" data-testid="xr-pour-controls">
+    <div className="xr-pour" data-testid="xr-pour-controls" role="group" aria-label={t(P.tiltLabel)}>
       <label className="xr-pour__label">
         {t(P.tiltLabel)}: {v.tilt}°
         <input
@@ -33,7 +33,9 @@ export function PourControls({ store }: { store: AnyStore }) {
       </label>
       <button
         type="button"
-        className="xr-action"
+        className="xr-action xr-pour__hold"
+        data-testid="xr-hold-pour"
+        onContextMenu={(e) => e.preventDefault()}
         onPointerDown={() => set(tiltForFlow(4, v.fill))}
         onPointerUp={() => set(0)}
         onPointerLeave={() => set(0)}

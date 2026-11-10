@@ -3,6 +3,7 @@ import { MISSIONS, getMission, missionHref, parseMissionParam } from './registry
 import { createStore, completionEvent, type CoreAction } from '../mission/core';
 import { solve as solveEspresso } from '../mission/testkit';
 import { createMissionStore } from '../mission/store';
+import { getActivity, getLesson } from '../../content';
 
 describe('mission registry + deep links', () => {
   it('parses ?mission=<id> and rejects unknown ids', () => {
@@ -33,6 +34,34 @@ describe('mission registry + deep links', () => {
     }
     expect(getMission('station-tour')?.id).toBe('station-tour');
     expect(getMission('x')).toBeNull();
+  });
+
+  it('each mission is linked from its lesson by a spatial-practice activity with honest limits', () => {
+    for (const m of MISSIONS) {
+      const a = getActivity(m.activityId);
+      expect(a, m.activityId).toBeDefined();
+      expect(a?.kind).toBe('spatial-practice');
+      expect(a?.lessonId).toBe(m.lessonId);
+      expect(getLesson(m.lessonId)?.activityIds).toContain(m.activityId);
+      expect(getLesson(m.lessonId)?.checkForUnderstanding).not.toContain(m.activityId); // optional, never required
+      if (a?.kind === 'spatial-practice') {
+        expect(a.missionId).toBe(m.id);
+        expect(a.limits.en).toMatch(/taste/i);
+        expect(a.limits.en).toMatch(/grip|force|touch|weight/i);
+        expect(a.limits.zh.length).toBeGreaterThan(10);
+      }
+    }
+  });
+
+  it('each mission says what it does NOT train (grip/feel, heat; taste or pour control where relevant)', () => {
+    const text = (id: string) => getMission(id)!.notTrains.map((x) => x.en).join(' ');
+    for (const m of MISSIONS) {
+      expect(text(m.id), m.id).toMatch(/heat|hot/i);
+      expect(text(m.id), m.id).toMatch(/grip|force|feel/i);
+    }
+    expect(text('espresso-first-shot')).toMatch(/taste/i);
+    expect(text('pourover-bloom')).toMatch(/taste/i);
+    expect(text('pourover-bloom')).toMatch(/pour control/i);
   });
 
   it('every mission starts honest: simulated evidence, no real-skill claims, not complete', () => {

@@ -22,6 +22,7 @@ export const S = {
     { en: 'Grip force, tamping pressure or any real touch — no haptic realism is claimed', zh: '握力、压粉力度或任何真实触感——不声称有真实触觉' },
     { en: 'Real taste: the extraction is an illustrative model, not a flavour prediction', zh: '真实味道：萃取是示意模型，不能预测风味' },
     { en: 'Dialing in your own grinder and beans', zh: '用你自己的磨豆机和豆子调参' },
+    { en: 'Heat and steam: a real group head and steam wand are hot', zh: '温度和蒸汽：真实的冲煮头和蒸汽棒很烫' },
   ] as LocalizedText[],
   guidanceHeading: { en: 'How much help?', zh: '需要多少帮助？' },
   guidanceNote: {

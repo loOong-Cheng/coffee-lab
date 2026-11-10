@@ -23,6 +23,14 @@ import {
 const t = (en: string, zh: string = en): LocalizedText => ({ en, zh });
 const OFFSET = { center: 0, spiral: 0.03, wall: 0.052 };
 
+/** Water still due for the current pour cue (whole grams), or null when no pour is due. */
+export function pourRemaining(s: PourState): number | null {
+  const cue = pourCue(s);
+  if (cue?.kind !== 'pour') return null;
+  const left = Math.round(cue.toG - (cue.rinse ? s.rinseG : s.brewG));
+  return left >= 1 ? left : null;
+}
+
 export function pourActions(s: PourState): PanelAction<PourAction>[] {
   if (s.status !== 'playing') return [];
   const cue = pourCue(s);
@@ -51,7 +59,15 @@ export function pourActions(s: PourState): PanelAction<PourAction>[] {
   if (kettleHeld) {
     const pouring = kettleFlow(s) > 0;
     const wantPour = cue?.kind === 'pour' && (cue.rinse ? s.rinseG < cue.toG : s.brewG < cue.toG - 2);
-    add('gentle', P.actions.gentle, [{ type: 'KETTLE', tiltDeg: tiltForFlow(3, fill), source: 'panel' }], wantPour && !pouring);
+    // Measured pours: no real-time reflexes needed (keyboard / screen-reader friendly).
+    // Guided offers "pour the rest to the target"; assisted suggests a pulse size; independent suggests nothing.
+    const left = pourRemaining(s);
+    if (s.guidance === 'guided' && left !== null && cue?.kind === 'pour')
+      add('to-target', fmt(P.actions.toTarget, { g: left, t: cue.toG }), [{ type: 'POUR_PULSE', grams: left, source: 'panel' }], wantPour && !pouring);
+    const pulse = left !== null && left >= 50 ? 50 : 10;
+    add('pulse-10', P.actions.pulse10, [{ type: 'POUR_PULSE', grams: 10, source: 'panel' }], s.guidance !== 'guided' && wantPour && !pouring && pulse === 10);
+    add('pulse-50', P.actions.pulse50, [{ type: 'POUR_PULSE', grams: 50, source: 'panel' }], s.guidance !== 'guided' && wantPour && !pouring && pulse === 50);
+    add('gentle', P.actions.gentle, [{ type: 'KETTLE', tiltDeg: tiltForFlow(3, fill), source: 'panel' }], false);
     add('faster', P.actions.faster, [{ type: 'KETTLE', tiltDeg: tiltForFlow(7, fill), source: 'panel' }], false);
     add('stop', P.actions.stop, [{ type: 'KETTLE', tiltDeg: 0, source: 'panel' }], pouring && !wantPour);
     add('center', P.actions.center, [{ type: 'KETTLE', offsetM: OFFSET.center, source: 'panel' }], s.offsetM === null || s.offsetM > POUR.bedR);
@@ -124,6 +140,7 @@ export const pouroverMission: MissionDef<PourState, PourAction> = {
       s.rinseG >= POUR.rinseMinG + 5,
       s.brewG >= POUR.bloomIdealG - 2,
       s.brewG >= POUR.targetWaterG - 2,
+      s.items.kettle.heldBy ? pourRemaining(s) : '',
     ].join('|'),
   result(s): MissionResult {
     const b = baseResult(s, 'pourover-bloom');

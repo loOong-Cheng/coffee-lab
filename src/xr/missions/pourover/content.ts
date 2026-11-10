@@ -48,7 +48,10 @@ export const P = {
     { en: 'Pouring to a target weight on the scale', zh: '看着秤注水到目标重量' },
   ],
   notTrains: [
-    { en: 'Real kettle weight, heat and water temperature', zh: '真实水壶的重量、热度和水温' },
+    {
+      en: 'Real pour control: a hot, full kettle’s weight, balance and feel in your hand, and water temperature',
+      zh: '真实的注水控制：一壶热水在手里的重量、平衡和手感，以及水温',
+    },
     { en: 'Grind size and taste — the flow here is an illustrative model, not a flavour prediction', zh: '研磨度和味道——这里的流量只是示意模型，不能预测风味' },
     { en: 'How your own dripper and filter actually drain', zh: '你自己的滤杯和滤纸实际的滴滤速度' },
   ],
@@ -62,7 +65,10 @@ export const P = {
     rinse: {
       title: { en: 'Rinse the filter with hot water', zh: '用热水冲洗滤纸' },
       doXr: { en: 'Pick up the kettle by its handle, hold it over the dripper and tip it until water flows (about 25 g).', zh: '握住水壶把手，移到滤杯上方，倾斜到出水（约 25 克）。' },
-      doScreen: { en: 'Drag the kettle over the dripper; while holding, scroll (or use the Tilt control) to pour about 25 g.', zh: '把水壶拖到滤杯上方；按住不放并滚动滚轮（或用“倾斜”控件）倒约 25 克。' },
+      doScreen: {
+        en: 'Drag the kettle over the dripper and let go; pour about 25 g with the scroll wheel, ↑/↓ or the pour buttons.',
+        zh: '把水壶拖到滤杯上方松手；用滚轮、↑/↓ 键或注水按钮倒约 25 克。',
+      },
       why: { en: 'Rinsing reduces papery taste and warms the gear.', zh: '冲洗能减少纸味，同时预热器具。' },
     },
     discard: {
@@ -152,7 +158,10 @@ export const P = {
     toScale: { en: 'Put the carafe back on the scale', zh: '把分享壶放回秤上' },
     tare: { en: 'Press TARE on the scale', zh: '按秤上的「去皮」键' },
     pickKettle: { en: 'Pick up the kettle (over the dripper centre)', zh: '拿起水壶（移到滤杯中心上方）' },
-    gentle: { en: 'Pour gently (≈3 g/s)', zh: '轻柔注水（约 3 克/秒）' },
+    toTarget: { en: 'Pour {g} g more, then stop (to {t} g)', zh: '再倒 {g} 克后停（到 {t} 克）' },
+    pulse10: { en: 'Pour a measured 10 g, then stop', zh: '定量倒 10 克后停' },
+    pulse50: { en: 'Pour a measured 50 g, then stop', zh: '定量倒 50 克后停' },
+    gentle: { en: 'Pour gently (≈3 g/s) — keeps flowing until you stop', zh: '轻柔注水（约 3 克/秒）——直到你按停止' },
     faster: { en: 'Pour faster (≈7 g/s)', zh: '加快注水（约 7 克/秒）' },
     stop: { en: 'Stop pouring (tip kettle back)', zh: '停止注水（把水壶放平）' },
     center: { en: 'Aim at the centre', zh: '对准中心' },
@@ -186,8 +195,8 @@ export const P = {
   tiltLabel: { en: 'Kettle tilt', zh: '水壶倾斜' },
   holdPour: { en: 'Hold to pour', zh: '按住注水' },
   controlsPointer: {
-    en: 'Drag tools with mouse or finger. While dragging the kettle, scroll the wheel (or ↑/↓, or the Tilt control) to tip it; release to put it down.',
-    zh: '用鼠标或手指拖动工具。拖动水壶时滚动滚轮（或 ↑/↓ 键、或“倾斜”控件）来倾斜；松手即放下。',
+    en: 'Drag tools with mouse or finger. Let go of the kettle over the dripper and it stays there: tip it with the scroll wheel, ↑/↓, or the pour controls in the side panel. Drag it away to put it down.',
+    zh: '用鼠标或手指拖动工具。把水壶拖到滤杯上方松手，它会停在那里：用滚轮、↑/↓ 键或侧栏的注水控件来倾斜。把它拖开即可放下。',
   },
   controlsXr: {
     en: 'Grip to hold the kettle; tip your wrist to pour (simulated flow). Trigger presses buttons.',

@@ -319,6 +319,73 @@ describe('pour-over — tiers, action list, never dead-ends', () => {
     expect(Math.abs(s.brewG - 250)).toBeLessThan(15);
   });
 
+  it('a measured pour (POUR_PULSE) pours the asked grams, ends the pour, and advances simulated time', () => {
+    const st = mk();
+    move(st, 'filter', 'dripper');
+    st.dispatch({ type: 'POUR_PULSE', grams: 10, source: 'panel' });
+    expect(st.getState().rinseG).toBe(0); // no kettle in hand → nothing happens
+    st.dispatch({ type: 'GRAB', item: 'kettle', hand: 'pointer', source: 'panel' });
+    st.dispatch({ type: 'KETTLE', offsetM: 0, source: 'panel' });
+    const t0 = st.getState().metrics.elapsedSec;
+    st.dispatch({ type: 'POUR_PULSE', grams: 25, source: 'panel' });
+    const s = st.getState();
+    expect(s.rinseG).toBeCloseTo(25, 1);
+    expect(s.pour.active).toBe(false);
+    expect(s.tiltDeg).toBe(0);
+    expect(s.metrics.elapsedSec - t0).toBeCloseTo(25 / POUR.pulseFlowGps + POUR.pourEndGapSec, 1);
+    expect(currentPourStep(s)).toBe('discard');
+  });
+
+  it('action-list tiers differ: guided offers "pour the rest to target", assisted suggests pulse sizes, independent suggests nothing', () => {
+    const toBloom = (g: 'guided' | 'assisted' | 'independent') => {
+      const st = mk(g);
+      move(st, 'filter', 'dripper');
+      pourUntil(st, 6, (s) => s.rinseG >= 25);
+      st.dispatch({ type: 'RELEASE', hand: 'pointer', source: 'test' });
+      ticks(st, 2);
+      move(st, 'carafe', 'sink');
+      move(st, 'carafe', 'scale');
+      move(st, 'grounds', 'dripper');
+      st.dispatch({ type: 'PRESS', button: 'tare', source: 'test' });
+      st.dispatch({ type: 'GRAB', item: 'kettle', hand: 'pointer', source: 'panel' });
+      st.dispatch({ type: 'KETTLE', offsetM: 0, source: 'panel' });
+      return st;
+    };
+    const guided = pourActions(toBloom('guided').getState());
+    expect(guided.find((a) => a.id === 'to-target')).toMatchObject({ recommended: true });
+    expect(guided.find((a) => a.id === 'to-target')!.label.en).toBe('Pour 30 g more, then stop (to 30 g)');
+    expect(guided.filter((a) => a.recommended).map((a) => a.id)).toEqual(['to-target']);
+
+    const assistedSt = toBloom('assisted');
+    expect(pourActions(assistedSt.getState()).find((a) => a.id === 'to-target')).toBeUndefined();
+    assistedSt.dispatch({ type: 'REQUEST_HINT', source: 'panel' });
+    expect(pourActions(assistedSt.getState()).filter((a) => a.recommended).map((a) => a.id)).toEqual(['pulse-10']);
+
+    const indep = toBloom('independent');
+    indep.dispatch({ type: 'TICK', dtSec: 0.25 });
+    const list = pourActions(indep.getState());
+    expect(list.map((a) => a.id)).toEqual(expect.arrayContaining(['pulse-10', 'pulse-50', 'gentle', 'stop']));
+    expect(list.filter((a) => a.recommended)).toEqual([]);
+  });
+
+  it('guided action list lands on the 250 g target with measured pours (no real-time stopping needed)', () => {
+    const st = mk('guided');
+    for (let i = 0; i < 5000 && st.getState().status !== 'complete'; i++) {
+      const s = st.getState();
+      const list = pourActions(s);
+      const rec = list.find((a) => a.recommended) ?? list.find((a) => a.id === 'skip');
+      if (rec) rec.actions.forEach((a) => st.dispatch(a));
+      st.dispatch({ type: 'TICK', dtSec: 0.25 });
+    }
+    const s = st.getState();
+    expect(s.status).toBe('complete');
+    expect(s.brewG).toBeCloseTo(250, 0);
+    expect(s.bloom.pouredG).toBeCloseTo(30, 0);
+    expect(s.metrics.mistakes).toEqual([]);
+    const r = pouroverMission.result(s);
+    expect(r.stats.find((x) => x.label.en.startsWith('Ratio'))?.value.en).toBe(formatBrewRatio(15, s.brewG));
+  });
+
   it('from 150 random action sequences, the mission can still be completed', () => {
     const A: PourAction[] = [
       { type: 'GRAB', item: 'filter', hand: 'pointer' },
@@ -334,6 +401,8 @@ describe('pour-over — tiers, action list, never dead-ends', () => {
       { type: 'KETTLE', tiltDeg: 0 },
       { type: 'KETTLE', offsetM: 0.2 },
       { type: 'PRESS', button: 'tare' },
+      { type: 'POUR_PULSE', grams: 10 },
+      { type: 'POUR_PULSE', grams: 50 },
       { type: 'SKIP_WAIT' },
       { type: 'TICK', dtSec: 0.25 },
       { type: 'TICK', dtSec: 0.25 },
