@@ -8,7 +8,7 @@
     "type": "git",
     "url": "https://github.com/loOong-Cheng/coffee-lab.git"
   },
-  "homepage": "https://loong-cheng.github.io/coffee-lab/",
+  "homepage": "https://looong-cheng.github.io/coffee-lab/",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"

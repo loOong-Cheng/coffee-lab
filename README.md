@@ -9,7 +9,7 @@ A beginner-first coffee learning game built as **one web app** with intentionall
 
 Bilingual UI (中文 / English toggle). Progress is stored locally in your browser (no account, no server, no network calls at runtime). Canonical product brief: `COFFEE_LAB_HANDOFF.md`.
 
-**Try it:** https://loong-cheng.github.io/coffee-lab/ (GitHub Pages, HTTPS — works on phones, installable, offline after first load). Deployed from `main` by `.github/workflows/deploy-pages.yml`.
+**Try it:** https://looong-cheng.github.io/coffee-lab/ (GitHub Pages, HTTPS — works on phones, installable, offline after first load). Deployed from `main` by `.github/workflows/deploy-pages.yml`.
 
 ## Requirements
 
