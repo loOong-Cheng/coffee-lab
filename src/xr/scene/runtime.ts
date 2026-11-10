@@ -512,6 +512,22 @@ export async function createRuntime(opts: SceneOptions, buildStation: (rt: Rt) =
       const rect = canvas.getBoundingClientRect();
       return { x: rect.left + (p.x / w) * rect.width, y: rect.top + (p.y / h) * rect.height };
     },
+    bounds(meshName) {
+      const mesh = scene.getMeshByName(meshName);
+      if (!mesh) return null;
+      mesh.computeWorldMatrix(true);
+      const inv = root.computeWorldMatrix(true).clone().invert();
+      const min = [Infinity, Infinity, Infinity] as [number, number, number];
+      const max = [-Infinity, -Infinity, -Infinity] as [number, number, number];
+      for (const corner of mesh.getBoundingInfo().boundingBox.vectorsWorld) {
+        const l = Vector3.TransformCoordinates(corner, inv);
+        [l.x, l.y, l.z].forEach((c, i) => {
+          min[i] = Math.min(min[i], c);
+          max[i] = Math.max(max[i], c);
+        });
+      }
+      return { min, max };
+    },
     stats: () => ({
       meshes: scene.meshes.length,
       activeMeshes: scene.getActiveMeshes().length,

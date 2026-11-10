@@ -11,6 +11,7 @@ import type { Scene } from '@babylonjs/core/scene';
 import type { ButtonId, InspectableId, ItemId } from '../mission/types';
 import type { Materials, MatName } from './materials';
 import { BUTTON_POS, ZONE_POS, type Vec3 } from './layout';
+import { mergeUnder } from './merge';
 
 export type PickMeta =
   | { kind: 'item'; id: ItemId }
@@ -75,10 +76,7 @@ export function buildEspressoProps(scene: Scene, mats: Materials, root: Transfor
     );
   /** Merge same-material static meshes into one draw call. */
   const merge = (name: string, meshes: Mesh[], meta?: PickMeta): Mesh => {
-    const parent = meshes[0]!.parent;
-    const merged = Mesh.MergeMeshes(meshes, true, true)!;
-    merged.name = name;
-    merged.parent = parent;
+    const merged = mergeUnder(name, meshes, meshes[0]!.parent as TransformNode | null);
     return track(merged, meta);
   };
 
@@ -202,9 +200,7 @@ function buildPortafilter(scene: Scene, mats: Materials, parent: TransformNode, 
   neck.rotation.x = Math.PI / 2;
   const spout = mk(MeshBuilder.CreateCylinder('pf-spout', { diameterTop: 0.024, diameterBottom: 0.014, height: 0.022, tessellation: 12 }, scene), 0, -0.026, 0);
   const lugs = mk(MeshBuilder.CreateBox('pf-lugs', { width: 0.094, height: 0.008, depth: 0.014 }, scene), 0, 0.011, 0);
-  const steel = Mesh.MergeMeshes([holder, neck, spout, lugs], true, true)!;
-  steel.name = 'pf-steel';
-  steel.parent = root;
+  const steel = mergeUnder('pf-steel', [holder, neck, spout, lugs], root);
   steel.material = mats.steel;
   const handle = mk(MeshBuilder.CreateCylinder('pf-handle', { diameterTop: 0.024, diameterBottom: 0.03, height: 0.12, tessellation: 12 }, scene), 0, -0.006, -0.125);
   handle.rotation.x = Math.PI / 2;
@@ -231,9 +227,7 @@ function buildTamper(scene: Scene, mats: Materials, parent: TransformNode, track
   stem.position.y = 0.046;
   const knob = MeshBuilder.CreateSphere('tamper-knob', { diameter: 0.04, segments: 10 }, scene);
   knob.position.y = 0.082;
-  const handle = Mesh.MergeMeshes([stem, knob], true, true)!;
-  handle.name = 'tamper-handle';
-  handle.parent = root;
+  const handle = mergeUnder('tamper-handle', [stem, knob], root);
   handle.material = mats.woodDark;
   for (const m of [base, handle]) track(m, meta);
   return { root, meshes: [base, handle] };
@@ -295,8 +289,7 @@ export function buildRoom(scene: Scene, mats: Materials, station: TransformNode)
     j.parent = station;
     return j;
   });
-  const jarMesh = Mesh.MergeMeshes(jars, true, true)!;
-  jarMesh.parent = station;
+  const jarMesh = mergeUnder('shelf-jars', jars, station);
   jarMesh.material = mats.beans;
 
   const cord = MeshBuilder.CreateCylinder('lamp-cord', { diameter: 0.006, height: 0.9, tessellation: 6 }, scene);

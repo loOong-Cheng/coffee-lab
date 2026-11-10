@@ -27,6 +27,7 @@ import { createTag } from './panels';
 import { createRuntime, pickable, type Rt, type Station } from './runtime';
 import { makeArrow } from './espressoStation';
 import { nearestZone, type Vec3 } from './layout';
+import { mergeUnder } from './merge';
 
 type Meta = { kind: 'item'; id: PourItem } | { kind: 'button'; id: 'tare' } | { kind: 'part'; id: PourPart };
 
@@ -131,8 +132,7 @@ function buildPouroverStation(rt: Rt): Station {
   const handleBox = MeshBuilder.CreateBox('dripper-handle', { width: 0.012, height: 0.05, depth: 0.03, sideOrientation: Mesh.DOUBLESIDE }, scene);
   handleBox.parent = dripper;
   handleBox.position.set(0.07, 0.05, 0);
-  const dripperMesh = Mesh.MergeMeshes([ring, cone, handleBox], true, true)!;
-  dripperMesh.parent = dripper;
+  const dripperMesh = mergeUnder('dripper-body', [ring, cone, handleBox], dripper);
   dripperMesh.material = mats.ceramic;
   tag(dripperMesh, { kind: 'item', id: 'carafe' });
   const bed = cyl('grounds-bed', { dt: 0.075, db: 0.038, h: 0.032 }, dripper, 0.03);
@@ -170,8 +170,7 @@ function buildPouroverStation(rt: Rt): Station {
   body.position.x = KETTLE_BODY.x;
   const lid = cyl('kettle-lid', { d: 0.09, h: 0.012 }, kettle, -0.03);
   lid.position.x = KETTLE_BODY.x;
-  const kettleBody = Mesh.MergeMeshes([body, lid], true, true)!;
-  kettleBody.parent = kettle;
+  const kettleBody = mergeUnder('kettle-body', [body, lid], kettle);
   kettleBody.material = mats.kettle;
   tag(kettleBody, { kind: 'item', id: 'kettle' });
   const spout = MeshBuilder.CreateTube(
@@ -196,8 +195,7 @@ function buildPouroverStation(rt: Rt): Station {
   hA.position.set(0.25, -0.085, 0);
   const hB = MeshBuilder.CreateBox('kettle-handle-b', { width: 0.05, height: 0.014, depth: 0.02 }, scene);
   hB.position.set(0.228, -0.04, 0);
-  const handle = Mesh.MergeMeshes([hA, hB], true, true)!;
-  handle.parent = kettle;
+  const handle = mergeUnder('kettle-handle', [hA, hB], kettle);
   handle.material = mats.woodDark;
   tag(handle, { kind: 'item', id: 'kettle' });
   const base = cyl('kettle-base', { d: 0.14, h: 0.012 }, root, 0.006);

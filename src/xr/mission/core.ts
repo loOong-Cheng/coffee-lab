@@ -121,6 +121,11 @@ export interface SceneHandle {
   stats(): { meshes: number; activeMeshes: number; drawCalls: number; fps: number };
   /** Test/diagnostic hook: client coordinates of a named target (optionally at a station-local height). */
   project(target: string, atLocalY?: number): { x: number; y: number } | null;
+  /**
+   * Test/diagnostic hook: station-local bounding box (metres, counter top = y 0) of a mesh's actual geometry, by mesh
+   * name. Unlike project() (pivots), this catches geometry drawn away from its pivot, e.g. double-applied transforms.
+   */
+  bounds?(meshName: string): { min: [number, number, number]; max: [number, number, number] } | null;
   dispose(): void;
 }
 

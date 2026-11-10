@@ -27,6 +27,7 @@ import { buildEspressoProps, type PickMeta } from './props';
 import { createTag } from './panels';
 import { createRuntime, pickable, type Rt, type Station } from './runtime';
 import { BASKET_TOP_OFFSET, BUTTON_POS, PART_TAG_POS, ZONE_POS, ZONE_YAW, nearestZone, type Vec3 } from './layout';
+import { mergeUnder } from './merge';
 
 const DRAG_Y: Record<ItemId, number> = { portafilter: 0.17, cup: 0.1, tamper: 0.1 };
 const LERP_RATE = 14;
@@ -580,9 +581,7 @@ export function makeArrow(rt: Rt): Mesh {
   cone.rotation.x = Math.PI;
   const shaft = MeshBuilder.CreateCylinder('arrow-shaft', { diameter: 0.012, height: 0.05, tessellation: 8 }, rt.scene);
   shaft.position.y = 0.045;
-  const m = Mesh.MergeMeshes([cone, shaft], true, true)!;
-  m.name = 'arrow';
-  m.parent = rt.root;
+  const m = mergeUnder('arrow', [cone, shaft], rt.root);
   m.material = rt.mats.arrow;
   m.isPickable = false;
   m.isVisible = false;
