@@ -9,6 +9,8 @@ A beginner-first coffee learning game built as **one web app** with intentionall
 
 Bilingual UI (中文 / English toggle). Progress is stored locally in your browser (no account, no server, no network calls at runtime). Canonical product brief: `COFFEE_LAB_HANDOFF.md`.
 
+**Try it:** https://loong-cheng.github.io/coffee-lab/ (GitHub Pages, HTTPS — works on phones, installable, offline after first load). Deployed from `main` by `.github/workflows/deploy-pages.yml`.
+
 ## Requirements
 
 - **Node.js ≥ 22.22** (developed and tested on Node 24.19, npm 11.17, Windows 11)
@@ -53,6 +55,7 @@ Production builds (`npm run build`, `npm run preview`, any static host) register
 ### Phone & headset notes (LAN, HTTP vs HTTPS)
 
 - `npm run dev:lan` / `npm run preview:lan` serve **plain HTTP** on your LAN IP. Lessons, the real-cup coach and the journal work fine there, but browsers disable **secure-context** features on `http://192.168.x.x`: **no offline/PWA install** (no service worker), **no screen wake lock** in kitchen mode, and **no WebXR** (the XR Lab explains this and offers 3D / action-list play). Speech features may be limited too.
+- **Easiest HTTPS on a phone:** open the GitHub Pages site above.
 - To test those features on a phone you need HTTPS or `localhost`. Options — **none are set up by this project; use them only with your own approval**:
   - **Android + USB (local, no third party):** enable USB debugging, then `adb reverse tcp:4173 tcp:4173` and open `http://localhost:4173` on the phone — it counts as `localhost`, so secure-context features work.
   - **Chrome flag (local testing only):** `chrome://flags/#unsafely-treat-insecure-origin-as-secure` on the phone, add `http://<your-PC-IP>:4173`. Remove it afterwards.
@@ -91,3 +94,7 @@ Key architecture decisions and integration contracts: `docs/DECISIONS.md`, `docs
 - **Offline:** a dependency-free service worker generated at build time (`src/platform/sw/sw.template.js` + the `coffee-lab:service-worker` plugin in `vite.config.ts`) precaches the app shell and every non-Babylon chunk with a content-hash version; registration/update status lives in `src/platform/pwa.ts` (`usePwaStatus()`).
 - **Capability detection** never throws: missing `navigator.xr`, rejected/hanging `isSessionSupported`, and insecure origins all resolve to "no XR" with a reason.
 - **Hash routing caveat for contributors:** don't use in-page `href="#id"` anchors (they would change the route); move focus programmatically instead (see the skip link in `src/app/AppShell.tsx`).
+
+## License
+
+MIT — see `LICENSE`. All illustrations, icons, 3D props and audio are original to this project (hand-written SVG, procedural Babylon.js meshes, Web Audio synthesis); third-party npm dependencies keep their own licenses.

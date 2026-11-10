@@ -192,7 +192,7 @@ test.describe('PWA offline (service worker allowed)', () => {
     await seedProfile(page);
     await page.goto('/#/');
     await expect(page.getByTestId('home-next-lesson')).toBeVisible();
-    // The "Ready to work offline" toast was removed in 449dec7 (QA-02/04); readiness = an active, controlling
+    // The "Ready to work offline" toast was removed in a9eb479 (QA-02/04); readiness = an active, controlling
     // service worker (Settings shows it as "Offline: ready").
     await page.evaluate(async () => {
       await navigator.serviceWorker.ready;

@@ -5,11 +5,11 @@
 **User answers (2026-11-07):** bilingual zh/en toggle · desktop + phone available, **no headset** · owns espresso machine+grinder & pour-over kit, wants to learn *all* drink types · **music, SFX, coffee culture important** · deps + local commits approved. See `docs/DECISIONS.md`.
 
 ## Current phase
-**SESSION ENDED (2026-11-08 ~04:00)** — account 5-hour usage limit hit (HTTP 429 on workers) and user asked to conclude. `main` @ `773a388` is green and runnable.
-Final lead verification @ 773a388: typecheck ✓ · unit 480/480 ✓ · build ✓ · **e2e 246 passed / 14 viewport-scoped skips / 0 failed** (desktop 1280×800 + Pixel 7).
-**Unfinished work saved on branch `wip/phase5-unfinished` (`856aa98`, NOT verified, NOT merged):** XR mission picker + station-tour + pourover-bloom (XR scene refactor in progress; includes QA-05 fix attempt and edits to offline/qa-scenarios specs), glossary UI (`src/features/glossary`, route + ExplainView/LessonIntro wiring) — glossary DATA (`src/content/glossary.ts`) never written. Content-consistency fixes from that branch were verified and merged to main (`773a388`).
+**SESSION ENDED (2026-11-08 ~04:00)** — account 5-hour usage limit hit (HTTP 429 on workers) and user asked to conclude. `main` @ `e6e7293` is green and runnable.
+Final lead verification @ e6e7293: typecheck ✓ · unit 480/480 ✓ · build ✓ · **e2e 246 passed / 14 viewport-scoped skips / 0 failed** (desktop 1280×800 + Pixel 7).
+**Unfinished work saved on branch `wip/phase5-unfinished` (`780aad0`, NOT verified, NOT merged):** XR mission picker + station-tour + pourover-bloom (XR scene refactor in progress; includes QA-05 fix attempt and edits to offline/qa-scenarios specs), glossary UI (`src/features/glossary`, route + ExplainView/LessonIntro wiring) — glossary DATA (`src/content/glossary.ts`) never written. Content-consistency fixes from that branch were verified and merged to main (`e6e7293`).
 
-## Working user-visible flows (evidence = lead re-run at af54ea0)
+## Working user-visible flows (evidence = lead re-run at c6ab8d4)
 - [x] Onboarding (skip/edit) and course navigation; desktop course map vs phone "today" home — e2e learn.spec (desktop+mobile)
 - [x] Desktop lesson loop: 9 activity kinds, misconception feedback, guidance tiers in sequence/quiz/identify/ratio lab — unit + e2e (wrong→right quiz → completion persists)
 - [x] Mobile real-world kitchen guide + brew log + one-change advice + journal (self-reported) — e2e practice.spec (desktop+mobile)
@@ -18,7 +18,7 @@ Final lead verification @ 773a388: typecheck ✓ · unit 480/480 ✓ · build �
 - [x] Drink Atlas (29 drinks, culture notes, gear owned/missing, "Make it now") + culture track via lesson player
 - [~] Music + SFX: engine wired to prefs (sfx/music/volume/mood); **never listened to by a human**
 
-## Verification (lead, af54ea0)
+## Verification (lead, c6ab8d4)
 - Typecheck: PASS · Unit: PASS 309/309 (31 files) · Build: PASS · E2E: 30 PASS / 2 intentional skips (desktop 1280×800 + Pixel 7, isolated port 4180)
 - Actual headset: **NOT TESTED — no headset available (U2)** · Real phone: NOT TESTED by agents (user can via `npm run dev:lan`)
 
@@ -40,4 +40,4 @@ Final lead verification @ 773a388: typecheck ✓ · unit 480/480 ✓ · build �
 6. Next work in mission? Yes — XR missions (brief §5 XR-only learner), consistency + glossary (beginner jargon, §4), then QA gate #2 + delivery.
 
 ## Commits / worktrees
-- `main`: `1adf53e` (user: handoff package), `d54a7cd` (lead: .gitignore). Single working tree, ownership-separated; no worktrees.
+- `main`: `33ac4e8` (user: handoff package), `24ab05e` (lead: .gitignore). Single working tree, ownership-separated; no worktrees.

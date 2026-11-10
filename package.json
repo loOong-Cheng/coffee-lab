@@ -3,6 +3,12 @@
   "private": true,
   "version": "0.1.0",
   "description": "Coffee Lab / 咖啡实验室 — beginner-first coffee learning game (Desktop 2D, Mobile real-world guide, optional WebXR).",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/loOong-Cheng/coffee-lab.git"
+  },
+  "homepage": "https://loong-cheng.github.io/coffee-lab/",
   "type": "module",
   "engines": {
     "node": ">=22.22.0"
