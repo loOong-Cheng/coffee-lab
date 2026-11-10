@@ -170,12 +170,11 @@
   color: #e8dccd;
 }
 .xr-player[data-mode='3d'] .xr-readout {
-  /* Bottom centre = the empty front edge of the counter: never covers a tool you need to grab. */
+  /* Wide screens: top right, over the empty back wall (the HUD sits top left) — never over a tool you grab. */
   position: absolute;
-  left: 50%;
-  bottom: var(--space-3);
-  transform: translateX(-50%);
-  max-width: calc(100% - 2 * var(--space-3));
+  top: var(--space-3);
+  right: var(--space-3);
+  max-width: min(17rem, calc(100% - 2 * var(--space-3)));
 }
 .xr-readout {
   pointer-events: none;
@@ -369,6 +368,14 @@
   }
   .xr-player[data-mode='list'] .xr-stage {
     height: auto;
+  }
+  /* Phones: the HUD spans the top, so the readout sits bottom centre over the empty cabinet front. */
+  .xr-player[data-mode='3d'] .xr-readout {
+    top: auto;
+    right: auto;
+    left: 50%;
+    bottom: var(--space-3);
+    transform: translateX(-50%);
   }
   .xr-hud {
     font-size: var(--text-sm);

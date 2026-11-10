@@ -38,8 +38,8 @@ export const S = {
   backToLessons: { en: 'Back to the espresso lessons', zh: '返回意式咖啡课程' },
   workflowLesson: { en: 'The matching 2D lesson', zh: '对应的 2D 课程' },
   hardwareUnverified: {
-    en: 'Hardware-unverified: the VR mode has not been tested on a real headset yet. The 3D and action-list modes were tested in a desktop browser.',
-    zh: '未经硬件验证：VR 模式尚未在真实头显上测试。3D 模式和操作列表模式已在桌面浏览器中测试。',
+    en: 'Hardware-unverified: the VR mode has not been tested on a real headset yet. The 3D and action-list modes were tested in desktop and phone-sized browsers.',
+    zh: '未经硬件验证：VR 模式尚未在真实头显上测试。3D 模式和操作列表模式已在桌面和手机尺寸的浏览器中测试。',
   },
   loading3d: { en: 'Setting up the coffee counter…', zh: '正在布置咖啡吧台……' },
   sceneFailed: {
