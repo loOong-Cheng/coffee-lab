@@ -143,3 +143,9 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - The lead merged `main` into it (one binary screenshot conflict, resolved to the XR version, then regenerated) and re-ran on the merged tree: typecheck ✓ · unit **518/518** (53 files) · build ✓ · full e2e **276 passed / 14 viewport skips / 0 failed** (desktop + Pixel 7, isolated port 4196).
 - Lead spot-check: XR events are `simulated`; each new spatial activity has a `limits` text (no grip/weight/heat/taste); pour-over 15 g → 250 g ≈ 1:16.7 matches `po-ratio-bloom`; the new XR activities are not in `checkForUnderstanding`.
 - **Not tested:** real headset (WebXR controllers, wrist-tilt pour, in-headset panel, recenter/seated, frame rate) and real phones. The user plans a Quest 3 test via the live site.
+
+## XR merged-mesh fix + cold-run unit flake (2026-11-10)
+- User-reported: in 3D the gooseneck kettle had no body. A debugging fork found the cause: `Mesh.MergeMeshes` baked world matrices of already-parented parts, so the station transform was applied twice and the geometry was drawn ~0.9 m off. Affected: kettle body, dripper, portafilter basket, machine trim/steam wand, grinder fork, shelf jars. Fixed in `77bbe0d` (`src/xr/scene/merge.ts` `mergeUnder`), with a new `tests/e2e/xr-geometry.spec.ts` (desktop) that failed before and passes after.
+- Lead re-run on that commit: typecheck ✓ · unit 518/518 · full e2e **278 passed / 16 viewport skips / 0 failed**.
+- Cold-run flake: App/home/lesson/cafe unit tests timed out only on a cold first `vitest run`. Mitigation: RTL `asyncUtilTimeout` 5 s and vitest `testTimeout` 20 s. After clearing the vite/vitest caches, two consecutive runs were 518/518. The original failure could not be reproduced on demand, so this stays a mitigation, not a proven fix.
+- Still hardware-unverified: the fixed meshes have only been seen in headless Chromium (software WebGL), not on a headset.
