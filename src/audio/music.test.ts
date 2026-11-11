@@ -141,6 +141,25 @@ describe('music mood switching', () => {
     expect(fresh.some((g) => old.includes(g as never))).toBe(false);
   });
 
+  it('stop() silences already-scheduled notes at once and they never sound again after a restart', () => {
+    gen.setMood('cafe');
+    gen.start();
+    advance(3);
+    const old = Object.values((gen as unknown as { v: Record<string, FakeNode & { gain: FakeParam }> }).v);
+    gen.stop();
+    for (const g of old) {
+      const calls = g.gain.setTargetAtTime.mock.calls as unknown as Array<[number, number, number]>;
+      const fade = calls.find(([target]) => target <= 0.001);
+      expect(fade, 'old voices fade to silence').toBeDefined();
+      expect(fade![2], 'time constant: inaudible within ~0.1 s').toBeLessThanOrEqual(0.02);
+    }
+    gen.start(); // music switched straight back on
+    const fresh = Object.values((gen as unknown as { v: Record<string, unknown> }).v);
+    expect(fresh.some((g) => old.includes(g as never))).toBe(false);
+    advance(3);
+    for (const g of old) expect(g.disconnect).toHaveBeenCalled();
+  });
+
   it('rapid switching through every mood ends on the last one and keeps scheduling', () => {
     gen.start();
     for (const m of ['focus', 'lab', 'bossa', 'kissa', 'bar', 'cafe', 'kissa'] as MusicMoodId[]) {
@@ -152,5 +171,31 @@ describe('music mood switching', () => {
     expect(gen.mood).toBe('kissa');
     expect(lastCutoff()).toBe(MOOD_SOUND.kissa.keysCutoff);
     expect(ctx.sources.length).toBeGreaterThan(before);
+  });
+});
+
+describe('turning music off (user report 2026-11-11: "turning off the music takes some time")', () => {
+  it('silences the music bus within ~0.1 s and stops scheduling immediately', async () => {
+    const { createAudioEngine } = await import('./index');
+    const engine = createAudioEngine({ createContext: () => ctx as unknown as AudioContext });
+    await engine.unlock();
+    engine.setMusicEnabled(true);
+    advance(4);
+    expect(engine.isMusicPlaying?.()).toBe(true);
+    const bus = (engine as unknown as { musicBus: { gain: FakeParam } }).musicBus;
+    bus.gain.setTargetAtTime.mockClear();
+
+    engine.setMusicEnabled(false);
+    const calls = bus.gain.setTargetAtTime.mock.calls as unknown as Array<[number, number, number]>;
+    expect(calls.length).toBeGreaterThan(0);
+    const [target, at, tc] = calls.at(-1)!;
+    expect(target).toBeLessThanOrEqual(0.001);
+    expect(at).toBeCloseTo(ctx.currentTime, 5); // starts now, not after a delay
+    expect(tc).toBeLessThanOrEqual(0.02); // -60 dB in < 0.15 s (was 0.35 s: still audible after a second)
+    expect(engine.isMusicPlaying?.()).toBe(false); // scheduler stopped at once (was: after 2 s)
+
+    const sources = ctx.sources.length;
+    advance(3);
+    expect(ctx.sources.length).toBe(sources); // nothing new is scheduled after "off"
   });
 });

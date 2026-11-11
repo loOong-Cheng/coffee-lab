@@ -7,13 +7,13 @@
  * - Never throws. Without Web Audio (jsdom, very old browsers) `available` is false and every call is a no-op.
  * - The AudioContext is created lazily inside `unlock()` (call it from a user gesture).
  * - SFX are on by default (the shell syncs prefs); music is OFF until `setMusicEnabled(true)`.
- * - Music fades in/out, follows master volume, pauses with the tab (visibilitychange) to save battery.
+ * - Music fades in, stops instantly when turned off, follows master volume, pauses with the tab (visibilitychange).
  */
 import { buildGraph, MUSIC_LEVEL, volumeToGain } from './graph';
 import type { Kit } from './kit';
 import { isMusicMood } from './moods';
 import type { MusicMoodId } from './moods';
-import { MusicGenerator } from './music';
+import { MusicGenerator, STOP_TC } from './music';
 import { MIN_GAP, SFX, SFX_TRIM } from './sfx';
 
 export type SfxName =
@@ -83,7 +83,6 @@ class WebAudioEngine implements AudioEngine {
   private mood: MusicMoodId = 'cafe';
   private volume = 0.7;
   private lastPlayed = new Map<SfxName, number>();
-  private stopMusicTimer: ReturnType<typeof setTimeout> | null = null;
   private suspendedForHidden = false;
 
   constructor(opts: AudioEngineOptions = {}) {
@@ -227,22 +226,17 @@ class WebAudioEngine implements AudioEngine {
     if (!ctx || !this.music || !this.musicBus) return;
     try {
       const now = ctx.currentTime;
-      if (this.stopMusicTimer) {
-        clearTimeout(this.stopMusicTimer);
-        this.stopMusicTimer = null;
-      }
       if (this.musicOn) {
         this.music.setMood(this.mood);
         this.music.start();
         this.musicBus.gain.cancelScheduledValues(now);
         this.musicBus.gain.setTargetAtTime(MUSIC_LEVEL, now, 0.9); // ~3 s fade in
       } else if (this.music.running) {
+        // "Off" means off now (user report: the old ~1 s fade + 2 s delayed stop felt broken). The ~0.1 s ramp only
+        // avoids a click; stop() also silences every note already scheduled ahead.
         this.musicBus.gain.cancelScheduledValues(now);
-        this.musicBus.gain.setTargetAtTime(0.0001, now, 0.35); // ~1 s fade out
-        this.stopMusicTimer = setTimeout(() => {
-          this.stopMusicTimer = null;
-          if (!this.musicOn) this.music?.stop();
-        }, 2000);
+        this.musicBus.gain.setTargetAtTime(0.0001, now, STOP_TC);
+        this.music.stop();
       }
     } catch {
       /* ignore */

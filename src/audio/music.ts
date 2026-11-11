@@ -54,6 +54,8 @@ const SWITCH_GAP = 0.12;
 const FADE_TC = 0.12;
 /** …and their voice gains are detached from the instrument buses after this long (ms). */
 const RETIRE_MS = 2500;
+/** stop(): "off" must feel instant — ~-60 dB within ~0.1 s; the tiny ramp only prevents a click. */
+export const STOP_TC = 0.012;
 
 /**
  * Per-mood-segment voice gains, one per instrument bus. Notes connect here (not to the shared buses), so a mood
@@ -184,13 +186,13 @@ export class MusicGenerator {
   }
 
   /** Fade a voice set to silence from `at`, then detach it (its already-scheduled notes end up going nowhere). */
-  private retire(v: Voices, at: number): void {
+  private retire(v: Voices, at: number, timeConstant = FADE_TC): void {
     const gains = [v.keys, v.lead, v.bass, v.drum, v.amb];
     for (const g of gains) {
       try {
         g.gain.cancelScheduledValues(at);
         g.gain.setValueAtTime(1, at);
-        g.gain.setTargetAtTime(0.0001, at, FADE_TC);
+        g.gain.setTargetAtTime(0.0001, at, timeConstant);
       } catch {
         /* never throw from music */
       }
@@ -215,11 +217,18 @@ export class MusicGenerator {
     this.tick();
   }
 
+  /**
+   * Stop now. Notes already scheduled ahead (look-ahead + the rest of the bar: several seconds) are silenced at once
+   * and their voices detached, so nothing keeps playing after "off" and nothing old resurfaces on a quick restart.
+   */
   stop(): void {
     if (this.timer) clearInterval(this.timer);
     this.timer = null;
-    this.bed?.stop();
+    const now = this.kit.ctx.currentTime;
+    this.bed?.stop(now);
     this.bed = null;
+    this.retire(this.v, now, STOP_TC);
+    this.v = this.newVoices();
   }
 
   /** Offline / QA: schedule `seconds` of music starting at `t0` (no timers). Returns the bars played. */
