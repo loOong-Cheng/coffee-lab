@@ -48,6 +48,24 @@ export const MOOD_SOUND: Record<MusicMoodId, MoodSound> = {
 
 const LOOKAHEAD = 1.0; // seconds of music scheduled ahead (bars are scheduled whole)
 const TICK_MS = 150;
+/** A mood switch starts the new mood this soon (s) instead of waiting for already-scheduled bars to run out. */
+const SWITCH_GAP = 0.12;
+/** Old-mood notes fade with this time constant (s): ~95 % quieter after ~0.4 s… */
+const FADE_TC = 0.12;
+/** …and their voice gains are detached from the instrument buses after this long (ms). */
+const RETIRE_MS = 2500;
+
+/**
+ * Per-mood-segment voice gains, one per instrument bus. Notes connect here (not to the shared buses), so a mood
+ * switch can fade out everything the old mood already scheduled ahead without touching the new mood's notes.
+ */
+interface Voices {
+  keys: GainNode;
+  lead: GainNode;
+  bass: GainNode;
+  drum: GainNode;
+  amb: GainNode;
+}
 
 export class MusicGenerator {
   private kit: Kit;
@@ -59,7 +77,7 @@ export class MusicGenerator {
   private ambBus: GainNode;
   private timer: ReturnType<typeof setInterval> | null = null;
   private moodId: MusicMoodId = 'cafe';
-  private pendingMood: MusicMoodId | null = null;
+  private v: Voices;
   private composer: Composer | null = null;
   private nextBarTime = 0;
   private bed: { stop(at?: number): void } | null = null;
@@ -117,16 +135,25 @@ export class MusicGenerator {
     this.ambBus = ctx.createGain();
     this.ambBus.connect(out);
     send(this.ambBus, 0.5);
+
+    this.v = this.newVoices();
   }
 
   get running(): boolean {
     return this.timer !== null;
   }
 
+  /** The mood being played (or that will play on start). */
   get mood(): MusicMoodId {
-    return this.pendingMood ?? this.moodId;
+    return this.moodId;
   }
 
+  /**
+   * Switch mood. While playing, the change is immediate: notes the old mood already scheduled ahead (up to a
+   * second plus a whole bar, i.e. several seconds) fade out over ~0.4 s and the new mood starts ~0.1 s later.
+   * The last call always wins, so switching away and straight back, or switching while stopped, plays the mood
+   * chosen last. (Previously a deferred "pending" switch could survive both and play the wrong mood.)
+   */
   setMood(m: MusicMoodId): void {
     if (!MOOD_SOUND[m]) return;
     if (!this.running) {
@@ -134,7 +161,49 @@ export class MusicGenerator {
       this.composer = null;
       return;
     }
-    if (m !== this.moodId) this.pendingMood = m; // switches on the next bar line
+    if (m === this.moodId) return;
+    const now = this.kit.ctx.currentTime;
+    this.retire(this.v, now);
+    this.v = this.newVoices();
+    this.moodId = m;
+    this.composer = new Composer(m, this.seed);
+    this.nextBarTime = now + SWITCH_GAP;
+    this.applyMoodSound(this.nextBarTime);
+    this.tick();
+  }
+
+  private newVoices(): Voices {
+    const { ctx } = this.kit;
+    const voice = (to: AudioNode) => {
+      const g = ctx.createGain();
+      g.gain.value = 1;
+      g.connect(to);
+      return g;
+    };
+    return { keys: voice(this.keysBus), lead: voice(this.leadBus), bass: voice(this.bassBus), drum: voice(this.drumBus), amb: voice(this.ambBus) };
+  }
+
+  /** Fade a voice set to silence from `at`, then detach it (its already-scheduled notes end up going nowhere). */
+  private retire(v: Voices, at: number): void {
+    const gains = [v.keys, v.lead, v.bass, v.drum, v.amb];
+    for (const g of gains) {
+      try {
+        g.gain.cancelScheduledValues(at);
+        g.gain.setValueAtTime(1, at);
+        g.gain.setTargetAtTime(0.0001, at, FADE_TC);
+      } catch {
+        /* never throw from music */
+      }
+    }
+    setTimeout(() => {
+      for (const g of gains) {
+        try {
+          g.disconnect();
+        } catch {
+          /* already gone */
+        }
+      }
+    }, RETIRE_MS);
   }
 
   start(): void {
@@ -175,12 +244,6 @@ export class MusicGenerator {
     if (this.nextBarTime < now) this.nextBarTime = now + 0.05; // recovered from a stall
     let guard = 0;
     while (this.nextBarTime < now + LOOKAHEAD && guard++ < 4) {
-      if (this.pendingMood) {
-        this.moodId = this.pendingMood;
-        this.pendingMood = null;
-        this.composer = new Composer(this.moodId, this.seed);
-        this.applyMoodSound(this.nextBarTime);
-      }
       if (!this.composer) this.composer = new Composer(this.moodId, this.seed);
       const plan = this.composer.nextBar();
       this.scheduleBar(plan, this.nextBarTime);
@@ -218,7 +281,7 @@ export class MusicGenerator {
     if (v <= 0) return;
     switch (ev.inst) {
       case 'keys':
-        return this.ep(this.keysBus, ev.midi, t, durSec, v, 1.4);
+        return this.ep(this.v.keys, ev.midi, t, durSec, v, 1.4);
       case 'pad':
         return this.pad(ev.midi, t, durSec, v);
       case 'pluck':
@@ -228,29 +291,29 @@ export class MusicGenerator {
       case 'bass':
         return this.bass(ev.midi, t, durSec, v);
       case 'brush':
-        noise(this.kit, this.drumBus, { t, dur: 0.22, freq: 3200, q: 0.6, peak: v, attack: 0.025 });
+        noise(this.kit, this.v.drum, { t, dur: 0.22, freq: 3200, q: 0.6, peak: v, attack: 0.025 });
         return;
       case 'sweep':
-        noise(this.kit, this.drumBus, { t, dur: Math.max(0.3, durSec), freq: 2400, q: 0.5, peak: v, attack: durSec * 0.45 });
+        noise(this.kit, this.v.drum, { t, dur: Math.max(0.3, durSec), freq: 2400, q: 0.5, peak: v, attack: durSec * 0.45 });
         return;
       case 'ride':
-        noise(this.kit, this.drumBus, { t, dur: 0.09, type: 'highpass', freq: 7500, q: 0.4, peak: v });
+        noise(this.kit, this.v.drum, { t, dur: 0.09, type: 'highpass', freq: 7500, q: 0.4, peak: v });
         return;
       case 'kick':
-        tone(this.kit, this.drumBus, { freq: 100, freqEnd: 45, t, attack: 0.004, decay: 0.24, peak: v });
+        tone(this.kit, this.v.drum, { freq: 100, freqEnd: 45, t, attack: 0.004, decay: 0.24, peak: v });
         return;
       case 'rim':
-        noise(this.kit, this.drumBus, { t, dur: 0.03, freq: 1900, q: 5, peak: v });
-        tone(this.kit, this.drumBus, { freq: 820, t, attack: 0.001, decay: 0.02, peak: v * 0.5 });
+        noise(this.kit, this.v.drum, { t, dur: 0.03, freq: 1900, q: 5, peak: v });
+        tone(this.kit, this.v.drum, { freq: 820, t, attack: 0.001, decay: 0.02, peak: v * 0.5 });
         return;
       case 'shaker':
-        noise(this.kit, this.drumBus, { t, dur: 0.07, type: 'highpass', freq: 5600, q: 0.6, peak: v, attack: 0.012 });
+        noise(this.kit, this.v.drum, { t, dur: 0.07, type: 'highpass', freq: 5600, q: 0.6, peak: v, attack: 0.012 });
         return;
       case 'clink':
-        ceramic(this.kit, this.ambBus, 2000 + this.kit.random() * 900, t, v, 0.3);
+        ceramic(this.kit, this.v.amb, 2000 + this.kit.random() * 900, t, v, 0.3);
         return;
       case 'crackle':
-        noise(this.kit, this.ambBus, { t, dur: 0.004, type: 'highpass', freq: 2200, q: 0.5, peak: v });
+        noise(this.kit, this.v.amb, { t, dur: 0.004, type: 'highpass', freq: 2200, q: 0.5, peak: v });
         return;
       default:
     }
@@ -297,7 +360,7 @@ export class MusicGenerator {
     amp.gain.linearRampToValueAtTime(level, t + attack);
     amp.gain.setValueAtTime(level, t + Math.max(attack, dur - 0.05));
     amp.gain.setTargetAtTime(0.0001, t + Math.max(attack, dur), release / 4);
-    amp.connect(this.keysBus);
+    amp.connect(this.v.keys);
     for (const det of [-7, 7]) {
       const o = ctx.createOscillator();
       o.type = 'triangle';
@@ -322,7 +385,7 @@ export class MusicGenerator {
     const decay = Math.min(1.8, Math.max(0.5, dur + 0.4));
     envelope(amp.gain, t, 0.003, level, decay);
     lp.connect(amp);
-    amp.connect(this.keysBus);
+    amp.connect(this.v.keys);
     const a = ctx.createOscillator();
     a.type = 'sawtooth';
     a.frequency.setValueAtTime(f, t);
@@ -344,7 +407,7 @@ export class MusicGenerator {
 
   private lead(midi: number, t: number, dur: number, level: number): void {
     const timbre = MOOD_SOUND[this.moodId].lead;
-    if (timbre === 'ep') return this.ep(this.leadBus, midi, t, dur, level, 0.9);
+    if (timbre === 'ep') return this.ep(this.v.lead, midi, t, dur, level, 0.9);
     const { ctx } = this.kit;
     const f = midiToHz(midi);
     if (timbre === 'vibes') {
@@ -360,7 +423,7 @@ export class MusicGenerator {
       lfo.connect(depth);
       depth.connect(trem.gain);
       amp.connect(trem);
-      trem.connect(this.leadBus);
+      trem.connect(this.v.lead);
       const end = t + Math.max(1.2, dur + 0.8) + 0.1;
       for (const [ratio, a] of [
         [1, 1],
@@ -387,7 +450,7 @@ export class MusicGenerator {
     amp.gain.linearRampToValueAtTime(level, t + attack);
     amp.gain.setValueAtTime(level * 0.9, t + hold);
     amp.gain.setTargetAtTime(0.0001, t + hold, 0.06);
-    amp.connect(this.leadBus);
+    amp.connect(this.v.lead);
     const o = ctx.createOscillator();
     o.frequency.setValueAtTime(f, t);
     const lfo = ctx.createOscillator();
@@ -410,7 +473,7 @@ export class MusicGenerator {
       x.start(t);
       x.stop(end);
     }
-    noise(this.kit, this.leadBus, { t, dur: 0.09, freq: Math.min(8000, f * 3), q: 2, peak: level * 0.12, attack: 0.02 });
+    noise(this.kit, this.v.lead, { t, dur: 0.09, freq: Math.min(8000, f * 3), q: 2, peak: level * 0.12, attack: 0.02 });
   }
 
   private bass(midi: number, t: number, dur: number, level: number): void {
@@ -427,7 +490,7 @@ export class MusicGenerator {
     amp.gain.exponentialRampToValueAtTime(level * 0.55, t + Math.min(hold, 0.6));
     amp.gain.setTargetAtTime(0.0001, t + hold, 0.06);
     lp.connect(amp);
-    amp.connect(this.bassBus);
+    amp.connect(this.v.bass);
     const a = ctx.createOscillator();
     a.type = 'triangle';
     a.frequency.setValueAtTime(f, t);
@@ -482,7 +545,7 @@ export class MusicGenerator {
     src.connect(f1);
     f1.connect(f2);
     f2.connect(g);
-    g.connect(this.ambBus);
+    g.connect(this.v.amb);
     src.start(t, this.kit.random());
     l1.start(t);
     l2.start(t);
