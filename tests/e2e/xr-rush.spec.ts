@@ -103,6 +103,44 @@ test.describe('Café Rush', () => {
     await expect(page.getByTestId('rush-player')).toHaveAttribute('data-status', 'playing');
   });
 
+  test('3D counter loads and a click / tap on the group head picks up the portafilter (same reducer)', async ({ page, isMobile }) => {
+    test.setTimeout(120_000);
+    const errors = collectErrors(page);
+    await fastClock(page, 1);
+    await seedProfile(page);
+    await page.goto('/#/xr?game=rush');
+    await page.getByTestId('rush-play-3d').click();
+    await expect(page.getByTestId('rush-canvas')).toBeVisible();
+    await page.waitForFunction(() => !!(window as unknown as { __coffeeLabRush?: unknown }).__coffeeLabRush, null, { timeout: 90_000 });
+    await page.getByTestId('rush-canvas').scrollIntoViewIfNeeded();
+    const pt = await page.evaluate(() => (window as unknown as { __coffeeLabRush: { project(t: string): { x: number; y: number } } }).__coffeeLabRush.project('group1'));
+    if (isMobile) await page.touchscreen.tap(pt.x, pt.y);
+    else await page.mouse.click(pt.x, pt.y);
+    await expect(page.getByTestId('rush-hands')).toContainText('Portafilter', { timeout: 10_000 });
+    const stats = await page.evaluate(() => (window as unknown as { __coffeeLabRush: { stats(): { drawCalls: number } } }).__coffeeLabRush.stats());
+    expect(stats.drawCalls).toBeLessThan(150);
+    await page.screenshot({ path: `reports/screenshots/xr-rush-3d-${isMobile ? 'mobile' : 'desktop'}.png` });
+    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+    expect(realErrors(errors)).toEqual([]);
+  });
+
+  test('WebXR gate: no navigator.xr → no VR offer and the game still works; a reported headset only adds an honest note', async ({ page }) => {
+    const errors = collectErrors(page);
+    await page.addInitScript(() => {
+      Object.defineProperty(Navigator.prototype, 'xr', { get: () => undefined, configurable: true });
+    });
+    await seedProfile(page);
+    await page.goto('/#/xr?game=rush');
+    await expect(page.getByTestId('rush-lobby')).toContainText('hardware-unverified');
+    await page.getByTestId('rush-play-list').click();
+    await expect(page.getByRole('button', { name: 'Enter VR' })).toHaveCount(0);
+    await expect(page.locator('.xr-action').first()).toBeVisible();
+    await page.getByRole('button', { name: 'Back to lobby' }).click();
+    await expect(page.getByTestId('rush-lobby')).toBeVisible();
+    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+    expect(realErrors(errors)).toEqual([]);
+  });
+
   test('zh: lobby and player are Chinese; phone targets are ≥ 44 px', async ({ page, isMobile }) => {
     await seedProfile(page, { locale: 'zh' });
     const leftovers = async () =>

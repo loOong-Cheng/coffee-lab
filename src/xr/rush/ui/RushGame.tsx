@@ -3,7 +3,7 @@
  * same reducer actions; the action list adds a small game-time handling cost (Standard mode).
  * Best stars come from the learner's `simulated` events (activityId 'rush:<level>').
  */
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router';
 import type { Guidance } from '../../../domain/contracts';
 import { audio, type SfxName } from '../../../audio';
@@ -17,11 +17,24 @@ import { shallowEqual } from '../../ui/useMission';
 import { LEVELS, RELAXED, RUSH_LEVELS, type RushLevelNo } from '../config';
 import { drinkName, recipeWall } from '../drinks';
 import { explain } from '../judge';
-import { coachSuggest, createCoach, createRushStore, listActions, listKey, whileBrewsHint, type RushStore } from '../play';
+import { coachSuggest, createCoach, createRushStore, listActions, listKey, processProgress, whileBrewsHint, type RushStore } from '../play';
 import { bestStarsFromEvents, rushCompletionEvent, rushResult, unlockedLevels, type RushResult } from '../record';
 import { createShift, itemIn, listAct, reduce, slotLocked, tick, type PlayerAction, type RushState, type SlotId } from '../sim';
 import { R, SLOT_TEXT, customerName, fmtR, itemText } from '../strings';
 import './rush.css';
+
+const RushScene = lazy(() => import('./RushScene'));
+
+function useReducedMotion(): boolean {
+  const pref = useLearner((s) => s.prefs.reducedMotion);
+  if (pref === 'on') return true;
+  if (pref === 'off') return false;
+  try {
+    return !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return false;
+  }
+}
 
 export function useRush<T>(store: RushStore, sel: (s: RushState) => T, eq: (a: T, b: T) => boolean = shallowEqual): T {
   const [v, setV] = useState(() => sel(store.get()));
@@ -190,7 +203,8 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
     [setup, seed],
   );
   const coach = useMemo(() => createCoach(setup.level), [setup.level, seed]);
-  const mode = setup.mode;
+  const [mode, setMode] = useState(setup.mode);
+  const reducedMotion = useReducedMotion();
   const status = useRush(store, (s) => s.status);
   const speed = useMemo(testSpeed, []);
 
@@ -257,6 +271,22 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
       <Hud store={store} onExit={onExit} />
       <div className="rush-main">
         <div className="rush-col">
+          {mode === '3d' ? (
+            <Suspense fallback={<p className="xr-stage__note">{t(R.loading3d)}</p>}>
+              <RushScene
+                store={store}
+                coach={setup.guidance === 'guided' ? coach : null}
+                level={setup.level}
+                canVR={canVR}
+                reducedMotion={reducedMotion}
+                onAct={(a) => act(a, false)}
+                onFail={() => {
+                  setMode('list');
+                  announce(t(R.sceneFailed), 'assertive');
+                }}
+              />
+            </Suspense>
+          ) : null}
           <Tickets store={store} guidance={setup.guidance} />
           <Bench store={store} />
           <Feedback store={store} />
@@ -376,22 +406,6 @@ function Tickets({ store, guidance }: { store: RushStore; guidance: Guidance }) 
 
 const BENCH: SlotId[] = ['grinder', 'group1', 'tray1', 'group2', 'tray2', 'wand', 'hotwater', 'kettleBase', 'dripper', 'phin'];
 
-function progressOf(s: RushState, slot: SlotId): number | null {
-  const m = s.m;
-  const pct = (left: number, total: number) => Math.max(0, Math.min(1, 1 - left / total));
-  switch (slot) {
-    case 'grinder':
-      return m.grinderMs > 0 ? pct(m.grinderMs, 2500) : null;
-    case 'group1':
-    case 'group2': {
-      const g = m.groups[slot === 'group1' ? 0 : 1];
-      return g ? pct(g.remainingMs, g.style === 'ristretto' ? 6000 : g.style === 'lungo' ? 9000 : 7000) : null;
-    }
-    default:
-      return slotLocked(s, slot) ? 0.5 : null;
-  }
-}
-
 function Bench({ store }: { store: RushStore }) {
   const { t } = useI18n();
   const v = useRush(
@@ -400,7 +414,7 @@ function Bench({ store }: { store: RushStore }) {
       hand: s.hand ? itemText(s.items[s.hand]!) : null,
       rows: BENCH.map((slot) => {
         const it = itemIn(s, slot);
-        const p = progressOf(s, slot);
+        const p = processProgress(s, slot);
         return { slot, item: it ? itemText(it) : null, busy: slotLocked(s, slot), p: p === null ? null : Math.round(p * 10) / 10 };
       }).filter((r) => r.item || r.busy),
       counter: Object.entries(s.slots)

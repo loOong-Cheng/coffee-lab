@@ -168,7 +168,7 @@ export function actionText(s: RushState, a: PlayerAction): LocalizedText {
     case 'grab':
       return cat(L('拿起', 'Pick up '), at(a.slot), L('（', ' ('), SLOT_TEXT[a.slot], L('）', ')'));
     case 'place':
-      return cat(L('放到', 'Put it '), a.slot.startsWith('counter') ? L('台面上', 'on the counter') : SLOT_TEXT[a.slot]);
+      return a.slot.startsWith('counter') ? L('放到台面上', 'Put it on the counter') : cat(L('放到：', 'Put it at: '), SLOT_TEXT[a.slot]);
     case 'grind':
       return cat(L('磨豆：', 'Grind into: '), at('grinder'));
     case 'knock':

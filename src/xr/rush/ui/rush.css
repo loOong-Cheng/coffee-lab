@@ -242,3 +242,16 @@
   padding: 0;
   margin: 0 0 var(--space-4);
 }
+.rush-choices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.rush-scene {
+  display: grid;
+  gap: var(--space-2);
+}

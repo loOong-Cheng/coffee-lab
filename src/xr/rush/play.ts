@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Play helpers shared by every input mode (action list, 3D pointer, XR controllers):
  *  - listActions: every action that is valid RIGHT NOW (validated through the real reducer), labelled
  *  - coach: the guided tier's "suggested next step", using the expert bot's planner (no errors)
@@ -8,9 +8,10 @@
 import type { LocalizedText } from '../../domain/contracts';
 import { CUPS, MILK_ML, SHOT_STYLES, WATER_ML, type Extra } from '../../features/cafe/model';
 import { createBot, decide, type Bot } from './bots';
-import type { BotProfile, RushLevelNo } from './config';
+import { PROCESS, type BotProfile, type RushLevelNo } from './config';
+import { hotWaterSec, steamSec } from './drinks';
 import { actionText, fmtR, R } from './strings';
-import { COUNTERS, SLOTS, reduce, type PlayerAction, type RushState, type SlotId } from './sim';
+import { COUNTERS, SLOTS, itemIn, reduce, type PlayerAction, type RushState, type SlotId } from './sim';
 
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 export const RUSH_EXTRAS: readonly Extra[] = ['chocolate', 'ice-cream', 'sugar', 'condensed-milk', 'milk-tea'];
@@ -184,5 +185,87 @@ export function slotsOf(a: PlayerAction | null): SlotId[] {
       return ['kettleBase'];
     default:
       return [];
+  }
+}
+
+
+// ───────────────────────────── 3D / XR targets ─────────────────────────────
+/** Something you can point at on the counter: a slot, or a station used with the item in your hand. */
+export type Target = SlotId | 'shelf' | 'ice' | 'extras' | 'fridge' | 'knock' | 'bin' | 'pass';
+export const HAND_STATIONS = ['shelf', 'ice', 'extras', 'fridge', 'knock', 'bin', 'pass'] as const;
+
+export function targetOf(a: PlayerAction): Target {
+  switch (a.type) {
+    case 'grab':
+    case 'place':
+    case 'pour':
+      return a.slot;
+    case 'grind':
+      return 'grinder';
+    case 'startShot':
+      return a.group === 1 ? 'group1' : 'group2';
+    case 'steam':
+      return 'wand';
+    case 'dispenseWater':
+      return 'hotwater';
+    case 'heatKettle':
+      return 'kettleBase';
+    case 'takeCup':
+      return 'shelf';
+    case 'addIce':
+      return 'ice';
+    case 'addExtra':
+      return 'extras';
+    case 'fillMilk':
+      return 'fridge';
+    case 'knock':
+      return 'knock';
+    case 'trash':
+      return 'bin';
+    case 'serve':
+      return 'pass';
+  }
+}
+
+/** Valid actions at one target (a click / tap / trigger on it). Putting down goes to that exact spot. */
+export function actionsForTarget(s: RushState, target: Target): ListAction[] {
+  const out = listActions(s).filter((a) => targetOf(a.action) === target);
+  if (target.startsWith('counter') && s.hand && !s.slots[target as SlotId]) {
+    const a: PlayerAction = { type: 'place', slot: target as SlotId };
+    if (reduce(s, a).lastResult.ok) return [{ id: `place:${target}`, group: 'hand', action: a, label: actionText(s, a), recommended: false }];
+  }
+  return out;
+}
+
+/** 0..1 progress of the process running at a slot, or null when nothing runs there. */
+export function processProgress(s: RushState, slot: SlotId): number | null {
+  const m = s.m;
+  const f = (left: number, totalSec: number) => Math.max(0, Math.min(1, 1 - left / (totalSec * 1000)));
+  switch (slot) {
+    case 'grinder':
+      return m.grinderMs > 0 ? f(m.grinderMs, PROCESS.grind.sec) : null;
+    case 'group1':
+    case 'group2': {
+      const g = m.groups[slot === 'group1' ? 0 : 1];
+      return g ? f(g.remainingMs, PROCESS.shot[g.style].sec) : null;
+    }
+    case 'wand': {
+      const p = itemIn(s, 'wand');
+      return m.wand && m.wand.remainingMs > 0 && p?.kind === 'pitcher' && p.milk ? f(m.wand.remainingMs, steamSec(p.milk.ml)) : null;
+    }
+    case 'hotwater':
+      return m.hotwater ? f(m.hotwater.remainingMs, hotWaterSec(m.hotwater.ml)) : null;
+    case 'kettleBase':
+      return m.kettleMs > 0 ? f(m.kettleMs, PROCESS.kettle.sec) : null;
+    case 'dripper':
+    case 'phin': {
+      const b = slot === 'dripper' ? 'pourover' : 'phin';
+      const br = m.brewers[b];
+      if (br.stage === 'bloom') return f(br.remainingMs, PROCESS.bloom[b].sec);
+      if (br.stage === 'drawdown') return f(br.remainingMs, PROCESS.drawdown[b].sec);
+      return null;
+    }
+    default:
+      return null;
   }
 }
