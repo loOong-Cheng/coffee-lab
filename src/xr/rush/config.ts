@@ -47,6 +47,9 @@ export const PROCESS = {
   },
 } as const;
 
+/** Action-list play: each action also costs this much game time (no reach time otherwise). Not in Relaxed mode. */
+export const INPUT_COST = { listActionCostSec: 0.5 };
+
 // ───────────────────────────── patience ─────────────────────────────
 export const PATIENCE = {
   /** Handling time per required action when estimating how long a drink takes (s). */
@@ -112,11 +115,11 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     firstArrivalSec: 2,
     arrivalSec: 12,
     arrivalJitter: 0.2,
-    patienceMult: 2.1,
-    patienceSlackSec: 10,
+    patienceMult: 2.2,
+    patienceSlackSec: 12,
     rampArrivalEnd: 0.8,
     rampPatienceEnd: 0.88,
-    maxOpenOrders: 3,
+    maxOpenOrders: 2,
     mix: mix({ 'espresso-macchiato': 2, cortado: 2, cappuccino: 3, 'flat-white': 3, 'caffe-latte': 3, mocha: 2, 'espresso-shot': 1 }),
   },
   3: {

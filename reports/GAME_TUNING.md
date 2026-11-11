@@ -11,30 +11,31 @@ Idle = time the bot was free but had nothing useful to do (waiting on a process 
 | L1 Espresso bar | novice | 100% | 90% | 0% | 100% | 5.0 | 0.0 | 45.1 | 21% | 0.0 |
 | L1 Espresso bar | average | 100% | 100% | 90% | 136% | 9.0 | 0.0 | 27.8 | 12% | 0.0 |
 | L1 Espresso bar | expert | 100% | 100% | 100% | 160% | 11.7 | 0.0 | 13.9 | 15% | 0.0 |
-| L2 Milk classics | novice | 28% | 0% | 0% | 29% | 2.1 | 4.1 | 51.7 | 16% | 0.0 |
-| L2 Milk classics | average | 100% | 15% | 0% | 61% | 4.6 | 2.5 | 47.1 | 1% | 0.0 |
-| L2 Milk classics | expert | 100% | 100% | 93% | 118% | 9.8 | 0.0 | 39.7 | 0% | 0.0 |
-| L3 Black, iced & world | novice | 3% | 0% | 0% | 24% | 2.1 | 5.5 | 40.9 | 12% | 0.0 |
-| L3 Black, iced & world | average | 98% | 33% | 0% | 70% | 6.2 | 2.7 | 42.7 | 2% | 0.0 |
+| L2 Milk classics | novice | 83% | 0% | 0% | 46% | 2.3 | 1.9 | 55.3 | 19% | 0.0 |
+| L2 Milk classics | average | 100% | 98% | 65% | 111% | 6.8 | 0.1 | 43.6 | 2% | 0.0 |
+| L2 Milk classics | expert | 100% | 100% | 100% | 136% | 10.0 | 0.0 | 30.8 | 1% | 0.0 |
+| L3 Black, iced & world | novice | 5% | 0% | 0% | 30% | 2.6 | 5.2 | 41.7 | 13% | 0.0 |
+| L3 Black, iced & world | average | 98% | 43% | 0% | 73% | 6.5 | 2.6 | 42.0 | 2% | 0.0 |
 | L3 Black, iced & world | expert | 100% | 100% | 98% | 127% | 12.1 | 0.1 | 31.9 | 2% | 0.0 |
-| L4 Pour-over & drip | novice | 0% | 0% | 0% | 18% | 1.7 | 6.3 | 48.7 | 14% | 0.0 |
-| L4 Pour-over & drip | average | 98% | 13% | 0% | 62% | 5.7 | 3.6 | 48.3 | 6% | 0.0 |
-| L4 Pour-over & drip | expert | 100% | 100% | 80% | 119% | 11.7 | 0.4 | 40.5 | 8% | 0.0 |
-| L5 Rush hour | novice | 0% | 0% | 0% | 15% | 1.7 | 9.3 | 42.2 | 11% | 0.0 |
-| L5 Rush hour | average | 80% | 0% | 0% | 51% | 5.9 | 6.2 | 42.9 | 1% | 0.0 |
-| L5 Rush hour | expert | 100% | 100% | 73% | 117% | 14.2 | 0.9 | 38.4 | 1% | 0.0 |
+| L4 Pour-over & drip | novice | 8% | 0% | 0% | 24% | 2.2 | 5.9 | 49.3 | 18% | 0.0 |
+| L4 Pour-over & drip | average | 98% | 23% | 0% | 67% | 6.2 | 3.4 | 46.9 | 7% | 0.0 |
+| L4 Pour-over & drip | expert | 100% | 100% | 85% | 120% | 11.8 | 0.4 | 40.0 | 8% | 0.0 |
+| L5 Rush hour | novice | 0% | 0% | 0% | 19% | 2.1 | 9.0 | 43.0 | 13% | 0.0 |
+| L5 Rush hour | average | 90% | 3% | 0% | 58% | 6.9 | 5.6 | 42.4 | 2% | 0.0 |
+| L5 Rush hour | expert | 100% | 100% | 75% | 118% | 14.4 | 0.7 | 38.3 | 1% | 0.0 |
 
 ## Targets
 
 | Target | Value | Goal | Met |
 |---|---|---|---|
 | novice L1 ≥1★ | 100% | ≥ 90% | yes |
+| novice L2 ≥1★ (M2: gentle milk intro) | 83% | ≥ 50% | yes |
 | average L1 ≥1★ | 100% | ≥ 60% | yes |
 | average L2 ≥1★ | 100% | ≥ 60% | yes |
 | average L3 ≥1★ | 98% | ≥ 60% | yes |
 | average L4 ≥1★ | 98% | ≥ 60% | yes |
-| average L5 ≥1★ | 80% | ≥ 60% | yes |
-| expert L5 3★ | 73% | ≥ 40% | yes |
+| average L5 ≥1★ | 90% | ≥ 60% | yes |
+| expert L5 3★ | 75% | ≥ 40% | yes |
 | average idle (worst level) | 12% | < 20% | yes |
 
 ## Notes on the tuning
@@ -42,7 +43,7 @@ Idle = time the bot was free but had nothing useful to do (waiting on a process 
 - **Queue cap is the main governor.** New customers enter only while fewer than *max open* orders wait, so a slower player meets fewer customers instead of an avalanche. Arrival gaps are short so a fast player is never starved (see the idle column).
 - **3★ needs speed tips**: 1★/2★ come from correct drinks, 3★ (≥ 110% of menu value) needs fast, correct serves. This separates the average bot (0–15% 2★+ from L2 on) from the expert.
 - **Triage matters.** Without skipping customers who are about to leave, even the expert collapsed on L5 (9.5 timeouts/shift); with triage it serves 14/shift. The design doc asks M2 to teach this (patience bars, "about to leave" cue).
-- **Novice = strictly serial** (never overlaps tasks). It clears L1 every time and drops fast after milk arrives on L2: overlapping tasks is the skill the levels teach. Relaxed mode (no timers) is the path for players who want the recipes without the clock.
+- **Novice = strictly serial** (never overlaps tasks). L2 (first milk level) holds only 2 customers at a time with extra patience so it still clears it most shifts; from L3 on, overlapping tasks is the skill the levels teach. Relaxed mode (no timers) is the path for players who want the recipes without the clock.
 - Targets were kept as briefed; L5 margins at M1 hand-off: average 1★ 80% (goal 60%), expert 3★ 73% (goal 40%).
 
 ## Level knobs (from `src/xr/rush/config.ts`)
@@ -50,7 +51,7 @@ Idle = time the bot was free but had nothing useful to do (waiting on a process 
 | Level | shift (s) | arrival gap (s) | ramp → | patience × | slack (s) | patience ramp → | max open |
 |---|---|---|---|---|---|---|---|
 | L1 | 150 | 12 | ×0.8 | 2.4 | 12 | ×0.9 | 2 |
-| L2 | 180 | 12 | ×0.8 | 2.1 | 10 | ×0.88 | 3 |
+| L2 | 180 | 12 | ×0.8 | 2.2 | 12 | ×0.88 | 2 |
 | L3 | 180 | 11 | ×0.78 | 1.9 | 10 | ×0.86 | 3 |
 | L4 | 210 | 11 | ×0.78 | 1.9 | 10 | ×0.85 | 3 |
 | L5 | 240 | 11 | ×0.75 | 1.8 | 10 | ×0.82 | 3 |

@@ -9,7 +9,8 @@ import type { RushMode, RushState } from './sim';
 
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 
-export const RUSH_ACTIVITY_PREFIX = 'xr-cafe-rush-l';
+/** Learning events: activityId 'rush:<level>', evidence 'simulated', score = stars / 3. */
+export const RUSH_ACTIVITY_PREFIX = 'rush:';
 
 export const RUSH_PRACTICES: readonly LocalizedText[] = [
   L('每款饮品由哪些部分组成、按什么顺序（例如长黑先放水）', 'What each drink is made of, and in which order (e.g. a long black takes water first)'),
@@ -109,9 +110,22 @@ export function rushCompletionEvent(r: RushResult, env: { immersive: boolean; to
     guidance: r.guidance,
     evidence: 'simulated',
     outcome: r.completed && r.stars >= 1 ? 'completed' : 'retry',
-    score: r.score,
+    score: Math.round((r.stars / 3) * 1000) / 1000,
     notes: r.notes,
   };
+}
+
+/** Best stars per level, derived from the learner's simulated Rush events (no extra stored state). */
+export function bestStarsFromEvents(events: readonly Pick<LearningEvent, 'activityId' | 'evidence' | 'score'>[]): Partial<Record<RushLevelNo, number>> {
+  const out: Partial<Record<RushLevelNo, number>> = {};
+  for (const e of events) {
+    if (e.evidence !== 'simulated' || !e.activityId.startsWith(RUSH_ACTIVITY_PREFIX)) continue;
+    const level = Number(e.activityId.slice(RUSH_ACTIVITY_PREFIX.length)) as RushLevelNo;
+    if (!RUSH_LEVELS.includes(level)) continue;
+    const stars = Math.max(0, Math.min(3, Math.round((e.score ?? 0) * 3)));
+    out[level] = Math.max(out[level] ?? 0, stars);
+  }
+  return out;
 }
 
 /** Level n+1 unlocks after at least one star on level n (either mode). Level 1 is always open. */

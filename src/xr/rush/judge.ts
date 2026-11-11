@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Café Rush judging. A cup is an ordered list of additions; it is summarised into a Café Counter
  * `CompleteBuild` and judged with the café's own `evaluate()` against `BUILD_SPECS`, so both games
  * always agree on what makes a cappuccino a cappuccino. Rush adds a few process checks of its own
@@ -25,7 +25,8 @@ import {
 import { getBuildSpec } from '../../features/cafe/specs';
 import { COMPONENT_TEXT, genericWhy, joinValues, valueText } from '../../features/cafe/strings';
 import { PROCESS } from './config';
-import { drinkName, getFilterSpec, ROSTER, type Brewer, type RushMethod } from './drinks';
+import { drinkName, ROSTER, type Brewer, type RushMethod } from './drinks';
+import { getFilterSpec } from './filterSpecs';
 
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 

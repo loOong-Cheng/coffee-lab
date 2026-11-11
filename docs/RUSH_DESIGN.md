@@ -94,9 +94,9 @@ All clocks are **compressed game time**. Every process label carries its real re
 | | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|
 | Shift / arrival gap (s) | 150 / 12 | 180 / 12 | 180 / 11 | 210 / 11 | 240 / 11 |
-| Patience × / slack (s) | 2.4 / 12 | 2.1 / 10 | 1.9 / 10 | 1.9 / 10 | 1.8 / 10 |
+| Patience × / slack (s) | 2.4 / 12 | 2.2 / 12 | 1.9 / 10 | 1.9 / 10 | 1.8 / 10 |
 | End-of-shift ramp (arrival / patience) | .80 / .90 | .80 / .88 | .78 / .86 | .78 / .85 | .75 / .82 |
-| Max open orders | 2 | 3 | 3 | 3 | 3 |
+| Max open orders | 2 | 2 | 3 | 3 | 3 |
 
 Bot results (40 seeds per cell):
 
@@ -148,3 +148,22 @@ Feedback states **what differs and why**:
 3. **Show patience bars and an "about to leave" cue.** Triage is the skill that separates experts at L5.
 4. **Station layout and reach** for a seated counter; whether both groups stay in reach.
 5. **Wire into the XR picker:** extend `MissionId` or add a game entry, and decide where Relaxed mode and the tier choice live in the lobby.
+
+## 13. M2 status (2026-11-11)
+
+- **M2a, done:** XR Lab picker "Games" entry → `#/xr?game=rush`.
+  - Lobby: level select; Relaxed toggle; guidance tier.
+  - Level unlocks are derived from `simulated` events (`rush:<level>`, score = stars ÷ 3).
+  - HUD: patience bars, an "about to leave" cue, score/tips/streak, pause, and the honest labels.
+  - The action list costs +0.5 s of game time per action (`INPUT_COST`, not in Relaxed mode).
+  - Guided coach: the expert planner with no errors gives the next step and a "while that brews…" hint.
+  - 2D wall, results with per-order what/why, and SFX.
+  - The pour-over specs now live in `src/xr/rush/filterSpecs.ts`, with a TODO to move them into `BUILD_SPECS`.
+- **M2b, done:** lazy Babylon counter.
+  - Layout: every target within ±0.75 m of one spot.
+  - A click or tap goes through `actionsForTarget()` to the same reducer. A target with several valid actions opens a choice bar.
+  - Progress bars, a guided target ring, the wall on the back wall, seated height, and reset view.
+- **M2c, not started:** WebXR controller bindings, the in-headset HUD panel and recenter.
+  - Planned bindings: grip grabs; the trigger acts on the target under the ray, which can reuse `actionsForTarget`.
+  - Until then the game offers no "Enter VR" button. VR stays hardware-unverified.
+- **Tuning change:** L2 holds 2 open orders, with patience × 2.2. The novice bot reaches ≥1★ in 83% of shifts, and L3–L5 config is unchanged.

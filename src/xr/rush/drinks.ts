@@ -1,17 +1,17 @@
-/**
+﻿/**
  * Café Rush drink roster, per-drink requirements and the RECIPE WALL.
  *
  * Source of truth: Café Counter `BUILD_SPECS` (what makes each drink that drink) and the Drink Atlas
  * `drinks` (illustrative recipe numbers). Nothing numeric is invented here: wall numbers are read from
  * `drinks.ts`, pitcher/water marks and cups from the canonical café build.
  *
- * Pour-over drinks have no Café Counter spec yet (its METHODS lack 'pourover'), so two small
- * Rush-local FILTER_SPECS cover them (structure only; their numbers still come from drinks.ts).
+ * Pour-over drinks have no Café Counter spec yet: see ./filterSpecs.ts (TODO: move into BUILD_SPECS).
  */
 import type { DrinkRecipe, LocalizedText } from '../../domain/contracts';
 import { drinks } from '../../content/drinks';
 import type { CupSize, Extra, MilkMl, MilkTexture, ShotStyle, WaterMl, WaterOrder } from '../../features/cafe/model';
 import { getBuildSpec, type BuildSpec } from '../../features/cafe/specs';
+import { getFilterSpec } from './filterSpecs';
 import { LEVELS, PATIENCE, PROCESS, RUSH_LEVELS, SCORING, type RushLevelNo } from './config';
 
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
@@ -32,49 +32,6 @@ export interface Needs {
   ice: boolean;
   extras: Extra[];
 }
-
-export interface FilterSpec {
-  drinkId: string;
-  ice: boolean;
-  cup: readonly CupSize[];
-  keyPoint: LocalizedText;
-  why: { method: LocalizedText; ice: LocalizedText; cup: LocalizedText; bloom: LocalizedText };
-}
-
-const BLOOM_WHY = L(
-  '先用少量热水把粉全部润湿（闷蒸），等它鼓起再继续注水——这是食谱里的一步，不要跳过。',
-  'Wet all the grounds with a little hot water first (the bloom) and let it settle before the main pour — it is a step in the recipe.',
-);
-
-export const FILTER_SPECS: readonly FilterSpec[] = [
-  {
-    drinkId: 'pourover-cone',
-    ice: false,
-    cup: ['large'],
-    keyPoint: L('热水分段流过滤纸上的咖啡粉：先闷蒸，再注完剩下的水。', 'Hot water poured through grounds in a paper filter: bloom first, then the rest of the pour.'),
-    why: {
-      method: L('手冲是滤杯里的滴滤咖啡，不是浓缩。', 'A pour-over is drip coffee from a dripper, not espresso.'),
-      ice: L('这杯是热的手冲，不加冰。', 'This is a hot pour-over — no ice.'),
-      cup: L('一杯手冲有两百多毫升，需要马克杯。', 'A pour-over is a couple of hundred ml — it needs a mug.'),
-      bloom: BLOOM_WHY,
-    },
-  },
-  {
-    drinkId: 'japanese-iced-pourover',
-    ice: true,
-    cup: ['large'],
-    keyPoint: L('把一部分水换成冰：热水负责萃取，直接冲在冰上降温。', 'Part of the water is swapped for ice: hot water extracts, brewed straight onto ice to chill.'),
-    why: {
-      method: L('日式冰手冲用滤杯冲煮，不是浓缩。', 'Japanese-style iced coffee is brewed in a dripper, not on the espresso machine.'),
-      ice: L('冰是配方的一部分——咖啡直接冲在冰上。', 'The ice is part of the recipe — the coffee is brewed straight onto it.'),
-      cup: L('冰加咖啡，需要高玻璃杯。', 'Ice plus coffee needs a tall glass.'),
-      bloom: BLOOM_WHY,
-    },
-  },
-];
-
-const FILTER_INDEX = new Map(FILTER_SPECS.map((s) => [s.drinkId, s]));
-export const getFilterSpec = (id: string): FilterSpec | undefined => FILTER_INDEX.get(id);
 
 const ATLAS = new Map(drinks.map((d) => [d.id, d]));
 export const atlasDrink = (id: string): DrinkRecipe | undefined => ATLAS.get(id);
