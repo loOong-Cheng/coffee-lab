@@ -10,3 +10,5 @@ test-results/
 .spike*/
 .e2e/
 test-results-report/
+.claude/usage.json
+.claude/usage.json.tmp
