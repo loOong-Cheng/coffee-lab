@@ -8,7 +8,7 @@
 import { expect, test, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
-import { brands } from '../../src/content';
+import { brands, sources } from '../../src/content';
 import { ERROR_BOUNDARY_TEXT, collectErrors, seedProfile } from './qa-helpers';
 
 test.use({ serviceWorkers: 'block' });
@@ -54,8 +54,8 @@ for (const locale of ['en', 'zh'] as const) {
     }
     fs.mkdirSync(LOG_DIR, { recursive: true });
     fs.writeFileSync(path.join(LOG_DIR, `brands-${locale}-sweep.json`), JSON.stringify({ problems, latinRunsOnZh: latin }, null, 1));
-    // equipment without a safety note is reported (QA-B03), not asserted here
-    expect(problems.filter((p) => !p.startsWith('equipment brand without'))).toEqual([]);
+    // equipment without a safety note is asserted too (QA-B02 fixed)
+    expect(problems).toEqual([]);
     await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
     expect(errors).toEqual([]);
   });
@@ -114,20 +114,35 @@ test('every brand → lesson link across all brands resolves to an existing less
   expect(bad).toEqual([]);
 });
 
-test('QA-B01 [open, P2] zh brand pages: Sources list is one language (no English author notes such as "5 yuan in several reports")', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'once');
-  test.fail(true, 'QA-B01: SourceRef.title/note are plain English strings rendered as-is in zh; notes include internal remarks and the Manner discount amount the content doc says is deliberately omitted');
-  await seedProfile(page, { locale: 'zh', reducedMotion: 'on' });
-  await page.goto('/#/brands/manner');
-  await expect(page.getByTestId('brand-detail')).toBeVisible();
-  await openAllDetails(page);
-  const src = await page.locator('details.br-sources').innerText();
-  expect(src).not.toMatch(/[A-Za-z]{3,}(?:\s+[A-Za-z]{2,}){3,}/);
-});
+// QA-B01 [fixed]: SourceRef.note is English-only author text (internal remarks, the Manner discount amount the
+// content doc omits). zh hides it; en keeps it. Citation titles stay in the source's own language and are lang-tagged.
+for (const locale of ['zh', 'en'] as const) {
+  test(`QA-B01 [fixed] Sources list (${locale}): each source title + link; English-only notes ${locale === 'zh' ? 'left out' : 'kept'}`, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'once');
+    const manner = brands.find((b) => b.id === 'manner')!;
+    const refs = manner.sources.map((id) => sources.find((s) => s.id === id)!);
+    expect(refs.some((r) => r.note)).toBe(true);
+    await seedProfile(page, { locale, reducedMotion: 'on' });
+    await page.goto('/#/brands/manner');
+    await expect(page.getByTestId('brand-detail')).toBeVisible();
+    await openAllDetails(page);
+    const list = page.locator('details.br-sources');
+    const src = await list.innerText();
+    await expect(list.getByTestId('brand-source')).toHaveCount(refs.length);
+    for (const r of refs) {
+      expect(src).toContain(r.title);
+      if (r.url) await expect(list.locator(`a[href="${r.url}"]`)).toHaveAttribute('lang', /^(en|zh)$/);
+      if (r.note) {
+        if (locale === 'zh') expect(src).not.toContain(r.note);
+        else expect(src).toContain(r.note);
+      }
+    }
+    expect(src).not.toMatch(/yuan|元/i);
+  });
+}
 
-test('QA-B02 [open, P2] every equipment brand that handles hot water or burrs carries a safety note (Melitta, Comandante, Timemore lack one)', async ({ page, isMobile }) => {
+test('QA-B02 [fixed] every equipment brand that handles hot water or burrs carries a safety note (Melitta, Comandante, Timemore)', async ({ page, isMobile }) => {
   test.skip(isMobile, 'once');
-  test.fail(true, 'QA-B02: melitta (pour-over with hot water), comandante + timemore (hand grinders; Timemore kettles/scales) have no safetyNote while kalita/hario/baratza do');
   await seedProfile(page, { reducedMotion: 'on' });
   const missing: string[] = [];
   for (const id of ['melitta', 'comandante', 'timemore']) {

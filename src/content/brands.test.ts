@@ -169,9 +169,15 @@ describe('brands: cross-references and provenance', () => {
 
 describe('brands: safety and honesty', () => {
   it('heat, pressure and grinder equipment brands carry a safety note', () => {
-    for (const id of ['la-marzocco', 'breville', 'delonghi', 'bialetti', 'baratza', 'fellow']) {
+    for (const id of ['la-marzocco', 'breville', 'delonghi', 'bialetti', 'baratza', 'fellow', 'melitta', 'comandante', 'timemore']) {
       expect(getBrand(id)?.safetyNote, id).toBeDefined();
     }
+    // QA-B02: every equipment brand (all handle hot water, pressure, glass or burrs) has one.
+    expect(brands.filter((b) => b.kind === 'equipment' && !b.safetyNote).map((b) => b.id)).toEqual([]);
+  });
+
+  it('no brand source note quotes the Manner discount amount the docs say is omitted', () => {
+    expect(sources.filter((s) => s.id.startsWith('brand-') && /\byuan\b|元/i.test(`${s.title} ${s.note ?? ''}`)).map((s) => s.id)).toEqual([]);
   });
 
   it('safety notes never give repair instructions; machine care defers to the manual', () => {

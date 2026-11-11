@@ -65,7 +65,7 @@ export const sources: SourceRef[] = [
     title: 'China Daily (30 Oct 2020) — Brewing sustainability (Manner Coffee and bring-your-own-cup)',
     url: 'https://www.chinadaily.com.cn/a/202010/30/WS5f9b5999a31024ad0ba82038.html',
     accessed: CHECKED,
-    note: 'Discount amount (5 yuan in several reports) intentionally not quoted in the app; it changes.',
+    note: 'Discount amount intentionally not quoted in the app; it changes.',
   },
   {
     id: 'brand-chinaproject-manner',

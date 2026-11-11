@@ -9,6 +9,7 @@ import { KindBadge } from './KindBadge';
 import { KIND_TEXT, S } from './strings';
 
 const present = <T,>(x: T | undefined): x is T => x !== undefined;
+const CJK = /[぀-ヿ一-鿿]/;
 
 export function BrandDetail({ brandId }: { brandId: string }) {
   const { t, locale } = useI18n();
@@ -171,18 +172,23 @@ export function BrandDetail({ brandId }: { brandId: string }) {
         <details className="br-sources">
           <summary>{t(S.sourcesH)}</summary>
           <ul className="br-list">
-            {sources.map((s) => (
-              <li key={s.id}>
-                {s.url ? (
-                  <a href={s.url} target="_blank" rel="noopener noreferrer">
-                    {s.title}
-                  </a>
-                ) : (
-                  s.title
-                )}
-                {s.note ? <span className="cl-muted"> — {s.note}</span> : null}
-              </li>
-            ))}
+            {sources.map((s) => {
+              // Citation titles keep the source's own language; mark it for screen readers.
+              const lang = CJK.test(s.title) ? 'zh' : 'en';
+              return (
+                <li key={s.id} data-testid="brand-source">
+                  {s.url ? (
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" lang={lang}>
+                      {s.title}
+                    </a>
+                  ) : (
+                    <span lang={lang}>{s.title}</span>
+                  )}
+                  {/* SourceRef.note is English-only author text: shown in en, left out in zh (one language at a time). */}
+                  {s.note && locale === 'en' ? <span className="cl-muted"> — {s.note}</span> : null}
+                </li>
+              );
+            })}
           </ul>
         </details>
       )}

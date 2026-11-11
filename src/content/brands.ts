@@ -67,6 +67,14 @@ const S_HOT_WATER = L(
   '热水会烫伤：壶放稳，倒水时手远离水流，别让孩子靠近。',
   'Hot water scalds: keep the kettle stable, hands clear of the stream, children away.',
 );
+const S_HAND_GRINDER = L(
+  '手摇磨豆机的磨盘很锋利：按说明书用刷子清理，不要把手指伸进磨盘；研磨时握稳机身。',
+  'Hand-grinder burrs are sharp: clean them with a brush as the manual describes, never with your fingers, and hold the grinder steady while grinding.',
+);
+const S_HAND_GRINDER_HOT_WATER = L(
+  '手摇磨豆机的磨盘很锋利：按说明书用刷子清理，不要把手指伸进磨盘。冲煮时热水会烫伤，秤上的杯壶要放稳。',
+  'Hand-grinder burrs are sharp: clean them with a brush as the manual describes, never with your fingers. When brewing, hot water scalds — keep the vessel on the scale stable.',
+);
 const S_GLASS = L(
   '玻璃器具遇冷热骤变可能破裂；别把热玻璃放在冷湿台面上。',
   'Glass can crack with sudden temperature changes; don’t set hot glass on a cold, wet surface.',
@@ -821,6 +829,7 @@ export const brands: Brand[] = [
       '滤纸能拦住细粉和大部分油脂，所以纸滤咖啡通常比法压壶更清澈、口感更轻。这个一百多年前的小发明，至今仍决定着手冲的风格。',
       'Paper traps fine particles and most oils, so paper-filtered coffee is usually clearer and lighter than French press. A small invention over a century old still shapes how pour-over tastes.',
     ),
+    safetyNote: S_HOT_WATER,
     relatedDrinkIds: ['pourover-cone', 'french-press-coffee'],
     relatedEquipmentIds: ['dripper', 'paper-filter'],
     relatedLessonIds: ['po-meet-the-gear', 'cul-origins-legends'],
@@ -899,6 +908,7 @@ export const brands: Brand[] = [
       '网上的配方常写“磨豆机第 N 格”，但格数只在同一型号的磨豆机之间有参考意义，换一台磨豆机就不能照搬。真正要学的是：太快太酸调细一点，太慢太苦调粗一点，一次只改一个变量。',
       'Recipes online often say “N clicks”, but clicks only mean something on the same grinder model. What transfers is the habit: too fast/sour → a bit finer, too slow/bitter → a bit coarser, one change at a time.',
     ),
+    safetyNote: S_HAND_GRINDER,
     relatedDrinkIds: ['pourover-cone', 'aeropress-coffee'],
     relatedEquipmentIds: ['burr-grinder-hand'],
     relatedLessonIds: ['exp-dialing-in', 'lit-brewing-concepts'],
@@ -976,6 +986,7 @@ export const brands: Brand[] = [
       '一台带计时的秤能同时告诉你粉量、水量和时间，这正是计算粉水比和复盘一杯咖啡所需的三项数据。平价的好工具让更多人能在家练手冲。',
       'A scale with a timer gives you dose, water and time at once — the three numbers you need to work out a ratio and review a brew. Affordable, decent tools let more people practise pour-over at home.',
     ),
+    safetyNote: S_HAND_GRINDER_HOT_WATER,
     relatedDrinkIds: ['pourover-cone'],
     relatedEquipmentIds: ['scale', 'timer', 'burr-grinder-hand'],
     relatedLessonIds: ['po-ratio-bloom', 'lit-brewing-concepts'],
