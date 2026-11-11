@@ -175,3 +175,160 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - **Café Rush M1** (xr-interaction-engineer, `c5339b7`): design doc `docs/RUSH_DESIGN.md`, deterministic sim `src/xr/rush/` (shared action API, judging reuses café `evaluate()`/`BUILD_SPECS`, recipe wall derived from `drinks.ts`, compressed game time labelled with real references, evidence `simulated`), 3 bot profiles + tuning harness → `reports/GAME_TUNING.md` (all lead targets met; novice cliff at L2 noted for M2). Lead re-run on merged main: typecheck ✓ · unit **580/580**. No UI yet.
 - **Café Rush M2a+M2b** (xr-interaction-engineer, `264f7e9`, `c71b313`): lobby (unlock at ≥1★, Relaxed, tiers), action list (0.5 s per action, not in Relaxed), HUD with patience bars and honest labels, results with per-order why, SFX; 3D counter with mouse/touch through the same reducer. L2 softened: novice ≥1★ 28% → 83%. Lead re-run on merged main `d58fcaf`: typecheck ✓ · unit **590/590** · full e2e **301 passed / 17 viewport skips / 0 failed**. Known: 3D labels are small on phones (the list is the main phone mode). The e2e uses a test-only fast clock (`?xrtest&speed=N`). VR (M2c) in progress.
 - **Café Rush M2c VR mode** (xr-interaction-engineer, `5e40946`, **hardware-unverified**): Enter VR only when `immersive-vr` is supported in a secure context (local-floor, controllers only). Trigger acts on the ray target via `actionsForTarget`; grip grabs or carries; release snaps (20/14/10 cm by tier). Headset HUD: left panel, order rail, recipe wall ×1.3, results with Play again. 10 headless mapping tests, including a full espresso via VR inputs. Lead re-run on merged main `57253dd`: typecheck ✓ · unit **600/600** · full e2e **303 passed / 17 viewport skips / 0 failed**. Quest 3 checklist: `docs/RUSH_DESIGN.md` §14.
+
+## QA gate #2 (2026-11-11) — Coffee Brands + Café Rush, `main` @ `d465b99`
+
+Owner: quality-guardian (independent). Scope: the U6 features only, i.e. brands and the Café Rush lobby, action list, 3D counter and WebXR gate. This is a bounded gate, not an exhaustive audit.
+
+### Environment
+- Windows 11 Pro 10.0.26200, Node v24.19.0, Playwright 1.65 (bundled Chromium, headless, software WebGL), @axe-core/playwright 4.14.
+- Projects: `desktop-chromium` 1280×800 and `mobile-chromium` Pixel 7 (touch, isMobile). Locales: en and zh.
+- Production build in `.e2e/dist-qa`, served by `vite preview` on 127.0.0.1:4209: `E2E_PORT=4209 E2E_DIST=.e2e/dist-qa E2E_OUT=.e2e/out-qa npx playwright test --workers=6`. Raw logs, playtest JSON and screenshots are in `.e2e/qa2-logs/` (git-ignored).
+- **No headset, no real phone, no human first-time player, no screen-reader software.** Live regions were observed in the DOM only.
+
+### Runs
+
+| Check | Result | Evidence |
+|---|---|---|
+| `npm run typecheck` | PASS, also after adding the QA specs | `.e2e/qa2-logs/typecheck.log` |
+| `npx vitest run` | PASS 600/600 (60 files) | `.e2e/qa2-logs/unit.log` |
+| `vite build` | PASS | `.e2e/qa2-logs/build.log` |
+| New `qa-rush` + `qa-brands`, both viewports | PASS, including 10 expected-fail bug markers | `.e2e/qa2-logs/run4.log` |
+| **Full e2e suite**, existing + new | **342 passed / 40 viewport skips / 0 failed** (4.4 min) | `.e2e/qa2-logs/full.log` |
+| WebXR on a headset | **NOT TESTED — no headset** | — |
+
+Expected-fail markers (`test.fail`) document the open bugs below. A fix turns a marker red until it is removed. The markers are QA-R01 to QA-R08, QA-B01 and QA-B02. QA-R09 to QA-R12 and QA-B03 have no marker. `reports/screenshots` was restored after the runs.
+
+### Real-speed playtests (no fast clock)
+
+A scripted "guided first-timer" played whole shifts through the action list at real speed:
+- It reacts to each new "Suggested next step" after 1.4–2.2 s, which is between the novice bot (1.9 s) and the average bot (1.3 s).
+- It never misreads or misclicks, so a real first-timer will do worse.
+- An in-page probe sampled the HUD every 250 ms (about 500–580 samples per shift) and recorded every live-region announcement.
+
+There were two passes per configuration (run 1 · run 4):
+
+| Shift | Stars | Points / menu value | Served (textbook) / left / open at close | First serve (real s) | Idle with no suggestion | Leave cue on screen | While-brews hint shown | Ticket off-screen while acting | Live-region announcements |
+|---|---|---|---|---|---|---|---|---|---|
+| L1 desktop en | 2★ · 2★ | 184/180 · 188/180 | 5/0/1 · 5/0/1 | 33.0 · 34.7 | 0% · 2% | 34.8 s (4×) · 24.0 s (4×) | 30% · 31% | n/a · 40% | 0 · 1 |
+| L2 desktop en | **1★ · 1★** | 99/240 (41%) · 144/250 (58%) | 2/**2**/2 · 3/**2**/1 | 42.0 · 41.7 | 0% · 0% | 44.8 s (3×) · 50.0 s (3×) | 24% · 24% | n/a · 28% | 2 · 2 |
+| L1 Pixel 7 zh | 1★ · 2★ | 109/180 · 187/180 | 3/1/2 · 5/0/1 | 36.8 · 33.5 | 1% · 2% | 31.3 s (4×) · 27.3 s (4×) | 31% · 31% | n/a · **100%** | 2 · 1 |
+
+Notes on the table:
+- Each shift took about 120 s (L1) or 143 s (L2) of real play. The rest of the game time, 30–37 s, is the +0.5 s list cost on 60–74 actions.
+- The hints had 8–21 distinct texts per shift.
+- "Ticket off-screen while acting" was only measured in run 4.
+
+What the playtests show:
+- **Waiting is controlled.** The coach always has a next step (idle 0–2%). The hints teach overlapping concretely, for example "While the shot runs: Pick up Portafilter (empty) (group 2)".
+- **The first serve comes after about 33–42 s.** In the guided tier the highlighted step is visible at t = 0, so a first-timer can start within seconds.
+- **L1 is fine. L2 is tight at a human pace.** Both L2 passes ended at 1★ with 2 walk-outs, and the leave cue was on screen for 45–50 s of about 143 s (QA-R09).
+- **Patience bars and the leave cue are clear only when visible.** They were never on screen while acting on the phone (QA-R02), and off screen 28–40% of the time on desktop (QA-R05).
+- **Results explain wrong builds (what and why) and the star rule, but not walk-outs** (QA-R11).
+- **Screen-reader feedback is nearly silent:** 0–2 announcements for 3–5 serves (QA-R01).
+
+### Verified (PASS)
+
+**Honesty**
+- The lobby honesty callout, the HUD "Simulated" badge, "game time — real shot ≈ 25–35 s" and "Time left (game time)" show in en and zh on both viewports.
+- The results show "Saved as simulated practice" and "What this does not train".
+- A regex scan found no skill, taste or sensing claims in the lobby, HUD, wall or results.
+- Events are recorded as `simulated`.
+
+**Recipe wall vs `src/content/drinks.ts`**
+- All 18 L5 wall entries match the Atlas: dose, out and milk are equal, and the ratio equals the rounded out ÷ dose.
+- See QA-R03 and QA-R04 for what the wall says and what it leaves out.
+
+**Relaxed mode**
+- There is no countdown, no patience bar and no seconds, and tips stay at 0. The shift ends after 8 serves.
+- Finishing L1 unlocks L2. "Best: n ★" and the unlock survive a reload on both viewports, and L3 stays locked.
+
+**Keyboard**
+- Tab reaches "Play with the action list".
+- Six actions in a row can be done with Tab and Enter only.
+- P pauses and resumes.
+
+**axe (wcag2a/aa, 21a/aa)**
+- 0 violations on the HUD mid-shift with the wall open and the pause dialog showing, in en and zh, light and dark, desktop and Pixel 7.
+- The lobby and results are covered by `xr-rush.spec`.
+
+**Phone targets**
+- Every control in the lobby, the HUD, the open wall and the results is at least 44 px on Pixel 7.
+
+**3D counter**
+- On Pixel 7, a tap on the cup shelf opens the cup choices.
+- On desktop, a click on group 1 picks up the portafilter (`xr-rush.spec`).
+
+**WebXR gate**
+- Without `navigator.xr`: no VR offer (`xr-rush.spec`).
+- With `navigator.xr` present but `isSessionSupported` rejecting (new test): no "Enter VR", the game plays on, and nothing crashes.
+
+**Brands**
+- All 35 detail pages, in en and zh, show "Checked in 2026" / "信息核对于 2026 年" and the no-affiliation disclaimer.
+- Every `safetyNote` is rendered.
+- There is no CJK in the body of en pages.
+- Links work:
+  - Atlas latte → Starbucks → Cappuccino;
+  - every brand → lesson link opens a real lesson;
+  - an unknown brand id shows not-found with a way back;
+  - Culture → Brands.
+
+**Brand fact spot-check against `docs/CONTENT_SOURCES_BRANDS.md`**
+- No overclaim was found. "Firsts" are attributed to the company, and there are no store counts or rankings.
+- Starbucks: founded 1971 in Seattle, Pike Place; Short / Tall / Grande / Venti are 8 / 12 / 16 / 20 oz (iced Venti 24 oz); a Caramel Macchiato is a vanilla latte marked with espresso.
+- Luckin: founded 2017, based in Xiamen; the 2023 Moutai latte is described as "contains a little liquor".
+- Cotti: founded 2022; the Fuzhou first store is marked "reportedly", and the headquarters is given as "reports differ".
+- Manner: started 2015 in a window of about 2 m² on Nanyang Road; the discount amount is left out of the body text.
+- UCC: founded 1933 in Kobe; the 1969 can is called "the company's claim".
+- Bialetti: workshop 1919, Moka Express 1933, with a pressure safety note.
+- Timemore: founded July 2012; "most sources" place it in Shanghai.
+
+### Open bugs (gate #2)
+
+| ID | Sev | Summary | Exact repro | Environment | Suspected file / owner | Status |
+|---|---|---|---|---|---|---|
+| QA-R01 | **P1** | The action list is labelled "keyboard / screen reader", but in Standard mode a serve result is **not announced**. A whole L1 shift with 5 textbook serves gave 0–1 live-region messages. New orders, the "About to leave!" cue and overheated milk are never announced in any mode. | Fresh profile → `#/xr?game=rush` → Play with the action list → serve one espresso → watch `[data-cl-announcer]`: nothing. Control: the same in Relaxed announces the serve. | desktop + Pixel 7, prod `d465b99` | `src/xr/rush/sim.ts` `listAct()` (L884–889) runs `tick(INPUT_COST)` after the serve, so the guard `f.atMs === s.tMs` in `src/xr/rush/ui/RushGame.tsx` L231–243 never matches. `order-in` and `warn` feedback is not passed to `announce()`. Owner: xr-engineer | OPEN; `qa-rush` QA-R01 + Relaxed control |
+| QA-R09 | **P1** | **Tuning gap.** Action-list play adds +0.5 s of game time per action, but the tuning bots never pay it (`harness.ts` and `bots.ts` never call `listAct`). `GAME_TUNING.md` therefore overstates list-mode playability by about 20% of a shift, and the list is the phone and keyboard/screen-reader mode. At real speed, a flawless guided player at about 1.8 s per action got L2 1★ twice (41% and 58%), with 2 walk-outs each time. | Real-speed L2 through the action list (table above), or rerun the harness with `listAct` | desktop 1280×800, prod | `src/xr/rush/config.ts` `INPUT_COST`; `src/xr/rush/harness.ts`, `bots.ts`. Tune with the list cost, or drop or halve it at L1–L2. Owner: xr-engineer | OPEN; data in `.e2e/qa2-logs/playtest-L2-desktop-en.json` |
+| QA-R02 | **P1** | On a phone, the order tickets (patience bar, "About to leave!") and the HUD timer are **off-screen 100% of the time while you act**. The tickets sit about 500 px above the action list, so triage needs constant scrolling. | Pixel 7 → L1 → Play with the action list → scroll to the suggested step → the ticket is not in the viewport | Pixel 7, en + zh | `src/xr/rush/ui/RushGame.tsx`: single-column order Tickets → Bench → Feedback → Actions → Wall; `rush.css` `@media (max-width: 760px)`. A sticky compact ticket strip would fix it. Owner: experience-designer + xr-engineer | OPEN; `qa-rush` QA-R02 |
+| QA-R07 | **P1** | The user's goal "real ratios on the wall" is invisible in normal 2D play. The wall is a **closed `<details>`** at the bottom of the right column: below the fold on desktop, about 1,400 px down on a phone. Tickets show only the drink and the customer, although `RUSH_DESIGN.md` §9 says the guided tier shows the wall entry on the ticket. A guided player can finish a shift without ever seeing a ratio. | L1 guided → play following the suggestions → "1:2" is never rendered unless "Recipe wall" is opened | all | `RushGame.tsx` `Tickets` (L388–422) and `Wall` (L548–568). Owner: xr-engineer | OPEN; `qa-rush` QA-R07 |
+| QA-R03 | **P1** | The recipe wall misleads on two drinks. It shows "Yuenyeung · milk ≈50 ml" and "Vietnamese iced coffee · milk ≈25 ml" with no pitcher mark, while the textbook Rush build takes **no milk**: milk tea or condensed milk are extras, and the café spec accepts only `milk: none`. A learner who follows the wall adds milk and loses points. | Seed L1–L4 stars → L5 → open the wall → read those two lines | all | `RushGame.tsx` `Wall` L560 prints the Atlas `milkMl` whenever it exists. Fix: name it evaporated or condensed milk, or hide it when the build has `milk === 'none'` (`src/xr/rush/drinks.ts` `recipeWall`). Owner: xr-engineer + coffee-curriculum | OPEN; `qa-rush` QA-R03 |
+| QA-R04 | **P1** | The game-time labels give a real reference **only for the espresso shot**. `PROCESS.*.real` is never rendered: steaming, kettle, bloom, pour-over 2:30–4:00, phin 4–5 min, ristretto and lungo. Only `overheatReal` appears, inside a feedback message. The wall also leaves out `timeNote`. At L4 a phin brews in 16 s with no real reference. This contradicts `RUSH_DESIGN.md` §4 and §10. | L4 → Play with the action list → open the wall → search the page for "4–5 min" or "2:30–4:00": not there | all | `RushGame.tsx` `Bench` (process rows) and `Wall`; the wall lines in `RushScene.tsx`. Owner: xr-engineer | OPEN; `qa-rush` QA-R04 |
+| QA-R08 | **P1** (user rule) | **One language at a time** is broken in zh Rush. Drink names carry Latin glosses in the lobby, tickets, wall, results and action labels, e.g. 意式浓缩（Espresso）, 朗戈（Lungo，长萃浓缩）, 浓缩（长萃 Lungo）. There are 27 such zh names in `drinks.ts`, so the problem is Atlas-wide. The lobby eyebrow is also hard-coded as "XR Lab". | zh → `#/xr?game=rush` → read the level cards and the tickets | zh, all viewports | `src/content/drinks.ts` `name.zh`; `RushGame.tsx` L128; `SHOT_STYLE_TEXT` in `features/cafe/strings`. Owner: coffee-curriculum; the lead should confirm that the rule covers drink names | OPEN; `qa-rush` QA-R08 |
+| QA-R05 | P2 | Desktop: a new shift keeps the lobby's scroll position. The Play buttons are at y ≈ 1,146 px on an 800 px viewport, so the HUD timer and the tickets start off-screen; the timer was off-screen 37–42% of the shift. Focus also drops to `<body>`. | 1280×800 → `#/xr?game=rush` → scroll down → Play with the action list → the timer is above the viewport, and `activeElement` is `body` | desktop | `RushGame.tsx` `RushPlayer` mount: no `scrollTo` and no focus move. Owner: xr-engineer | OPEN; `qa-rush` QA-R05 |
+| QA-R06 | P2 | When paused, focus stays on the HUD Pause button and does not move into the pause dialog. The full-screen overlay also covers the recipe wall, so a paused learner cannot study the recipes. | Play → Pause → focus stays on the HUD Pause button; a click on "Recipe wall" is intercepted by the overlay | desktop | `RushGame.tsx` L316–323; `.rush-paused` in `rush.css`. Owner: xr-engineer | OPEN; `qa-rush` QA-R06 |
+| QA-R10 | P2 | Lobby copy does not match the game. The "How to play" card (`R.options`) holds only settings and no instructions. The shared tier texts promise features Rush lacks: Assisted says "Hints stay folded until you ask", but Rush has no hint button; Independent says "feedback comes at the end", but Rush shows feedback live. | Open `#/xr?game=rush` and read the card | all | `src/xr/rush/strings.ts` `R.options`; `RushGame.tsx` L172–179 (generic `GuidanceSelector` copy). Owner: experience-designer | OPEN |
+| QA-R11 | P2 | Results: "Customer left" rows have no why and no tip, unlike wrong builds. The points line ("144 points of 250 menu value") leaves out the % that the star rule uses ("1★ ≥ 40% …"). | Let a customer time out → results → "Order by order" | all | `RushGame.tsx` `Results` L593 and L615–631. Owner: xr-engineer | OPEN |
+| QA-R12 | P2 | 3D counter on a phone: the canvas is 356×200 CSS px, and the station labels and the 3D recipe wall are only a few pixels tall, so they cannot be read. A tap on a target with no valid action shows only its name, not why nothing happened. Taps do work. This is already known, and the list is the phone mode. | Pixel 7 → Play on the 3D counter (screenshot `.e2e/qa2-logs/3d-pixel7.png`) | Pixel 7 | `src/xr/rush/ui/RushScene.tsx` (the empty-target note); `scene/rushScene.ts` labels. Owner: xr-engineer | OPEN (known) |
+| QA-B01 | P2 | The brand "Sources" lists (collapsed) show raw `SourceRef` strings. 34 of 35 zh pages show English titles and author notes, such as "Not fetched … Needs verification." and "The app never gives …". The en pages for saturnbird and yongpu show Chinese titles. The Manner note shows "5 yuan in several reports", the amount `CONTENT_SOURCES_BRANDS.md` says the app deliberately omits. | zh → `#/brands/manner` → open "资料来源" | all | `src/content/sources.brands.ts` notes; `src/features/brands/BrandDetail.tsx` L170–188. Owner: coffee-curriculum | OPEN; `qa-brands` QA-B01 |
+| QA-B02 | P2 | Safety notes are inconsistent. Melitta (drippers, hot water), Comandante and Timemore (hand grinders, burrs) have no `safetyNote`, while Kalita and HARIO (hot water, glass) and Baratza (burrs) do. | `#/brands/melitta` vs `#/brands/kalita` | all | `src/content/brands.ts`. Owner: coffee-curriculum | OPEN; `qa-brands` QA-B02 |
+| QA-B03 | P2 | zh brand text mixes scripts. The zh `BRAND_DISCLAIMER` says "Coffee Lab", but the zh app name is 咖啡实验室. Latin names also appear inside zh prose: "Alfonso Bialetti 的金属作坊", and "Short：…" in the Starbucks menu decoder. | zh → any brand → disclaimer | zh | `src/content/brands.ts` L52–55 and the bialetti and starbucks entries. Owner: coffee-curriculum | OPEN |
+
+Not bugs (checked):
+- There are no dead ends: Back to lobby, Play again and Next level are always available.
+- The action list offers only valid actions, so list mode has no confusing rejections.
+- Stars from Relaxed and Standard both count for unlocks, by design (`record.ts`).
+- End shift records a 0★ `retry` event and does not lower the best score.
+
+### New test files (quality-guardian)
+- `tests/e2e/qa-rush.spec.ts`:
+  - real-speed playtests (`@realspeed`, about 2.5 min each), with probe JSON written to `.e2e/qa2-logs/playtest-*.json`;
+  - first-time read in en and zh;
+  - recipe wall = `drinks.ts`;
+  - no-claims scan;
+  - Relaxed mode, unlock and reload;
+  - keyboard play;
+  - axe on HUD and pause in en/zh × light/dark;
+  - phone targets;
+  - 3D on a phone;
+  - WebXR gate with a throwing `isSessionSupported`;
+  - a Relaxed announcement control;
+  - markers QA-R01 to QA-R08.
+- `tests/e2e/qa-brands.spec.ts`:
+  - sweep of all 35 brand pages in en and zh (asOf, disclaimer, safety, language);
+  - link round trips;
+  - lesson links;
+  - markers QA-B01 and QA-B02.
+
+### Not tested
+- **Real headset: NOT TESTED ON HEADSET.** This covers the immersive session, controllers, grip and trigger, haptics, readability of the in-headset HUD and wall, recenter and seated mode, and frame rate.
+- Real phones, a human first-time player (a scripted guided player stands in), real screen-reader software, and audio/SFX.
