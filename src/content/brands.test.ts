@@ -87,6 +87,29 @@ describe('brands: bilingual text', () => {
     expect(all.filter((t) => !t.path.endsWith('.name') && t.zh === t.en).map((t) => t.path)).toEqual([]);
   });
 
+  it('names use one language at a time: en has no CJK; zh is CJK-only or Latin-only', () => {
+    const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
+    const LATIN_WORD = /[A-Za-zÀ-ɏ]{2,}/;
+    for (const b of brands) {
+      expect(b.name.en, `${b.id}.name.en`).not.toMatch(CJK);
+      const mixed = CJK.test(b.name.zh) && LATIN_WORD.test(b.name.zh);
+      expect(mixed, `${b.id}.name.zh mixes scripts: ${b.name.zh}`).toBe(false);
+    }
+  });
+
+  it('no en text contains CJK, and zh never glosses a term with its English twin in parentheses', () => {
+    const CJK = /[\p{Script=Han}\p{Script=Hiragana}\p{Script=Katakana}]/u;
+    // e.g. “焦糖玛奇朵（Caramel Macchiato）”; lists like “（Primo / Medio / Massimo）” are taught terms and allowed.
+    const GLOSS = /[\p{Script=Han}]（[A-Za-zÀ-ɏ][A-Za-zÀ-ɏ\s’'.-]*）/u;
+    const all: Array<{ path: string; zh: unknown; en: unknown }> = [];
+    collectLocalized(brands, 'brands', all);
+    collectLocalized(BRAND_DISCLAIMER, 'BRAND_DISCLAIMER', all);
+    expect(all.filter((t) => CJK.test(String(t.en))).map((t) => t.path)).toEqual([]);
+    expect(all.filter((t) => GLOSS.test(String(t.zh))).map((t) => t.path)).toEqual([]);
+    // Japanese kana never appears in zh either (Chinese text only).
+    expect(all.filter((t) => /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(String(t.zh))).map((t) => t.path)).toEqual([]);
+  });
+
   it('avoids ranking and advertising language', () => {
     // “best-known” describes recognition, not rank, so it is allowed.
     const banned = /\bbest\b(?![- ]known)|\b(No\.\s?1|number one|world'?s leading|must-buy|must-have)\b|最好|第一名|最佳|必买/i;

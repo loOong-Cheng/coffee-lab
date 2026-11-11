@@ -50,8 +50,8 @@ const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 const AS_OF = 2026;
 
 export const BRAND_DISCLAIMER: LocalizedText = L(
-  '品牌名称仅用于识别，Coffee Lab 与这些公司没有任何关联，也不代表推荐或背书；不使用任何商标图形。产品、杯型和公司信息会变化，这里的内容核对于标注的年份（asOf），请以品牌当前官方信息为准。',
-  'Brand names are used only to identify them. Coffee Lab is not affiliated with, sponsored by or endorsing any of these companies, and shows no logos. Products, cup sizes and company facts change; each entry was checked in the year shown (asOf), so check the brand’s current official information.',
+  '品牌名称仅用于识别，Coffee Lab 与这些公司没有任何关联，也不代表推荐或背书；不使用任何商标图形。产品、杯型和公司信息会变化，这里的内容核对于标注的核对年份，请以品牌当前官方信息为准。',
+  'Brand names are used only to identify them. Coffee Lab is not affiliated with, sponsored by or endorsing any of these companies, and shows no logos. Products, cup sizes and company facts change; each entry was checked in the year shown, so check the brand’s current official information.',
 );
 
 // ── shared safety notes (concise; machine-specific care → manufacturer manual) ──
@@ -77,7 +77,7 @@ export const brands: Brand[] = [
   {
     id: 'starbucks',
     kind: 'cafe-chain',
-    name: L('星巴克 Starbucks', 'Starbucks'),
+    name: L('星巴克', 'Starbucks'),
     country: L('美国', 'United States'),
     founded: 1971,
     knownFor: L(
@@ -85,8 +85,8 @@ export const brands: Brand[] = [
       'Opened its first shop in Seattle’s Pike Place Market in 1971, selling beans and equipment, and later grew into a global chain known for espresso-and-milk drinks in large cups.',
     ),
     signature: [
-      L('焦糖玛奇朵（Caramel Macchiato）', 'Caramel Macchiato'),
-      L('星冰乐（Frappuccino）冰沙类饮品', 'Frappuccino blended drinks'),
+      L('焦糖玛奇朵', 'Caramel Macchiato'),
+      L('星冰乐冰沙类饮品', 'Frappuccino blended drinks'),
     ],
     learnFromIt: L(
       '连锁店的“中杯拿铁”大约 355 毫升，比意大利吧台的一杯卡布奇诺大得多——同样的名字，奶量和咖啡比例可能完全不同。另外，焦糖玛奇朵其实是加了香草糖浆的拿铁，和传统的浓缩玛奇朵不是一回事。',
@@ -94,9 +94,9 @@ export const brands: Brand[] = [
     ),
     menuDecoder: [
       L('Short：约 8 液量盎司（≈240 毫升），菜单上常不列出，可以直接问', 'Short: about 8 fl oz (≈240 ml); often not on the board — just ask'),
-      L('中杯（Tall）：约 12 液量盎司（≈355 毫升）', 'Tall (中杯 in China): about 12 fl oz (≈355 ml)'),
-      L('大杯（Grande）：约 16 液量盎司（≈475 毫升）', 'Grande (大杯): about 16 fl oz (≈475 ml)'),
-      L('超大杯（Venti）：热饮约 20 液量盎司（≈590 毫升），冷饮约 24 液量盎司（≈710 毫升）', 'Venti (超大杯): hot about 20 fl oz (≈590 ml), iced about 24 fl oz (≈710 ml)'),
+      L('中杯：约 12 液量盎司（≈355 毫升）', 'Tall: about 12 fl oz (≈355 ml)'),
+      L('大杯：约 16 液量盎司（≈475 毫升）', 'Grande: about 16 fl oz (≈475 ml)'),
+      L('超大杯：热饮约 20 液量盎司（≈590 毫升），冷饮约 24 液量盎司（≈710 毫升）', 'Venti: hot about 20 fl oz (≈590 ml), iced about 24 fl oz (≈710 ml)'),
       L('焦糖玛奇朵 = 香草糖浆 + 牛奶 + 浇在顶上的浓缩 + 焦糖淋酱，不等于浓缩玛奇朵', 'Caramel Macchiato = vanilla syrup + milk, espresso poured on top, caramel drizzle — not an espresso macchiato'),
     ],
     relatedDrinkIds: ['caffe-latte', 'espresso-macchiato', 'cappuccino', 'iced-latte'],
@@ -109,7 +109,7 @@ export const brands: Brand[] = [
   {
     id: 'costa',
     kind: 'cafe-chain',
-    name: L('咖世家 Costa Coffee', 'Costa Coffee'),
+    name: L('咖世家', 'Costa Coffee'),
     country: L('英国', 'United Kingdom'),
     founded: 1971,
     knownFor: L(
@@ -118,7 +118,7 @@ export const brands: Brand[] = [
     ),
     signature: [
       L('Mocha Italia 意式拼配（店内浓缩基底）', 'Mocha Italia house espresso blend'),
-      L('澳白（Flat White）', 'Flat white'),
+      L('澳白', 'Flat white'),
     ],
     learnFromIt: L(
       'Costa 用意大利语式的杯型名（Primo / Medio / Massimo），但并不表示意大利式的小杯。点单时看实际容量和几份浓缩，比看名字更可靠。',
@@ -137,7 +137,7 @@ export const brands: Brand[] = [
   {
     id: 'tim-hortons',
     kind: 'cafe-chain',
-    name: L('Tims 天好咖啡 Tim Hortons', 'Tim Hortons'),
+    name: L('天好咖啡', 'Tim Hortons'),
     country: L('加拿大', 'Canada'),
     founded: 1964,
     knownFor: L(
@@ -166,7 +166,7 @@ export const brands: Brand[] = [
   {
     id: 'dunkin',
     kind: 'cafe-chain',
-    name: L('唐恩都乐 Dunkin’', 'Dunkin’'),
+    name: L('唐恩都乐', 'Dunkin’'),
     country: L('美国', 'United States'),
     founded: 1950,
     knownFor: L(
@@ -175,7 +175,7 @@ export const brands: Brand[] = [
     ),
     signature: [
       L('Original Blend 热滴滤咖啡', 'Original Blend hot coffee'),
-      L('冰咖啡（Iced Coffee）', 'Iced coffee'),
+      L('冰咖啡', 'Iced coffee'),
     ],
     learnFromIt: L(
       '美国东北部有些人说“regular coffee”指的是加奶加糖的咖啡，而不是“普通黑咖啡”。地区说法会变，拿不准就直接问店员。',
@@ -194,7 +194,7 @@ export const brands: Brand[] = [
   {
     id: 'luckin',
     kind: 'cafe-chain',
-    name: L('瑞幸咖啡 Luckin Coffee', 'Luckin Coffee (瑞幸)'),
+    name: L('瑞幸咖啡', 'Luckin Coffee'),
     country: L('中国', 'China'),
     founded: 2017,
     knownFor: L(
@@ -202,7 +202,7 @@ export const brands: Brand[] = [
       'Founded in 2017 and based in Xiamen, known for ordering through its app or mini-program, small pick-up or delivery stores, and a constant stream of new flavoured drinks.',
     ),
     signature: [
-      L('生椰拿铁（椰浆/椰乳代替部分牛奶的拿铁）', 'Coconut latte (生椰拿铁), a latte made with coconut milk'),
+      L('生椰拿铁（用椰乳代替部分牛奶的拿铁）', 'Coconut latte, a latte made with coconut milk'),
       L('联名限定饮品，例如 2023 年与茅台合作的“酱香拿铁”（含少量白酒）', 'Co-branded limited drinks, e.g. the 2023 Moutai latte with Kweichow Moutai (contains a little liquor)'),
     ],
     learnFromIt: L(
@@ -219,7 +219,7 @@ export const brands: Brand[] = [
   {
     id: 'cotti',
     kind: 'cafe-chain',
-    name: L('库迪咖啡 Cotti Coffee', 'Cotti Coffee (库迪)'),
+    name: L('库迪咖啡', 'Cotti Coffee'),
     country: L('中国', 'China'),
     founded: 2022,
     knownFor: L(
@@ -293,7 +293,7 @@ export const brands: Brand[] = [
   {
     id: 'pacific-coffee',
     kind: 'cafe-chain',
-    name: L('太平洋咖啡 Pacific Coffee', 'Pacific Coffee'),
+    name: L('太平洋咖啡', 'Pacific Coffee'),
     country: L('中国香港', 'Hong Kong, China'),
     founded: 1992,
     knownFor: L(
@@ -317,7 +317,7 @@ export const brands: Brand[] = [
   {
     id: 'doutor',
     kind: 'cafe-chain',
-    name: L('罗多伦 Doutor Coffee', 'Doutor Coffee'),
+    name: L('罗多伦咖啡', 'Doutor Coffee'),
     country: L('日本', 'Japan'),
     founded: 1962,
     knownFor: L(
@@ -325,8 +325,8 @@ export const brands: Brand[] = [
       'Founded in 1962 by Hiromichi Toriba as a roaster and wholesaler; opened its first self-service Doutor Coffee Shop in Harajuku, Tokyo, in 1980, selling inexpensive freshly brewed coffee.',
     ),
     signature: [
-      L('“ブレンドコーヒー”招牌拼配咖啡', 'House “blend coffee”'),
-      L('米兰三明治（Milano Sand）', 'Milano sandwich'),
+      L('招牌拼配咖啡', 'House blend coffee'),
+      L('米兰三明治', 'Milano sandwich'),
     ],
     learnFromIt: L(
       '日本咖啡店菜单上的“Blend（拼配）”指的是把几个产地的豆子混合，追求稳定的招牌风味；“单一产地”则突出一个地方的特点。两种都没有高低之分。',
@@ -342,11 +342,11 @@ export const brands: Brand[] = [
   {
     id: 'komeda',
     kind: 'cafe-chain',
-    name: L('客美多咖啡 Komeda’s Coffee', 'Komeda’s Coffee'),
+    name: L('客美多咖啡', 'Komeda’s Coffee'),
     country: L('日本', 'Japan'),
     founded: 1968,
     knownFor: L(
-      '1968 年由加藤太郎在名古屋开出第一家店，店名来自他家经营的米店；以宽敞的座位、复古“喫茶店”氛围和名古屋式“早餐服务（モーニング）”著称。',
+      '1968 年由加藤太郎在名古屋开出第一家店，店名来自他家经营的米店；以宽敞的座位、复古“喫茶店”氛围和名古屋式“早餐服务”著称。',
       'Taro Kato opened the first shop in Nagoya in 1968, naming it after his family’s rice shop; known for roomy seating, a retro kissaten feel and Nagoya-style “morning service”.',
     ),
     signature: [
@@ -399,7 +399,7 @@ export const brands: Brand[] = [
   {
     id: 'illy',
     kind: 'roaster',
-    name: L('意利 illy', 'illy'),
+    name: L('意利', 'illy'),
     country: L('意大利', 'Italy'),
     founded: 1933,
     knownFor: L(
@@ -424,7 +424,7 @@ export const brands: Brand[] = [
   {
     id: 'lavazza',
     kind: 'roaster',
-    name: L('拉瓦萨 Lavazza', 'Lavazza'),
+    name: L('拉瓦萨', 'Lavazza'),
     country: L('意大利', 'Italy'),
     founded: 1895,
     knownFor: L(
@@ -449,7 +449,7 @@ export const brands: Brand[] = [
   {
     id: 'nespresso',
     kind: 'roaster',
-    name: L('奈斯派索 Nespresso', 'Nespresso'),
+    name: L('奈斯派索', 'Nespresso'),
     country: L('瑞士', 'Switzerland'),
     founded: 1986,
     knownFor: L(
@@ -461,7 +461,7 @@ export const brands: Brand[] = [
       L('Vertuo 条码胶囊系统', 'Vertuo barcode-capsule system'),
     ],
     learnFromIt: L(
-      '胶囊替你固定了研磨度、粉量和压粉，所以你调不了这些变量；但“浓缩”和“长萃（lungo）”按钮出液量不同，正好可以用来体会：同样的粉，出液越多，味道越淡。',
+      '胶囊替你固定了研磨度、粉量和压粉，所以你调不了这些变量；但“浓缩”和“长萃”按钮出液量不同，正好可以用来体会：同样的粉，出液越多，味道越淡。',
       'A capsule fixes grind, dose and tamp for you, so you can’t change them; but the “espresso” and “lungo” buttons give different yields — a neat way to feel how more water from the same coffee tastes lighter.',
     ),
     relatedDrinkIds: ['espresso-shot', 'lungo'],
@@ -474,7 +474,7 @@ export const brands: Brand[] = [
   {
     id: 'nescafe',
     kind: 'roaster',
-    name: L('雀巢咖啡 Nescafé', 'Nescafé'),
+    name: L('雀巢咖啡', 'Nescafé'),
     country: L('瑞士', 'Switzerland'),
     founded: 1938,
     knownFor: L(
@@ -486,7 +486,7 @@ export const brands: Brand[] = [
       L('“1+2”三合一（咖啡 + 植脂末 + 糖）', '“1+2” three-in-one mixes (coffee + creamer + sugar)'),
     ],
     learnFromIt: L(
-      '速溶咖啡是先把咖啡煮好，再喷雾干燥或冷冻干燥成粉或颗粒，冲水时是“溶解”而不是“萃取”，所以研磨度和萃取时间对它不适用。三合一里还有糖和奶精，看配料表就知道。希腊冰咖啡（frappé）通常就是用速溶做的。',
+      '速溶咖啡是先把咖啡煮好，再喷雾干燥或冷冻干燥成粉或颗粒，冲水时是“溶解”而不是“萃取”，所以研磨度和萃取时间对它不适用。三合一里还有糖和奶精，看配料表就知道。希腊冰咖啡通常就是用速溶做的。',
       'Instant coffee is brewed first, then spray-dried or freeze-dried; adding water dissolves it rather than extracting it, so grind and brew time don’t apply. Three-in-one mixes also contain sugar and creamer — check the label. A Greek frappé is usually made with instant.',
     ),
     relatedDrinkIds: ['greek-frappe'],
@@ -499,7 +499,7 @@ export const brands: Brand[] = [
   {
     id: 'ucc',
     kind: 'roaster',
-    name: L('悠诗诗 UCC', 'UCC Ueshima Coffee'),
+    name: L('悠诗诗', 'UCC Ueshima Coffee'),
     country: L('日本', 'Japan'),
     founded: 1933,
     knownFor: L(
@@ -523,12 +523,12 @@ export const brands: Brand[] = [
   {
     id: 'saturnbird',
     kind: 'roaster',
-    name: L('三顿半 Saturnbird', 'Saturnbird Coffee (三顿半)'),
+    name: L('三顿半', 'Saturnbird Coffee'),
     country: L('中国', 'China'),
     founded: 2015,
     knownFor: L(
       '2015 年在长沙创立，最初是一家咖啡馆；2018 年推出装在小杯状罐子里的冻干速溶咖啡，可以直接溶进冷水或冷牛奶。2019 年起开展“返航计划”回收空罐。',
-      'Started in Changsha in 2015 as a café; in 2018 it launched freeze-dried instant coffee in small cup-shaped pots that dissolve even in cold water or milk. Since 2019 its “Return Plan” (返航计划) collects the empty pots.',
+      'Started in Changsha in 2015 as a café; in 2018 it launched freeze-dried instant coffee in small cup-shaped pots that dissolve even in cold water or milk. Since 2019 its “Return Plan” collects the empty pots.',
     ),
     signature: [
       L('小杯装冻干速溶咖啡（2018）', 'Freeze-dried instant coffee in mini cups (2018)'),
@@ -548,7 +548,7 @@ export const brands: Brand[] = [
   {
     id: 'yongpu',
     kind: 'roaster',
-    name: L('永璞咖啡 Yongpu', 'Yongpu Coffee (永璞)'),
+    name: L('永璞咖啡', 'Yongpu Coffee'),
     country: L('中国', 'China'),
     founded: 2014,
     knownFor: L(
@@ -573,7 +573,7 @@ export const brands: Brand[] = [
   {
     id: 'peets',
     kind: 'roaster',
-    name: L('皮爷咖啡 Peet’s Coffee', 'Peet’s Coffee'),
+    name: L('皮爷咖啡', 'Peet’s Coffee'),
     country: L('美国', 'United States'),
     founded: 1966,
     knownFor: L(
@@ -597,7 +597,7 @@ export const brands: Brand[] = [
   {
     id: 'blue-bottle',
     kind: 'roaster',
-    name: L('蓝瓶咖啡 Blue Bottle Coffee', 'Blue Bottle Coffee'),
+    name: L('蓝瓶咖啡', 'Blue Bottle Coffee'),
     country: L('美国', 'United States'),
     founded: 2002,
     knownFor: L(
@@ -674,7 +674,7 @@ export const brands: Brand[] = [
   {
     id: 'breville',
     kind: 'equipment',
-    name: L('铂富 Breville（欧洲称 Sage）', 'Breville (Sage in UK/Europe)'),
+    name: L('铂富', 'Breville'),
     country: L('澳大利亚', 'Australia'),
     founded: 1932,
     knownFor: L(
@@ -700,7 +700,7 @@ export const brands: Brand[] = [
   {
     id: 'delonghi',
     kind: 'equipment',
-    name: L('德龙 De’Longhi', 'De’Longhi'),
+    name: L('德龙', 'De’Longhi'),
     country: L('意大利', 'Italy'),
     founded: 1902,
     knownFor: L(
@@ -726,7 +726,7 @@ export const brands: Brand[] = [
   {
     id: 'bialetti',
     kind: 'equipment',
-    name: L('比乐蒂 Bialetti', 'Bialetti'),
+    name: L('比乐蒂', 'Bialetti'),
     country: L('意大利', 'Italy'),
     founded: 1919,
     knownFor: L(
@@ -835,7 +835,7 @@ export const brands: Brand[] = [
     country: L('美国', 'United States'),
     founded: 1941,
     knownFor: L(
-      '化学家 Peter Schlumbohm 1941 年发明的沙漏形玻璃咖啡壶，配木质腰圈和皮绳，被纽约现代艺术博物馆（MoMA）收藏。',
+      '化学家 Peter Schlumbohm 1941 年发明的沙漏形玻璃咖啡壶，配木质腰圈和皮绳，被纽约现代艺术博物馆收藏。',
       'An hourglass glass brewer with a wooden collar and leather tie, invented by chemist Peter Schlumbohm in 1941 and held in the collection of New York’s Museum of Modern Art.',
     ),
     signature: [
@@ -857,7 +857,7 @@ export const brands: Brand[] = [
   {
     id: 'aeropress',
     kind: 'equipment',
-    name: L('爱乐压 AeroPress', 'AeroPress'),
+    name: L('爱乐压', 'AeroPress'),
     country: L('美国', 'United States'),
     founded: 2005,
     knownFor: L(
@@ -885,7 +885,7 @@ export const brands: Brand[] = [
   {
     id: 'comandante',
     kind: 'equipment',
-    name: L('Comandante（司令官）', 'Comandante'),
+    name: L('Comandante', 'Comandante'),
     country: L('德国', 'Germany'),
     founded: 2012,
     knownFor: L(
@@ -961,7 +961,7 @@ export const brands: Brand[] = [
   {
     id: 'timemore',
     kind: 'equipment',
-    name: L('泰摩 Timemore', 'Timemore (泰摩)'),
+    name: L('泰摩', 'Timemore'),
     country: L('中国', 'China'),
     founded: 2012,
     knownFor: L(
