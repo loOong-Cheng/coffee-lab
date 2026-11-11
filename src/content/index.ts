@@ -11,6 +11,8 @@ import * as explore from './tracks/explore';
 import * as culture from './tracks/culture';
 import { sources as coreSources } from './sources';
 import { sources as atlasSources } from './sources.atlas';
+import { sources as brandSources } from './sources.brands';
+import { brands as brandCatalog, type Brand } from './brands';
 import { equipment as equipmentCatalog } from './equipment';
 import { drinks as drinkCatalog } from './drinks';
 import { places as culturePlaces } from './culture-map';
@@ -24,7 +26,7 @@ export const CORE_TRACK_IDS: readonly TrackId[] = ['literacy', 'espresso', 'pour
 export const tracks: Track[] = modules.map((m) => m.track).sort((a, b) => a.order - b.order);
 export const lessons: Lesson[] = modules.flatMap((m) => m.lessons);
 export const activities: Activity[] = modules.flatMap((m) => m.activities);
-export const sources: SourceRef[] = [...coreSources, ...atlasSources];
+export const sources: SourceRef[] = [...coreSources, ...atlasSources, ...brandSources];
 export const equipment: Equipment[] = [...equipmentCatalog];
 export const drinks: DrinkRecipe[] = [...drinkCatalog];
 
@@ -36,6 +38,13 @@ const activityIndex = byId(activities);
 const sourceIndex = byId(sources);
 const equipmentIndex = byId(equipment);
 const drinkIndex = byId(drinks);
+
+/** Coffee brands knowledge (U6). Type lives in ./brands. */
+export const brands: Brand[] = [...brandCatalog];
+export { BRAND_DISCLAIMER } from './brands';
+export type { Brand, BrandKind } from './brands';
+const brandIndex = byId(brands);
+export const getBrand = (id: string): Brand | undefined => brandIndex.get(id);
 
 export const getTrack = (id: string): Track | undefined => trackIndex.get(id);
 export const getLesson = (id: string): Lesson | undefined => lessonIndex.get(id);
