@@ -97,14 +97,24 @@ All clocks are **compressed game time**. Every process label carries its real re
 | Patience × / slack (s) | 2.4 / 12 | 2.4 / 12 (was 2.2; QA gate #2) | 1.9 / 10 | 1.9 / 10 | 1.8 / 10 |
 | End-of-shift ramp (arrival / patience) | .80 / .90 | .80 / .88 | .78 / .86 | .78 / .85 | .75 / .82 |
 | Max open orders | 2 | 2 | 3 | 3 | 3 |
+| Action list: cost per action (s) / patience × (`listPatienceMult`) | 0 / ×1 | 0 / ×1 | 0.5 / ×1.55 | 0.5 / ×1.55 | 0.5 / ×1.8 |
 
 Bot results (40 seeds per cell):
 
-- average bot ≥1★: 100 / 100 / 98 / 98 / 80%;
-- expert bot 3★: 100 / 93 / 98 / 80 / 73%;
-- novice bot ≥1★ on L1: 100%.
+- 3D / XR: average bot ≥1★ 100 / 100 / 98 / 98 / 90%; expert bot 3★ 100 / 100 / 98 / 85 / 75%; novice bot ≥1★ on L1 100%.
+- Action list: `human-list` (a guided first-timer, 1.4–2.2 s per action) ≥1★ 100 / 100 / 93 / 78 / 70%.
 
 Full table and notes: `reports/GAME_TUNING.md`.
+
+### Fair difficulty across input modes (`listPatienceMult`)
+
+The action list is the mode for many phone, keyboard and screen-reader players. It has two costs a 3D / XR player does not have: reading the list takes a person about 1.4–2.2 s per action (a 3D reach takes about 1.3 s), and from L3 every list action also costs 0.5 s of game time. With the 3D patience, a guided list player reached ≥1★ in only 28 / 20 / 3% of L3 / L4 / L5 shifts, against 98 / 98 / 90% for the 3D average bot.
+
+- **The knob.** `LevelConfig.listPatienceMult` multiplies `patienceMult` when the shift is played from the action list (`patienceMultFor(level, input)`). It is ×1 on L1–L2, which were already fair, ×1.55 on L3–L4 and ×1.8 on L5. L5 needs the largest factor: its longer shift, steeper ramp and 18-drink mix cost a list player more than they cost a 3D player.
+- **Input mode.** The shift records its input mode (`RushState.input`), which the lobby choice sets: the action list gives `list`, and the 3D counter or VR gives `direct`. If the 3D scene fails and the game falls back to the list, `setInput` gives every order that arrives from then on the list patience. A 3D player who taps the side list now and then keeps the 3D patience. The event notes record the input mode.
+- **Speed tips stay on the 3D clock.** The tip counts only the time left inside the 3D / XR patience (`Order.tipWindowMs`). The extra list time therefore prevents walk-outs but does not pay bigger tips, and 3★ is not easier on the list.
+- **Still tighter level by level.** `human-list` ≥1★ goes 93 → 78 → 70% on L3 → L5, and its average share of menu value goes 50 → 48 → 46%; `checkTargets` guards both. With 0.2 s more per action, which is about the extra time a real click takes, it is 73 / 68 / 50%. For the fast list bots, L3–L5 are now about level (average bot 75 / 67 / 69% of menu value); the squeeze falls on slower players.
+- **3D / XR is unchanged.** A `direct` shift never reads the knob, and the 3D / XR rows of `GAME_TUNING.md` are the same as before.
 
 ## 8. Feedback on mistakes
 
@@ -125,6 +135,7 @@ Feedback states **what differs and why**:
 - **Wall and real time** (QA gate #2): the wall is open by default on desktop and names the real milk component (evaporated milk in the HK milk tea, condensed milk) where the build takes no pitcher milk. It ends with a "Game time vs real time" legend for every compressed process at that level (`processTimings`, from `PROCESS.*.real`), shows the Atlas `timeNote` per drink, and a running process on the bench shows its real reference.
 - **Screen reader** (QA gate #2): one polite live region. Every serve result, walk-out and process mistake is said at once; new orders and the leave cue (once per order, not in independent) are de-duplicated and spaced ≥ 1.5 s apart (`rushAnnouncements`, `createAnnounceQueue`).
 - **Phone layout** (QA gate #2): the tickets and a clock copy form a sticky strip at the top, so patience bars and the leave cue stay visible while acting.
+- **Desktop layout** (QA gate #2 follow-up): the ticket strip is sticky as well, with up to 3 wide tickets in one row (about 180 px high at 1280×800), so long action lists and the open wall never scroll the patience bars away. Actions have a scroll margin, so focus or a scroll never leaves one under the strip.
 - The same actions are available from a keyboard/screen-reader action list (M2). Pause works at any time; reset starts a fresh attempt.
 - The game never relies on colour alone, keeps a seated counter height, mutes all sound, and honours reduced motion (M2 scene rules from the XR Lab).
 

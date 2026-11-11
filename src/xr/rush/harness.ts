@@ -2,7 +2,7 @@
  * Deterministic tuning harness: N seeded shifts per level × bot, aggregated into the table in
  * reports/GAME_TUNING.md. Pure (no fs); the vitest file writes the report when asked.
  */
-import { BOT_PROFILES, FIXED_STEP_MS, INPUT_COST, LEVELS, RUSH_LEVELS, SCORING, TUNING, type BotProfile, type RushLevelNo } from './config';
+import { BOT_PROFILES, FIXED_STEP_MS, INPUT_COST, LEVELS, RUSH_LEVELS, SCORING, TUNING, patienceMultFor, type BotProfile, type RushLevelNo } from './config';
 import { botTurn, createBot, type BotInput } from './bots';
 import { coachSuggest, createCoach, listKey } from './play';
 import { rushResult } from './record';
@@ -34,7 +34,7 @@ export interface ShiftRun {
  * coach is the UI's own (`createCoach` / `coachSuggest`, refreshed when the action list changes).
  */
 function followCoach(level: RushLevelNo, profile: BotProfile, seed: number, mode: RushMode, input: BotInput) {
-  let s: RushState = createShift({ level, seed, mode });
+  let s: RushState = createShift({ level, seed, mode, input });
   const coach = createCoach(level);
   const rand = makeStream(seedMix(seed, 0xb07));
   const dt = FIXED_STEP_MS / 1000;
@@ -76,7 +76,7 @@ export function runShift(level: RushLevelNo, botId: BotProfile['id'], seed: numb
     s = f.s;
     tally = f;
   } else {
-    s = createShift({ level, seed, mode });
+    s = createShift({ level, seed, mode, input });
     const bot = createBot(profile, seedMix(seed, 0xb07), level);
     const dt = FIXED_STEP_MS / 1000;
     for (let guard = 0; s.status === 'playing' && guard < 200_000; guard++) {
@@ -194,6 +194,24 @@ export function checkTargets(rows: TuningRow[]): TargetCheck[] {
   out.push({ label: 'list: human-list L1 walk-outs (worst shift)', value: h1.maxTimeouts, target: '0', met: h1.maxTimeouts === 0, count: true });
   const h2 = get(2, 'human-list', 'list');
   out.push({ label: 'list: human-list L2 ≥1★', value: h2.star1, target: '≥ 80%', met: h2.star1 >= 0.8 });
+  // Fair list difficulty on L3–L5 (QA gate #2 follow-up, `listPatienceMult`), still tightening level by level.
+  const listGoal: Array<[RushLevelNo, number]> = [
+    [3, 0.75],
+    [4, 0.65],
+    [5, 0.55],
+  ];
+  for (const [l, goal] of listGoal) {
+    const v = get(l, 'human-list', 'list').star1;
+    out.push({ label: `list: human-list L${l} ≥1★`, value: v, target: `≥ ${Math.round(goal * 100)}%`, met: v >= goal });
+  }
+  const [h3, h4, h5] = ([3, 4, 5] as const).map((l) => get(l, 'human-list', 'list'));
+  const steps = [h1.avgScore - h2.avgScore, h2.avgScore - h3!.avgScore, h3!.avgScore - h4!.avgScore, h4!.avgScore - h5!.avgScore];
+  out.push({
+    label: 'list: human-list avg score falls every level L1 → L5 (worst step)',
+    value: Math.min(...steps),
+    target: '> 0',
+    met: Math.min(...steps) > 0 && h3!.star1 >= h4!.star1 && h4!.star1 >= h5!.star1,
+  });
   return out;
 }
 
@@ -231,7 +249,7 @@ export function tuningMarkdown(rows: TuningRow[]): string {
   lines.push('## Action list (keyboard / screen reader / phone)');
   lines.push('');
   lines.push(
-    `Every bot action goes through \`listAct\`, so it also pays the list cost: ${RUSH_LEVELS.map((l) => `L${l} ${LEVELS[l].listCost ? `+${INPUT_COST.listActionCostSec} s` : '0 s'}`).join(', ')} per action (Standard mode). \`human-list\` is the QA gate #2 "guided first-timer": it does exactly what the guided coach suggests, never errs, and takes 1.4–2.2 s per action to read the list.`,
+    `Every bot action goes through \`listAct\`, so it also pays the list cost: ${RUSH_LEVELS.map((l) => `L${l} ${LEVELS[l].listCost ? `+${INPUT_COST.listActionCostSec} s` : '0 s'}`).join(', ')} per action (Standard mode). Customers in a list shift are more patient: ${RUSH_LEVELS.map((l) => `L${l} ×${LEVELS[l].listPatienceMult}`).join(', ')} (\`listPatienceMult\`); speed tips still count only the time left inside the 3D / XR patience. \`human-list\` is the QA gate #2 "guided first-timer": it does exactly what the guided coach suggests, never errs, and takes 1.4–2.2 s per action to read the list.`,
   );
   lines.push('');
   rowTable(lines, rows.filter((r) => r.input === 'list'));
@@ -255,16 +273,18 @@ export function tuningMarkdown(rows: TuningRow[]): string {
     '- **Guided coach takes ready milk off the wand first** (`wandFirst`): a player at ~2 s per action otherwise often let the milk overheat while doing the coach’s other steps. The tuning bots (novice / average / expert) do not use it, so their rows are unchanged by it.',
   );
   lines.push(
-    '- **Known gap:** with the +0.5 s cost, list-mode L3–L5 are hard for anyone slower than the expert (see the list rows). Relaxed mode has no clock; the lead may lower the cost further if real list players need it.',
+    '- **Fair list difficulty on L3–L5 (`listPatienceMult`, QA gate #2 follow-up).** With the +0.5 s cost and the 3D patience, a guided list player (`human-list`) reached ≥1★ in only 28% / 20% / 3% of L3 / L4 / L5 shifts, while the 3D average bot reached 98 / 98 / 90%. The list is the mode for many phone and keyboard / screen-reader players, so a list shift now gets more patient customers: ×1.55 on L3–L4 and ×1.8 on L5 (×1 on L1–L2, which were already fair). → `human-list` ≥1★ 93 / 78 / 70% (avg 50 / 48 / 46% of menu value), still falling level by level; with 0.2 s more per action (real click time) it is 73 / 68 / 50%. L5 needs the largest factor because its longer shift, steeper ramp and 18-drink mix cost a list player more than they cost a 3D player. **Speed tips stay on the 3D clock** (`Order.tipWindowMs`): the tip counts only the time left inside the 3D / XR patience, so the extra time prevents walk-outs instead of paying bigger tips, and list 3★ stays rare. Caveat: for the fast list bots, L3–L5 are now roughly level (average 75 / 67 / 69%, expert 101 / 99 / 101%); the level-by-level squeeze is carried by the slower players, which is who the list mode is for. The 3D / XR rows are unchanged (a direct-input shift ignores the knob).',
   );
   lines.push('');
   lines.push('## Level knobs (from `src/xr/rush/config.ts`)');
   lines.push('');
-  lines.push('| Level | shift (s) | arrival gap (s) | ramp → | patience × | slack (s) | patience ramp → | max open | list cost (s/action) |');
-  lines.push('|---|---|---|---|---|---|---|---|---|');
+  lines.push('| Level | shift (s) | arrival gap (s) | ramp → | patience × | slack (s) | patience ramp → | max open | list cost (s/action) | list patience × (effective) |');
+  lines.push('|---|---|---|---|---|---|---|---|---|---|');
   for (const l of RUSH_LEVELS) {
     const c = LEVELS[l];
-    lines.push(`| L${l} | ${c.shiftSec} | ${c.arrivalSec} | ×${c.rampArrivalEnd} | ${c.patienceMult} | ${c.patienceSlackSec} | ×${c.rampPatienceEnd} | ${c.maxOpenOrders} | ${c.listCost ? INPUT_COST.listActionCostSec : 0} |`);
+    lines.push(
+      `| L${l} | ${c.shiftSec} | ${c.arrivalSec} | ×${c.rampArrivalEnd} | ${c.patienceMult} | ${c.patienceSlackSec} | ×${c.rampPatienceEnd} | ${c.maxOpenOrders} | ${c.listCost ? INPUT_COST.listActionCostSec : 0} | ×${c.listPatienceMult} (${Math.round(patienceMultFor(l, 'list') * 100) / 100}) |`,
+    );
   }
   lines.push('');
   return lines.join('\n');

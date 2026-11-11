@@ -57,6 +57,12 @@ export const INPUT_COST = { listActionCostSec: 0.5 };
 /** Game seconds one action-list action costs on a level (Standard mode). */
 export const listCostSec = (level: RushLevelNo): number => (LEVELS[level].listCost ? INPUT_COST.listActionCostSec : 0);
 
+/**
+ * How a shift is played: `direct` = 3D counter / WebXR (point, tap or reach), `list` = the action list
+ * (keyboard / screen reader / phone). Set when the shift starts; the 3D → list fallback switches it.
+ */
+export type RushInput = 'direct' | 'list';
+
 // ───────────────────────────── patience ─────────────────────────────
 export const PATIENCE = {
   /** Handling time per required action when estimating how long a drink takes (s). */
@@ -93,6 +99,14 @@ export interface LevelConfig {
   maxOpenOrders: number;
   /** Does an action-list action pay `INPUT_COST.listActionCostSec`? (false on the learning levels L1–L2) */
   listCost: boolean;
+  /**
+   * Action-list shifts only: customer patience × this, on top of `patienceMult` (1 = the same as 3D / XR).
+   * A person reading the list takes ~1.4–2.2 s per action (a 3D reach ~1.3 s) and pays the list cost from
+   * L3, so without it list mode L3–L5 were far harder than the same level in 3D (follow-up to QA-R09).
+   * L5 needs the most (longest shift, steepest ramp, widest mix); the list player's results still fall
+   * level by level (`checkTargets` in harness.ts). Speed tips stay on the 3D clock (`Order.tipWindowMs`).
+   */
+  listPatienceMult: number;
   mix: readonly MixEntry[];
 }
 
@@ -114,6 +128,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampPatienceEnd: 0.9,
     maxOpenOrders: 2,
     listCost: false,
+    listPatienceMult: 1,
     mix: mix({ 'espresso-shot': 4, ristretto: 3, lungo: 3 }),
   },
   2: {
@@ -132,6 +147,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampPatienceEnd: 0.88,
     maxOpenOrders: 2,
     listCost: false,
+    listPatienceMult: 1,
     mix: mix({ 'espresso-macchiato': 2, cortado: 2, cappuccino: 3, 'flat-white': 3, 'caffe-latte': 3, mocha: 2, 'espresso-shot': 1 }),
   },
   3: {
@@ -149,6 +165,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampPatienceEnd: 0.86,
     maxOpenOrders: 3,
     listCost: true,
+    listPatienceMult: 1.55,
     mix: mix({ americano: 3, 'long-black': 3, 'iced-latte': 3, affogato: 2, 'cafe-cubano': 2, yuenyeung: 2, cappuccino: 1, 'flat-white': 1, 'caffe-latte': 1 }),
   },
   4: {
@@ -166,6 +183,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampPatienceEnd: 0.85,
     maxOpenOrders: 3,
     listCost: true,
+    listPatienceMult: 1.55,
     mix: mix({ 'pourover-cone': 3, 'japanese-iced-pourover': 2, 'vietnamese-phin': 2, americano: 1, 'caffe-latte': 1, 'espresso-shot': 1, cappuccino: 1 }),
   },
   5: {
@@ -183,6 +201,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampPatienceEnd: 0.82,
     maxOpenOrders: 3,
     listCost: true,
+    listPatienceMult: 1.8,
     mix: mix({
       'espresso-shot': 2,
       ristretto: 1,
@@ -205,6 +224,10 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     }),
   },
 };
+
+/** Patience multiplier for a level and input: `patienceMult`, × `listPatienceMult` on the action list. */
+export const patienceMultFor = (level: RushLevelNo, input: RushInput): number =>
+  LEVELS[level].patienceMult * (input === 'list' ? LEVELS[level].listPatienceMult : 1);
 
 /** Relaxed mode: no countdowns, no overheating; the shift ends after N accepted serves. */
 export const RELAXED = { orders: 8, maxOpenOrders: 2, arrivalGapSec: 4 };
@@ -261,3 +284,10 @@ export const BOT_PROFILES: Record<BotProfile['id'], BotProfile> = {
 };
 
 export const TUNING = { shiftsPerCell: 40, seedBase: 1000 };
+
+/**
+ * Shift seed of the real-speed L2 browser playtest (`tests/e2e/qa-rush.spec.ts`), fixed so it cannot flake.
+ * Not cherry-picked: it is the L2 `human-list` tuning seed whose score is closest to the median of the 40
+ * (`tuning.test.ts` re-derives it). Harness: 2★, 97% of menu value, 5 served, 0 walk-outs.
+ */
+export const REALSPEED_L2_SEED = 21015;

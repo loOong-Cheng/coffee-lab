@@ -1,7 +1,7 @@
 ﻿import { describe, expect, it } from 'vitest';
 import { drinks } from '../../content/drinks';
 import { getBuildSpec } from '../../features/cafe/specs';
-import { LEVELS, PROCESS, RELAXED, RUSH_LEVELS, SCORING } from './config';
+import { LEVELS, PROCESS, RELAXED, RUSH_LEVELS, SCORING, patienceMultFor } from './config';
 import { basePoints, needsFor, recipeWall, ROSTER, workEstimateSec } from './drinks';
 import { explain, judge, type Addition, type CupContents } from './judge';
 import { rushCompletionEvent, rushResult, unlockedLevels } from './record';
@@ -273,6 +273,65 @@ describe('Café Rush · simulation', () => {
     expect(tick(s, 1).tMs).toBe(1000);
     const r = reduce(tick(s, 20), { type: 'reset' });
     expect(r).toMatchObject({ tMs: 0, attempt: 2, status: 'playing', orders: [] });
+  });
+});
+
+describe('Café Rush · fair difficulty across input modes (list patience)', () => {
+  const firstOrder = (s: RushState) => {
+    while (s.orders.length === 0) s = tick(s, 0.1);
+    return s.orders[0]!;
+  };
+  const patienceMs = (l: (typeof RUSH_LEVELS)[number], drinkId: string, arrivedMs: number, mult: number) => {
+    const cfg = LEVELS[l];
+    const f = arrivedMs / (cfg.shiftSec * 1000);
+    return Math.round((workEstimateSec(drinkId) * mult + cfg.patienceSlackSec) * (1 + (cfg.rampPatienceEnd - 1) * f) * 1000);
+  };
+
+  it('action-list shifts get listPatienceMult more patience; 3D / XR shifts keep the level formula', () => {
+    for (const l of RUSH_LEVELS) {
+      const d = firstOrder(createShift({ level: l, seed: 3 }));
+      const li = firstOrder(createShift({ level: l, seed: 3, input: 'list' }));
+      expect(li.drinkId).toBe(d.drinkId);
+      expect(d.patienceMs).toBe(patienceMs(l, d.drinkId, d.arrivedMs, LEVELS[l].patienceMult));
+      expect(li.patienceMs).toBe(patienceMs(l, d.drinkId, d.arrivedMs, patienceMultFor(l, 'list')));
+      expect(d.tipWindowMs).toBeUndefined();
+      // the tip window is the 3D / XR patience (only present where the list patience differs)
+      expect(li.tipWindowMs).toBe(LEVELS[l].listPatienceMult === 1 ? undefined : d.patienceMs);
+    }
+    // learning levels: list = 3D; from L3 the list gets more, and its effective patience never drops below 3D
+    expect([LEVELS[1].listPatienceMult, LEVELS[2].listPatienceMult]).toEqual([1, 1]);
+    for (const l of [3, 4, 5] as const) expect(LEVELS[l].listPatienceMult).toBeGreaterThan(1);
+  });
+
+  it('the 3D → list fallback (setInput) applies to orders that arrive later; reset keeps the input', () => {
+    let s = createShift({ level: 3, seed: 5 });
+    const o1 = firstOrder(s);
+    s = tick(s, o1.arrivedMs / 1000 + 0.1);
+    s = reduce(s, { type: 'setInput', input: 'list' });
+    expect(s.input).toBe('list');
+    expect(s.orders[0]!.patienceMs).toBe(o1.patienceMs); // already waiting: unchanged
+    while (s.orders.length < 2) s = tick(s, 0.1);
+    const o2 = s.orders[1]!;
+    expect(o2.patienceMs).toBe(patienceMs(3, o2.drinkId, o2.arrivedMs, patienceMultFor(3, 'list')));
+    expect(reduce(s, { type: 'setInput', input: 'list' })).toBe(s); // no-op
+    expect(reduce(s, { type: 'reset' }).input).toBe('list');
+  });
+
+  it('speed tips count only the time left inside the 3D / XR patience: same tip for the same wait', () => {
+    const base = basePoints('espresso-shot');
+    const serveAfter = (order: { patienceMs: number; tipWindowMs?: number }, waitedMs: number) => {
+      let s = withOrder(build(quiet(), 'espresso-shot'), 'espresso-shot', order.patienceMs);
+      s = { ...s, orders: [{ ...s.orders[0]!, remainingMs: order.patienceMs - waitedMs, ...(order.tipWindowMs ? { tipWindowMs: order.tipWindowMs } : {}) }] };
+      s = act(s, { type: 'serve', orderId: 'test' });
+      return s.records.at(-1)!;
+    };
+    const direct = serveAfter({ patienceMs: 60_000 }, 30_000);
+    const list = serveAfter({ patienceMs: 90_000, tipWindowMs: 60_000 }, 30_000);
+    expect(direct.tip).toBe(Math.round(base * SCORING.tipMaxShare * 0.5));
+    expect(list.tip).toBe(direct.tip);
+    // past the 3D patience but inside the list patience: still a correct serve, no tip
+    const late = serveAfter({ patienceMs: 90_000, tipWindowMs: 60_000 }, 70_000);
+    expect(late).toMatchObject({ outcome: 'correct', tip: 0, points: base });
   });
 });
 

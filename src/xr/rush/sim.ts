@@ -13,7 +13,7 @@
 import type { Guidance, LocalizedText } from '../../domain/contracts';
 import type { CupSize, Extra, MilkMl, ShotStyle, WaterMl } from '../../features/cafe/model';
 import { CUSTOMERS } from '../../features/cafe/specs';
-import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, listCostSec, type RushLevelNo } from './config';
+import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, listCostSec, patienceMultFor, type RushInput, type RushLevelNo } from './config';
 import { basePoints, drinkName, hotWaterSec, steamSec, workEstimateSec, type Brewer } from './drinks';
 import { explain, judge, judgementSummary, type Addition, type Explanation, type RushDiff } from './judge';
 import { rngNext } from './rng';
@@ -87,6 +87,11 @@ export interface Order {
   /** null in Relaxed mode (no countdown). */
   patienceMs: number | null;
   remainingMs: number | null;
+  /**
+   * Action list only (`listPatienceMult` > 1): the 3D / XR patience for this order. Speed tips count only
+   * the time left inside it, so the extra list patience prevents walk-outs without making 3★ easier.
+   */
+  tipWindowMs?: number;
   points: number;
 }
 
@@ -138,6 +143,8 @@ export type RushStatus = 'playing' | 'paused' | 'over';
 export interface RushState {
   level: RushLevelNo;
   mode: RushMode;
+  /** 3D / XR or action list: sets the patience of new orders (`patienceMultFor`). */
+  input: RushInput;
   guidance: Guidance;
   seed: number;
   attempt: number;
@@ -183,14 +190,18 @@ export type RushAction =
   | { type: 'resume' }
   | { type: 'endShift' }
   | { type: 'reset' }
+  /** The UI switched input (the 3D → list fallback): orders that arrive from now on get that mode's patience. */
+  | { type: 'setInput'; input: RushInput }
   | { type: 'tick'; dtSec: number };
 
-export type PlayerAction = Exclude<RushAction, { type: 'pause' | 'resume' | 'endShift' | 'reset' | 'tick' }>;
+export type PlayerAction = Exclude<RushAction, { type: 'pause' | 'resume' | 'endShift' | 'reset' | 'setInput' | 'tick' }>;
 
 export interface ShiftOptions {
   level: RushLevelNo;
   seed: number;
   mode?: RushMode;
+  /** Default `direct` (3D / XR). */
+  input?: RushInput;
   guidance?: Guidance;
   attempt?: number;
 }
@@ -220,6 +231,7 @@ export function createShift(o: ShiftOptions): RushState {
   return {
     level: o.level,
     mode,
+    input: o.input ?? 'direct',
     guidance: o.guidance ?? 'guided',
     seed: o.seed,
     attempt: o.attempt ?? 1,
@@ -603,7 +615,10 @@ function serve(d: RushState, h: Item | null, orderId: string): Res {
     st.streak += 1;
     st.bestStreak = Math.max(st.bestStreak, st.streak);
     bonus = Math.min(SCORING.streakCap, SCORING.streakStep * (st.streak - 1));
-    if (o.patienceMs && o.remainingMs !== null) tip = Math.round(o.points * SCORING.tipMaxShare * Math.max(0, o.remainingMs / o.patienceMs));
+    if (o.patienceMs && o.remainingMs !== null) {
+      const win = o.tipWindowMs ?? o.patienceMs;
+      tip = Math.round(o.points * SCORING.tipMaxShare * Math.max(0, (o.remainingMs - (o.patienceMs - win)) / win));
+    }
     points = o.points + tip + bonus;
   } else {
     st.partly += 1;
@@ -670,8 +685,9 @@ function spawnOrder(d: RushState) {
   const drinkId = pickDrink(d);
   const customer = CUSTOMERS[Math.floor(rand(d) * CUSTOMERS.length)]!;
   const f = d.tMs / d.shiftMs;
-  const patienceMs =
-    d.mode === 'relaxed' ? null : sec((workEstimateSec(drinkId) * cfg.patienceMult + cfg.patienceSlackSec) * lerp(1, cfg.rampPatienceEnd, f));
+  const patience = (mult: number) => sec((workEstimateSec(drinkId) * mult + cfg.patienceSlackSec) * lerp(1, cfg.rampPatienceEnd, f));
+  const patienceMs = d.mode === 'relaxed' ? null : patience(patienceMultFor(d.level, d.input));
+  const directMs = d.mode === 'relaxed' ? null : patience(patienceMultFor(d.level, 'direct'));
   d.seq.order += 1;
   const o: Order = {
     id: `o${d.seq.order}`,
@@ -680,6 +696,7 @@ function spawnOrder(d: RushState) {
     arrivedMs: d.tMs,
     patienceMs,
     remainingMs: patienceMs,
+    ...(directMs !== null && directMs !== patienceMs ? { tipWindowMs: directMs } : {}),
     points: basePoints(drinkId),
   };
   d.orders = [...d.orders, o];
@@ -849,7 +866,9 @@ export function reduce(s: RushState, a: RushAction): RushState {
       if (s.status !== 'paused') return s;
       return { ...s, status: 'playing', effects: ['resume'] };
     case 'reset':
-      return createShift({ level: s.level, seed: s.seed + 1, mode: s.mode, guidance: s.guidance, attempt: s.attempt + 1 });
+      return createShift({ level: s.level, seed: s.seed + 1, mode: s.mode, input: s.input, guidance: s.guidance, attempt: s.attempt + 1 });
+    case 'setInput':
+      return s.input === a.input ? s : { ...s, input: a.input, effects: [] };
     case 'endShift': {
       if (s.status === 'over') return s;
       const d = draft(s);

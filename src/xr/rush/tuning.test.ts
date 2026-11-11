@@ -3,6 +3,7 @@
  * Regenerate the report:  RUSH_WRITE_REPORT=1 npx vitest run src/xr/rush/tuning.test.ts
  */
 import { describe, expect, it } from 'vitest';
+import { REALSPEED_L2_SEED, TUNING } from './config';
 import { checkTargets, runShift, runTuning, tuningMarkdown } from './harness';
 
 const proc = (globalThis as { process?: { env: Record<string, string | undefined>; cwd(): string } }).process;
@@ -24,6 +25,17 @@ describe('Café Rush tuning harness', () => {
     expect(list.actions).toBeLessThan(direct.actions);
     // L1–L2 waive it: identical play.
     expect(runShift(1, 'average', 9, 'standard', 'list')).toEqual({ ...runShift(1, 'average', 9, 'standard', 'direct'), input: 'list' });
+  });
+
+  it('the real-speed L2 e2e seed is representative: the median L2 human-list tuning seed, 2★', () => {
+    const runs = Array.from({ length: TUNING.shiftsPerCell }, (_, i) => runShift(2, 'human-list', TUNING.seedBase + 2 * 10_000 + i, 'standard', 'list'));
+    const sorted = runs.map((r) => r.score).sort((a, b) => a - b);
+    const mid = sorted.length / 2;
+    const median = (sorted[mid - 1]! + sorted[mid]!) / 2;
+    const closest = runs.reduce((best, r) => (Math.abs(r.score - median) < Math.abs(best.score - median) ? r : best));
+    expect(closest.seed).toBe(REALSPEED_L2_SEED);
+    expect(closest).toMatchObject({ stars: 2, correct: 5, timeouts: 0 });
+    expect(Math.round(closest.score * 100)).toBe(97);
   });
 
   it('runs every level × bot fast and meets the difficulty targets', async () => {

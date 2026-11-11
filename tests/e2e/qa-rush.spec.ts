@@ -16,7 +16,7 @@ import { expect, test, type Page } from '@playwright/test';
 import fs from 'node:fs';
 import path from 'node:path';
 import { drinks } from '../../src/content/drinks';
-import { LEVELS } from '../../src/xr/rush/config';
+import { LEVELS, REALSPEED_L2_SEED } from '../../src/xr/rush/config';
 import { ERROR_BOUNDARY_TEXT, STATE_KEY, collectErrors, readState } from './qa-helpers';
 
 test.use({ serviceWorkers: 'block' });
@@ -238,6 +238,15 @@ for (const cfg of REAL) {
     test.setTimeout(330_000);
     const errors = collectErrors(page);
     await seedRush(page, { locale: cfg.locale, stars: cfg.level === 2 ? { 1: 1 } : {} });
+    if (cfg.level === 2) {
+      // Fixed shift seed so this run cannot flake on an unlucky order mix. REALSPEED_L2_SEED = 21015 is not
+      // cherry-picked: it is the L2 human-list tuning seed closest to the median score of all 40 (tuning.test.ts
+      // re-derives it). In the harness it plays 2★ (97% of menu value, 5 served, 0 walk-outs); every one of
+      // the 40 L2 seeds reaches ≥1★ (worst 57%), so the ≥1★ gate below holds with real click time.
+      await page.addInitScript((seed) => {
+        (window as unknown as { __coffeeLabRushSeed?: number }).__coffeeLabRushSeed = seed;
+      }, REALSPEED_L2_SEED);
+    }
     await installProbe(page);
     await page.goto('/#/xr?game=rush');
     await expect(page.getByTestId('rush-lobby')).toBeVisible();
@@ -643,6 +652,39 @@ test('QA-R02 [fixed, P1] phone: the order ticket (patience bar / leave cue) is o
     await page.waitForTimeout(1500);
   }
   expect(both).toEqual(both.map(() => true));
+});
+
+test('QA gate #2 follow-up [desktop]: the ticket strip stays on screen during long action lists, and actions scroll clear of it', async ({ page, isMobile }) => {
+  test.skip(isMobile, 'desktop (phones: QA-R02)');
+  test.setTimeout(90_000);
+  await seedRush(page, { stars: { 1: 1, 2: 1, 3: 1, 4: 1 } });
+  await page.goto('/#/xr?game=rush');
+  await page.getByTestId('rush-level-5').click();
+  await page.getByTestId('rush-play-list').click();
+  await expect(page.getByTestId('rush-ticket').first()).toBeVisible({ timeout: 10_000 });
+  const probe = () =>
+    page.evaluate(() => {
+      const strip = document.querySelector('[data-testid="rush-live"]')!.getBoundingClientRect();
+      const t = document.querySelector('[data-testid="rush-ticket"]')?.getBoundingClientRect();
+      const bar = document.querySelector('[data-testid="rush-ticket"] progress, [data-testid="rush-ticket"] .rush-leaving')?.getBoundingClientRect();
+      const rec = document.querySelector('.xr-action[data-recommended]')?.getBoundingClientRect();
+      const inView = (r?: DOMRect) => !!r && r.top >= 0 && r.bottom <= window.innerHeight;
+      return { scrolled: window.scrollY > 200, ticket: inView(t), bar: inView(bar), recClear: !rec || (rec.top >= strip.bottom - 1 && rec.bottom <= window.innerHeight), shortStrip: strip.height <= window.innerHeight * 0.3 };
+    });
+  // the bottom of a long page (open wall, long action list): the tickets and their patience bars are still there
+  await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: 'instant' as ScrollBehavior }));
+  expect(await probe()).toMatchObject({ scrolled: true, ticket: true, bar: true, shortStrip: true });
+  fs.mkdirSync(LOG_DIR, { recursive: true });
+  await page.screenshot({ path: path.join(LOG_DIR, 'desktop-sticky-tickets.png') });
+  // act on a few suggested steps: each scrolls to the top of the view but not under the strip
+  for (let k = 0; k < 4; k++) {
+    const rec = page.locator('.xr-action[data-recommended]').first();
+    await expect(rec).toBeVisible({ timeout: 15_000 });
+    await rec.evaluate((el) => el.scrollIntoView({ block: 'start', behavior: 'instant' as ScrollBehavior }));
+    expect(await probe()).toMatchObject({ ticket: true, bar: true, recClear: true, shortStrip: true });
+    await rec.click();
+    await page.waitForTimeout(400);
+  }
 });
 
 test('QA-R03 [fixed, P1] recipe wall: yuenyeung / phin name the real milk component (no bare "milk ≈ N ml") when the build takes no pitcher milk', async ({ page, isMobile }) => {

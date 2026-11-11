@@ -99,6 +99,18 @@ function testSpeed(): number {
   }
 }
 
+/** Shift seed: the clock, or a test-only fixed seed (window.__coffeeLabRushSeed) so a real-speed browser test replays one shift. */
+function shiftSeed(): number {
+  try {
+    const g = (window as unknown as { __coffeeLabRushSeed?: number }).__coffeeLabRushSeed;
+    if (typeof g === 'number' && Number.isInteger(g) && g >= 0) return g >>> 0;
+  } catch {
+    /* non-browser */
+  }
+  return Date.now() >>> 0;
+}
+let runNo = 0;
+
 export interface RushSetup {
   level: RushLevelNo;
   relaxed: boolean;
@@ -109,11 +121,11 @@ export interface RushSetup {
 export function RushGame({ can3d, canVR, mobile }: { can3d: boolean; canVR: boolean; mobile: boolean }) {
   const defaultGuidance = useLearner((s) => s.prefs.defaultGuidance);
   const [setup, setSetup] = useState<RushSetup>({ level: 1, relaxed: false, guidance: defaultGuidance ?? 'guided', mode: 'list' });
-  const [playing, setPlaying] = useState<{ setup: RushSetup; seed: number } | null>(null);
+  const [playing, setPlaying] = useState<{ setup: RushSetup; seed: number; run: number } | null>(null);
   if (playing)
     return (
       <RushPlayer
-        key={playing.seed}
+        key={playing.run}
         setup={playing.setup}
         seed={playing.seed}
         canVR={canVR}
@@ -122,11 +134,11 @@ export function RushGame({ can3d, canVR, mobile }: { can3d: boolean; canVR: bool
         onNext={(level) => {
           const next = { ...playing.setup, level };
           setSetup(next);
-          setPlaying({ setup: next, seed: Date.now() >>> 0 });
+          setPlaying({ setup: next, seed: shiftSeed(), run: ++runNo });
         }}
       />
     );
-  return <RushLobby setup={setup} onChange={setSetup} can3d={can3d} onStart={(s) => setPlaying({ setup: s, seed: Date.now() >>> 0 })} />;
+  return <RushLobby setup={setup} onChange={setSetup} can3d={can3d} onStart={(s) => setPlaying({ setup: s, seed: shiftSeed(), run: ++runNo })} />;
 }
 
 // ───────────────────────────── lobby ─────────────────────────────
@@ -229,7 +241,10 @@ function RushLobby({ setup, onChange, onStart, can3d }: { setup: RushSetup; onCh
 function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: RushSetup; seed: number; canVR: boolean; mobile: boolean; onExit(): void; onNext(l: RushLevelNo): void }) {
   const { t } = useI18n();
   const store = useMemo(
-    () => createRushStore(createShift({ level: setup.level, seed, mode: setup.relaxed ? 'relaxed' : 'standard', guidance: setup.guidance })),
+    () =>
+      createRushStore(
+        createShift({ level: setup.level, seed, mode: setup.relaxed ? 'relaxed' : 'standard', input: setup.mode === 'list' ? 'list' : 'direct', guidance: setup.guidance }),
+      ),
     [setup, seed],
   );
   const coach = useMemo(() => createCoach(setup.level), [setup.level, seed]);
@@ -374,6 +389,7 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
                 onAct={(a) => act(a, false)}
                 onFail={() => {
                   setMode('list');
+                  store.set(reduce(store.get(), { type: 'setInput', input: 'list' })); // list patience from here on
                   announce(t(R.sceneFailed), 'assertive');
                 }}
                 onXrChange={(now) => {

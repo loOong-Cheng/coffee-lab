@@ -96,7 +96,7 @@ export function rushResult(s: RushState): RushResult {
     drinksMade: [...new Set(recs.filter((r) => r.outcome === 'correct').map((r) => r.drinkId))],
     practiced: RUSH_PRACTICES,
     notTrained: RUSH_NOT_TRAINED,
-    notes: `rush L${s.level} ${s.mode} stars=${stars} pts=${st.points}/${potential} ok=${st.correct} partly=${st.partly} wrong=${st.wrongServes} timeouts=${st.timeouts} (simulated, game time)`,
+    notes: `rush L${s.level} ${s.mode} ${s.input} stars=${stars} pts=${st.points}/${potential} ok=${st.correct} partly=${st.partly} wrong=${st.wrongServes} timeouts=${st.timeouts} (simulated, game time)`,
   };
 }
 

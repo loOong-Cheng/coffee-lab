@@ -110,7 +110,7 @@ export const createCoach = (level: RushLevelNo): Coach => createBot(COACH, 1, le
 export function coachSuggest(coach: Coach, s: RushState): PlayerAction | null {
   if (s.status !== 'playing') return null;
   const a = decide(coach, s);
-  if (!a || a.type === 'tick' || a.type === 'pause' || a.type === 'resume' || a.type === 'reset' || a.type === 'endShift') return null;
+  if (!a || a.type === 'tick' || a.type === 'pause' || a.type === 'resume' || a.type === 'reset' || a.type === 'setInput' || a.type === 'endShift') return null;
   return reduce(s, a).lastResult.ok ? a : null;
 }
 

@@ -272,6 +272,31 @@
   font-weight: var(--weight-bold);
   font-variant-numeric: tabular-nums;
 }
+/* Desktop: the ticket strip is sticky too, so long action lists (and the open wall) never scroll the
+   patience bars and the leave cue away (QA gate #2 follow-up to QA-R05). */
+@media (min-width: 761px) {
+  .rush-live {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    margin-inline: calc(-1 * var(--space-3));
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-bg, var(--color-surface));
+    border-bottom: 1px solid var(--color-border);
+  }
+  .rush-live .xr-side__h {
+    margin-block: 0 var(--space-1);
+  }
+  /* At most 3 open orders: wide tickets keep the strip short (names and key numbers on one line). */
+  .rush-live .rush-tickets ul {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+  /* Scrolling to an action (focus, suggested step) must not hide it under the strip. */
+  .rush .xr-action,
+  .rush summary {
+    scroll-margin-top: 12rem;
+  }
+}
 /* Phone: tickets (patience bars, leave cue) + clock stay on screen while acting (QA-R02). */
 @media (max-width: 760px) {
   .rush-live {

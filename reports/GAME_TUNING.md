@@ -30,7 +30,7 @@ Bot latency stands for reach + handling time; no list cost.
 
 ## Action list (keyboard / screen reader / phone)
 
-Every bot action goes through `listAct`, so it also pays the list cost: L1 0 s, L2 0 s, L3 +0.5 s, L4 +0.5 s, L5 +0.5 s per action (Standard mode). `human-list` is the QA gate #2 "guided first-timer": it does exactly what the guided coach suggests, never errs, and takes 1.4–2.2 s per action to read the list.
+Every bot action goes through `listAct`, so it also pays the list cost: L1 0 s, L2 0 s, L3 +0.5 s, L4 +0.5 s, L5 +0.5 s per action (Standard mode). Customers in a list shift are more patient: L1 ×1, L2 ×1, L3 ×1.55, L4 ×1.55, L5 ×1.8 (`listPatienceMult`); speed tips still count only the time left inside the 3D / XR patience. `human-list` is the QA gate #2 "guided first-timer": it does exactly what the guided coach suggests, never errs, and takes 1.4–2.2 s per action to read the list.
 
 | Level | Bot | ≥1★ | ≥2★ | 3★ | avg score | served/shift | timeouts/shift | worst-shift timeouts | avg wait (s) | idle | rejected actions/shift |
 |---|---|---|---|---|---|---|---|---|---|---|---|
@@ -42,18 +42,18 @@ Every bot action goes through `listAct`, so it also pays the list cost: L1 0 s, 
 | L2 Milk classics | average | 100% | 100% | 68% | 114% | 6.9 | 0.0 | 1 | 44.0 | 2% | 0.0 |
 | L2 Milk classics | expert | 100% | 100% | 100% | 138% | 10.0 | 0.0 | 0 | 30.8 | 1% | 0.0 |
 | L2 Milk classics | human-list | 100% | 98% | 0% | 92% | 4.5 | 0.1 | 1 | 59.6 | 0% | 0.0 |
-| L3 Black, iced & world | novice | 5% | 0% | 0% | 21% | 1.8 | 5.8 | 7 | 41.4 | 8% | 0.0 |
-| L3 Black, iced & world | average | 70% | 0% | 0% | 48% | 4.1 | 4.2 | 6 | 42.5 | 2% | 0.0 |
-| L3 Black, iced & world | expert | 93% | 33% | 0% | 67% | 5.7 | 3.2 | 6 | 41.2 | 0% | 0.0 |
-| L3 Black, iced & world | human-list | 28% | 0% | 0% | 33% | 2.7 | 5.1 | 7 | 43.6 | 0% | 0.0 |
-| L4 Pour-over & drip | novice | 5% | 0% | 0% | 23% | 2.1 | 5.9 | 8 | 51.9 | 12% | 0.0 |
-| L4 Pour-over & drip | average | 65% | 0% | 0% | 44% | 4.1 | 4.8 | 7 | 44.6 | 3% | 0.0 |
-| L4 Pour-over & drip | expert | 98% | 18% | 0% | 64% | 5.8 | 3.5 | 6 | 47.7 | 2% | 0.0 |
-| L4 Pour-over & drip | human-list | 20% | 0% | 0% | 31% | 2.7 | 5.7 | 8 | 46.1 | 2% | 0.0 |
-| L5 Rush hour | novice | 0% | 0% | 0% | 15% | 1.7 | 9.3 | 10 | 42.0 | 8% | 0.0 |
-| L5 Rush hour | average | 35% | 0% | 0% | 35% | 3.8 | 7.8 | 10 | 42.8 | 1% | 0.0 |
-| L5 Rush hour | expert | 78% | 0% | 0% | 50% | 5.6 | 6.6 | 10 | 40.2 | 1% | 0.0 |
-| L5 Rush hour | human-list | 3% | 0% | 0% | 21% | 2.2 | 8.8 | 11 | 43.5 | 0% | 0.0 |
+| L3 Black, iced & world | novice | 50% | 0% | 0% | 41% | 3.0 | 2.3 | 4 | 58.5 | 11% | 0.0 |
+| L3 Black, iced & world | average | 100% | 38% | 0% | 75% | 5.5 | 0.8 | 3 | 58.9 | 1% | 0.0 |
+| L3 Black, iced & world | expert | 100% | 100% | 15% | 101% | 8.0 | 0.0 | 0 | 50.7 | 0% | 0.0 |
+| L3 Black, iced & world | human-list | 93% | 0% | 0% | 50% | 3.4 | 2.1 | 4 | 60.1 | 0% | 0.0 |
+| L4 Pour-over & drip | novice | 50% | 0% | 0% | 38% | 2.8 | 2.5 | 4 | 71.4 | 14% | 0.0 |
+| L4 Pour-over & drip | average | 100% | 23% | 0% | 67% | 5.1 | 1.2 | 3 | 68.2 | 3% | 0.0 |
+| L4 Pour-over & drip | expert | 100% | 93% | 15% | 99% | 7.8 | 0.2 | 1 | 60.8 | 2% | 0.0 |
+| L4 Pour-over & drip | human-list | 78% | 0% | 0% | 48% | 3.4 | 2.3 | 3 | 70.0 | 2% | 0.0 |
+| L5 Rush hour | novice | 40% | 0% | 0% | 38% | 3.1 | 3.6 | 5 | 66.5 | 13% | 0.0 |
+| L5 Rush hour | average | 100% | 30% | 0% | 69% | 6.1 | 1.8 | 4 | 67.6 | 0% | 0.0 |
+| L5 Rush hour | expert | 100% | 100% | 25% | 101% | 9.6 | 0.2 | 2 | 58.6 | 0% | 0.0 |
+| L5 Rush hour | human-list | 70% | 3% | 0% | 46% | 3.6 | 3.3 | 5 | 68.7 | 0% | 0.0 |
 
 ## Targets
 
@@ -71,6 +71,10 @@ Every bot action goes through `listAct`, so it also pays the list cost: L1 0 s, 
 | list: human-list L1 ≥2★ | 100% | ≥ 80% | yes |
 | list: human-list L1 walk-outs (worst shift) | 0 | 0 | yes |
 | list: human-list L2 ≥1★ | 100% | ≥ 80% | yes |
+| list: human-list L3 ≥1★ | 93% | ≥ 75% | yes |
+| list: human-list L4 ≥1★ | 78% | ≥ 65% | yes |
+| list: human-list L5 ≥1★ | 70% | ≥ 55% | yes |
+| list: human-list avg score falls every level L1 → L5 (worst step) | 2% | > 0 | yes |
 
 ## Notes on the tuning
 
@@ -80,14 +84,14 @@ Every bot action goes through `listAct`, so it also pays the list cost: L1 0 s, 
 - **Novice = strictly serial** (never overlaps tasks). L2 (first milk level) holds only 2 customers at a time with extra patience so it still clears it most shifts; from L3 on, overlapping tasks is the skill the levels teach. Relaxed mode (no timers) is the path for players who want the recipes without the clock.
 - **List cost and L2 (QA-R09).** Until QA gate #2 the bots never paid the list cost, so the list rows were missing and list-mode playability was overstated. `human-list` now models the QA real-speed script faithfully: it reacts to the guided coach’s suggestion (the UI’s own `coachSuggest`) after 1.4–2.2 s. With the old +0.5 s cost and L2 patience ×2.2 it reached ≥1★ on L2 in only 48% of shifts (avg 40% of menu value, 2.5 walk-outs), matching QA’s real runs (41% and 58%). Reading the list already takes longer than the average 3D reach (1.3 s), so on the learning levels the surcharge double-charged the phone / keyboard / screen-reader players: it is **waived on L1–L2** (→ 100% ≥1★, avg 86%) and kept from L3 on, where speed is the skill. **L2 patience ×2.2 → ×2.4** (about +6 s per milk drink) adds margin for real-world click time (the e2e real-speed run adds ~0.1–0.3 s per action; at +0.3 s, ≥1★ goes from 82% to 95%): avg 92%, 0.05 walk-outs. Its 3D / XR effect is small (novice L2 ≥1★ 83% → 88%, average L2 3★ 65% → 68%); every 3D / XR target is still met.
 - **Guided coach takes ready milk off the wand first** (`wandFirst`): a player at ~2 s per action otherwise often let the milk overheat while doing the coach’s other steps. The tuning bots (novice / average / expert) do not use it, so their rows are unchanged by it.
-- **Known gap:** with the +0.5 s cost, list-mode L3–L5 are hard for anyone slower than the expert (see the list rows). Relaxed mode has no clock; the lead may lower the cost further if real list players need it.
+- **Fair list difficulty on L3–L5 (`listPatienceMult`, QA gate #2 follow-up).** With the +0.5 s cost and the 3D patience, a guided list player (`human-list`) reached ≥1★ in only 28% / 20% / 3% of L3 / L4 / L5 shifts, while the 3D average bot reached 98 / 98 / 90%. The list is the mode for many phone and keyboard / screen-reader players, so a list shift now gets more patient customers: ×1.55 on L3–L4 and ×1.8 on L5 (×1 on L1–L2, which were already fair). → `human-list` ≥1★ 93 / 78 / 70% (avg 50 / 48 / 46% of menu value), still falling level by level; with 0.2 s more per action (real click time) it is 73 / 68 / 50%. L5 needs the largest factor because its longer shift, steeper ramp and 18-drink mix cost a list player more than they cost a 3D player. **Speed tips stay on the 3D clock** (`Order.tipWindowMs`): the tip counts only the time left inside the 3D / XR patience, so the extra time prevents walk-outs instead of paying bigger tips, and list 3★ stays rare. Caveat: for the fast list bots, L3–L5 are now roughly level (average 75 / 67 / 69%, expert 101 / 99 / 101%); the level-by-level squeeze is carried by the slower players, which is who the list mode is for. The 3D / XR rows are unchanged (a direct-input shift ignores the knob).
 
 ## Level knobs (from `src/xr/rush/config.ts`)
 
-| Level | shift (s) | arrival gap (s) | ramp → | patience × | slack (s) | patience ramp → | max open | list cost (s/action) |
-|---|---|---|---|---|---|---|---|---|
-| L1 | 150 | 12 | ×0.8 | 2.4 | 12 | ×0.9 | 2 | 0 |
-| L2 | 180 | 12 | ×0.8 | 2.4 | 12 | ×0.88 | 2 | 0 |
-| L3 | 180 | 11 | ×0.78 | 1.9 | 10 | ×0.86 | 3 | 0.5 |
-| L4 | 210 | 11 | ×0.78 | 1.9 | 10 | ×0.85 | 3 | 0.5 |
-| L5 | 240 | 11 | ×0.75 | 1.8 | 10 | ×0.82 | 3 | 0.5 |
+| Level | shift (s) | arrival gap (s) | ramp → | patience × | slack (s) | patience ramp → | max open | list cost (s/action) | list patience × (effective) |
+|---|---|---|---|---|---|---|---|---|---|
+| L1 | 150 | 12 | ×0.8 | 2.4 | 12 | ×0.9 | 2 | 0 | ×1 (2.4) |
+| L2 | 180 | 12 | ×0.8 | 2.4 | 12 | ×0.88 | 2 | 0 | ×1 (2.4) |
+| L3 | 180 | 11 | ×0.78 | 1.9 | 10 | ×0.86 | 3 | 0.5 | ×1.55 (2.95) |
+| L4 | 210 | 11 | ×0.78 | 1.9 | 10 | ×0.85 | 3 | 0.5 | ×1.55 (2.95) |
+| L5 | 240 | 11 | ×0.75 | 1.8 | 10 | ×0.82 | 3 | 0.5 | ×1.8 (3.24) |

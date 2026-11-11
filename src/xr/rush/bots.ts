@@ -8,7 +8,7 @@
  */
 import type { Extra } from '../../features/cafe/model';
 import { CUP_CAPACITY_ML, CUPS, MILK_ML, SHOT_STYLES } from '../../features/cafe/model';
-import { FIXED_STEP_MS, LEVELS, PATIENCE, type BotProfile, type RushLevelNo } from './config';
+import { FIXED_STEP_MS, LEVELS, PATIENCE, type BotProfile, type RushInput, type RushLevelNo } from './config';
 import { needsFor, workEstimateSec, type Needs } from './drinks';
 import { makeStream } from './rng';
 import {
@@ -503,11 +503,11 @@ export function decide(bot: Bot, s: RushState): RushAction | null {
   return spareAction(bot, s);
 }
 
-const META = new Set<RushAction['type']>(['pause', 'resume', 'endShift', 'reset', 'tick']);
+const META = new Set<RushAction['type']>(['pause', 'resume', 'endShift', 'reset', 'setInput', 'tick']);
 const isPlayerAction = (a: RushAction): a is PlayerAction => !META.has(a.type);
 
 /** How the bot's actions reach the sim: direct (3D / XR reach; latency = reach time) or the action list (+ list cost). */
-export type BotInput = 'direct' | 'list';
+export type BotInput = RushInput;
 
 /** One bot opportunity at the current instant (call once per fixed step, before tick). */
 export function botTurn(bot: Bot, s: RushState, input: BotInput = 'direct'): RushState {
