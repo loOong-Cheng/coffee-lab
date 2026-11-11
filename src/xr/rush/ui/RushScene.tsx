@@ -7,7 +7,7 @@ import type { RushLevelNo } from '../config';
 import { recipeWall } from '../drinks';
 import { actionsForTarget, coachSuggest, listKey, targetOf, type Coach, type ListAction, type RushStore, type Target } from '../play';
 import type { PlayerAction } from '../sim';
-import { R, SLOT_TEXT } from '../strings';
+import { R, SLOT_TEXT, actionText } from '../strings';
 import type { RushSceneHandle } from '../scene/rushScene';
 import { useRush } from './RushGame';
 
@@ -31,6 +31,9 @@ export default function RushScene({
   reducedMotion,
   onAct,
   onFail,
+  onXrChange,
+  onReplay,
+  onLobby,
 }: {
   store: RushStore;
   coach: Coach | null;
@@ -39,6 +42,9 @@ export default function RushScene({
   reducedMotion: boolean;
   onAct(a: PlayerAction): void;
   onFail(): void;
+  onXrChange(inXr: boolean): void;
+  onReplay(): void;
+  onLobby(): void;
 }) {
   const { t, locale } = useI18n();
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -49,6 +55,9 @@ export default function RushScene({
   const [inXr, setInXr] = useState(false);
   const [vrError, setVrError] = useState(false);
   const highlight = useRef<Target[]>([]);
+  const hint = useRef<LocalizedText | null>(null);
+  const cb = useRef({ onAct, onXrChange, onReplay, onLobby });
+  cb.current = { onAct, onXrChange, onReplay, onLobby };
   const selected = useRef<Target | null>(null);
   const tr = useRef(t);
   tr.current = t;
@@ -64,6 +73,7 @@ export default function RushScene({
   useMemo(() => {
     const sug = coach ? coachSuggest(coach, store.get()) : null;
     highlight.current = sug ? [targetOf(sug)] : [];
+    hint.current = sug ? actionText(store.get(), sug) : null;
   }, [key, coach, store]);
 
   useEffect(() => {
@@ -86,7 +96,7 @@ export default function RushScene({
             if (list.length === 1) {
               selected.current = null;
               setChoices(null);
-              onAct(list[0]!.action);
+              cb.current.onAct(list[0]!.action);
             } else if (list.length > 1) {
               selected.current = target;
               setChoices({ target, list });
@@ -96,7 +106,16 @@ export default function RushScene({
               setNote(TARGET_TEXT[target]);
             }
           },
-          onXrChange: setInXr,
+          onXrChange: (now) => {
+            setInXr(now);
+            cb.current.onXrChange(now);
+          },
+          tr: (x) => tr.current(x),
+          targetText: (x) => TARGET_TEXT[x],
+          hint: () => hint.current,
+          onAct: (a) => cb.current.onAct(a),
+          onReplay: () => cb.current.onReplay(),
+          onLobby: () => cb.current.onLobby(),
         }),
       )
       .then((h) => {
@@ -205,6 +224,11 @@ export default function RushScene({
           </Button>
         ) : null}
       </div>
+      {canVR && lab?.xrReady ? (
+        <p className="xr-small xr-muted" data-testid="rush-vr-note">
+          {t(R.vrControls)} {t(R.hardware)}
+        </p>
+      ) : null}
       {vrError ? (
         <p className="xr-small" role="alert">
           {t(R.vrFailed)}

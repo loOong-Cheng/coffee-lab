@@ -125,11 +125,21 @@ test.describe('Café Rush', () => {
   });
 
   test('WebXR gate: no navigator.xr → no VR offer and the game still works; a reported headset only adds an honest note', async ({ page }) => {
+    test.setTimeout(120_000);
     const errors = collectErrors(page);
     await page.addInitScript(() => {
       Object.defineProperty(Navigator.prototype, 'xr', { get: () => undefined, configurable: true });
     });
+    await fastClock(page, 1);
     await seedProfile(page);
+    await page.goto('/#/xr?game=rush');
+    // the 3D counter loads, but nothing offers VR
+    await page.getByTestId('rush-play-3d').click();
+    await page.waitForFunction(() => !!(window as unknown as { __coffeeLabRush?: unknown }).__coffeeLabRush, null, { timeout: 90_000 });
+    await expect(page.getByTestId('rush-player')).not.toHaveAttribute('data-vr', /.*/);
+    await expect(page.getByRole('button', { name: 'Enter VR' })).toHaveCount(0);
+    await expect(page.getByTestId('rush-vr-note')).toHaveCount(0);
+    await page.getByRole('button', { name: 'Back to lobby' }).click();
     await page.goto('/#/xr?game=rush');
     await expect(page.getByTestId('rush-lobby')).toContainText('hardware-unverified');
     await page.getByTestId('rush-play-list').click();
@@ -137,6 +147,76 @@ test.describe('Café Rush', () => {
     await expect(page.locator('.xr-action').first()).toBeVisible();
     await page.getByRole('button', { name: 'Back to lobby' }).click();
     await expect(page.getByTestId('rush-lobby')).toBeVisible();
+    await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
+    expect(realErrors(errors)).toEqual([]);
+  });
+
+  test('WebXR gate (HARDWARE-UNVERIFIED, fake immersive-vr): Enter VR is offered with an honest note; a denied session alerts and the 3D counter keeps working', async ({ page, isMobile }) => {
+    test.setTimeout(120_000);
+    const errors = collectErrors(page);
+    await page.addInitScript(() => {
+      const fake = {
+        isSessionSupported: async (m: string) => m === 'immersive-vr',
+        requestSession: async () => {
+          throw new DOMException('No headset in this test', 'NotAllowedError');
+        },
+        addEventListener() {},
+        removeEventListener() {},
+      };
+      Object.defineProperty(Navigator.prototype, 'xr', { configurable: true, get: () => fake });
+    });
+    await fastClock(page, 1);
+    await seedProfile(page);
+    await page.goto('/#/xr?game=rush');
+    await expect(page.getByTestId('rush-lobby')).toContainText('hardware-unverified');
+    await page.getByTestId('rush-play-3d').click();
+    await expect(page.getByTestId('rush-player')).toHaveAttribute('data-vr', 'true');
+    const enter = page.getByTestId('rush-player').getByRole('button', { name: 'Enter VR' });
+    await expect(enter).toBeVisible({ timeout: 90_000 });
+    await expect(page.getByTestId('rush-vr-note')).toContainText('hardware-unverified');
+    await expect(page.getByTestId('rush-vr-note')).toContainText('trigger');
+    await enter.click();
+    await expect(page.getByRole('alert').filter({ hasText: 'The VR session could not start' })).toBeVisible();
+    // the 3D counter still works through the same reducer
+    await page.waitForFunction(() => !!(window as unknown as { __coffeeLabRush?: unknown }).__coffeeLabRush, null, { timeout: 30_000 });
+    await page.getByTestId('rush-canvas').scrollIntoViewIfNeeded();
+    const pt = await page.evaluate(() => (window as unknown as { __coffeeLabRush: { project(t: string): { x: number; y: number } } }).__coffeeLabRush.project('group1'));
+    if (isMobile) await page.touchscreen.tap(pt.x, pt.y);
+    else await page.mouse.click(pt.x, pt.y);
+    await expect(page.getByTestId('rush-hands')).toContainText('Portafilter', { timeout: 10_000 });
+    await expect(page.locator('.xr-action').first()).toBeVisible();
+
+    // TEST-ONLY emulation (no session, no headset): the in-headset panels render and the controllers'
+    // intent functions (grip release / trigger / choice panel) drive the same reducer; results stay in-scene.
+    type VtState = { choice: string[]; hud: boolean; orders: boolean; results: boolean; note: string | null };
+    const vt = <T = unknown,>(method: 'emulate' | 'trigger' | 'choose' | 'release' | 'replay' | 'state', arg?: string | boolean) =>
+      page.evaluate(
+        ([m, x]) => {
+          const v = (window as unknown as { __coffeeLabRush: { vrTest(): Record<string, (a?: unknown) => unknown> } }).__coffeeLabRush.vrTest();
+          return v[m as string]!(x);
+        },
+        [method, arg] as const,
+      ) as Promise<T>;
+    await vt('emulate', true);
+    expect(await vt<VtState>('state')).toMatchObject({ hud: true, orders: true, results: false });
+    await vt('release', 'grinder'); // grip released near the grinder → place
+    await expect(page.getByTestId('rush-hands')).toContainText('nothing');
+    await vt('trigger', 'grinder'); // trigger = use → grind
+    await expect(page.locator('.rush-bench__list')).toContainText('working');
+    await vt('trigger', 'shelf');
+    expect((await vt<VtState>('state')).choice).toEqual(['takeCup:demitasse', 'takeCup:small', 'takeCup:medium', 'takeCup:large']);
+    expect(await vt('choose', 'takeCup:small')).toBe(true);
+    await expect(page.getByTestId('rush-hands')).not.toContainText('nothing');
+    await vt('trigger', 'knock'); // nothing to do there → a note, no state change
+    expect((await vt<VtState>('state')).note).toContain('knock box');
+    await page.getByTestId('rush-canvas').screenshot({ path: test.info().outputPath('vr-emulated.png') });
+    await page.getByTestId('rush-end').click();
+    await expect(page.getByTestId('rush-player')).toHaveAttribute('data-status', 'over');
+    await expect(page.getByTestId('rush-results')).toHaveCount(0); // in "VR" the results are a panel
+    expect(await vt<VtState>('state')).toMatchObject({ results: true, orders: false });
+    await vt('replay');
+    await expect(page.getByTestId('rush-player')).toHaveAttribute('data-status', 'playing');
+    await vt('emulate', false);
     await expect(page.getByText(ERROR_BOUNDARY_TEXT)).toHaveCount(0);
     expect(realErrors(errors)).toEqual([]);
   });
