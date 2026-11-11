@@ -203,16 +203,125 @@
   content: ' ●';
   color: var(--color-accent);
 }
+/* Pause: an inline panel under the HUD, not a full-screen overlay, so the recipe wall stays readable (QA-R06). */
 .rush-paused {
-  position: fixed;
-  inset: 0;
-  display: grid;
-  place-content: center;
-  gap: var(--space-3);
-  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2) var(--space-4);
+  padding: var(--space-3);
+  border: 2px solid var(--color-accent);
+  border-radius: var(--radius-lg);
+  background: var(--color-accent-soft);
+}
+.rush-paused p {
+  margin: 0;
+}
+.rush-paused__h {
   font-size: var(--text-xl);
-  background: color-mix(in srgb, var(--color-surface) 88%, transparent);
-  z-index: 20;
+  font-weight: var(--weight-bold);
+}
+.rush .rush-hud__h {
+  margin: 0;
+  font-family: inherit;
+  font-size: var(--text-base);
+  line-height: var(--leading-tight);
+  font-weight: var(--weight-bold);
+}
+.rush-hud__h:focus {
+  outline: none;
+}
+.rush-hud__h:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.rush-howto {
+  margin: 0;
+  padding-inline-start: 1.3rem;
+  display: grid;
+  gap: var(--space-1);
+}
+.rush-tiers {
+  margin: var(--space-2) 0;
+  padding-inline-start: 1.1rem;
+  color: var(--color-text-muted);
+}
+.rush-tiers li[data-current] {
+  color: var(--color-text);
+  font-weight: var(--weight-medium);
+}
+.rush-ticket__facts {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+.rush-real {
+  display: block;
+}
+.rush-wall__h {
+  margin: var(--space-3) 0 var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-bold);
+}
+.rush-timing p {
+  margin: 0 0 var(--space-1);
+}
+/* Ticket strip: the clock copy is for phones only (the HUD clock is enough on wide screens). */
+.rush-live__clock {
+  display: none;
+  margin: 0;
+  font-weight: var(--weight-bold);
+  font-variant-numeric: tabular-nums;
+}
+/* Phone: tickets (patience bars, leave cue) + clock stay on screen while acting (QA-R02). */
+@media (max-width: 760px) {
+  .rush-live {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: grid;
+    gap: var(--space-1);
+    margin-inline: calc(-1 * var(--space-3));
+    padding: var(--space-2) var(--space-3);
+    background: var(--color-bg, var(--color-surface));
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-1);
+  }
+  .rush-live__clock {
+    display: block;
+    font-size: var(--text-sm);
+  }
+  .rush-live .xr-side__h {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .rush-live .rush-tickets ul {
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+  .rush-live .rush-ticket {
+    gap: 2px;
+    padding: var(--space-1) var(--space-2);
+    font-size: var(--text-sm);
+    min-width: 0;
+  }
+  .rush-live .rush-ticket .xr-small,
+  .rush-live .rush-ticket__facts {
+    font-size: var(--text-xs);
+  }
+  .rush-live .rush-tickets > p {
+    margin: 0;
+  }
+  /* Scrolling to an action (focus, suggested step) must not hide it under the strip. */
+  .rush .xr-action,
+  .rush summary {
+    scroll-margin-top: 11rem;
+  }
 }
 .rush-stage {
   position: relative;

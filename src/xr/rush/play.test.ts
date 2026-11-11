@@ -51,13 +51,16 @@ describe('Café Rush · action list', () => {
     expect(ids).not.toContain('takeCup:large');
   });
 
-  it('each list action costs a little game time in Standard mode only', () => {
+  it('each list action costs a little game time in Standard mode only, from L3 on', () => {
     const a = { type: 'takeCup', size: 'demitasse' } as const;
-    expect(listAct(quiet('standard'), a).tMs).toBe(INPUT_COST.listActionCostSec * 1000);
-    expect(listAct(quiet('relaxed'), a).tMs).toBe(0);
-    expect(reduce(quiet('standard'), a).tMs).toBe(0); // 3D / XR: real reach time instead
-    const rejected = listAct(quiet('standard'), { type: 'knock' });
+    expect(listAct(quiet('standard', 3), a).tMs).toBe(INPUT_COST.listActionCostSec * 1000);
+    expect(listAct(quiet('relaxed', 3), a).tMs).toBe(0);
+    expect(reduce(quiet('standard', 3), a).tMs).toBe(0); // 3D / XR: real reach time instead
+    const rejected = listAct(quiet('standard', 3), { type: 'knock' });
     expect(rejected.tMs).toBe(0);
+    // QA-R09: waived on the learning levels (reading the list already takes longer than a 3D reach)
+    expect(listAct(quiet('standard', 1), a).tMs).toBe(0);
+    expect(listAct(quiet('standard', 2), a).tMs).toBe(0);
   });
 
   it('the list key ignores pure time passing but changes with the world', () => {

@@ -16,6 +16,7 @@ import {
   groupOfSlot,
   held,
   itemIn,
+  listAct,
   reduce,
   slotLocked,
   slotOf,
@@ -24,6 +25,7 @@ import {
   type GroupNo,
   type Item,
   type PitcherItem,
+  type PlayerAction,
   type RushAction,
   type RushState,
   type SlotId,
@@ -488,6 +490,11 @@ export function decide(bot: Bot, s: RushState): RushAction | null {
   bot.pendingJob = null;
   const h = held(s);
   if (h) return handleHeld(bot, s, h);
+  // Ready milk overheats on the wand within seconds: a slower (human-paced) plan takes it off first.
+  if (bot.profile.wandFirst && s.m.wand && s.m.wand.remainingMs <= 0) {
+    const p = itemIn(s, 'wand');
+    if (p?.kind === 'pitcher' && p.milk && !p.milk.overheated && p.milk.state !== 'cold' && p.milk.state !== 'steaming') return grab('wand');
+  }
   const limit = bot.profile.planning === 'serial' ? Math.min(1, bot.jobs.length) : bot.jobs.length;
   for (let i = 0; i < limit; i++) {
     const a = jobAction(bot, s, bot.jobs[i]!);
@@ -496,15 +503,21 @@ export function decide(bot: Bot, s: RushState): RushAction | null {
   return spareAction(bot, s);
 }
 
+const META = new Set<RushAction['type']>(['pause', 'resume', 'endShift', 'reset', 'tick']);
+const isPlayerAction = (a: RushAction): a is PlayerAction => !META.has(a.type);
+
+/** How the bot's actions reach the sim: direct (3D / XR reach; latency = reach time) or the action list (+ list cost). */
+export type BotInput = 'direct' | 'list';
+
 /** One bot opportunity at the current instant (call once per fixed step, before tick). */
-export function botTurn(bot: Bot, s: RushState): RushState {
+export function botTurn(bot: Bot, s: RushState, input: BotInput = 'direct'): RushState {
   if (s.status !== 'playing' || s.tMs < bot.busyUntilMs) return s;
   const a = decide(bot, s);
   if (!a) {
     bot.idleMs += FIXED_STEP_MS;
     return s;
   }
-  const next = reduce(s, a);
+  const next = input === 'list' && isPlayerAction(a) ? listAct(s, a) : reduce(s, a);
   bot.actions += 1;
   if (!next.lastResult.ok) bot.rejected += 1;
   if (a.type === 'takeCup' && next.lastResult.ok && bot.pendingJob) bot.pendingJob.cupId = next.hand;
