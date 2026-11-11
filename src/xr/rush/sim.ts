@@ -13,7 +13,7 @@
 import type { Guidance, LocalizedText } from '../../domain/contracts';
 import type { CupSize, Extra, MilkMl, ShotStyle, WaterMl } from '../../features/cafe/model';
 import { CUSTOMERS } from '../../features/cafe/specs';
-import { FIXED_STEP_MS, INPUT_COST, LEVELS, PROCESS, RELAXED, SCORING, type RushLevelNo } from './config';
+import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, listCostSec, type RushLevelNo } from './config';
 import { basePoints, drinkName, hotWaterSec, steamSec, workEstimateSec, type Brewer } from './drinks';
 import { explain, judge, judgementSummary, type Addition, type Explanation, type RushDiff } from './judge';
 import { rngNext } from './rng';
@@ -879,11 +879,13 @@ export function reduce(s: RushState, a: RushAction): RushState {
 
 /**
  * Action-list input (keyboard / screen reader): the same action, plus a small handling cost in game
- * time so a list player cannot act faster than a hand could reach. Standard mode only.
+ * time so a list player cannot act faster than a hand could reach. Standard mode only, and only on the
+ * levels with `listCost` (L3+; waived on the learning levels, QA-R09).
  */
 export function listAct(s: RushState, a: PlayerAction): RushState {
   const n = reduce(s, a);
-  if (n.mode !== 'standard' || !n.lastResult.ok || n.status !== 'playing') return n;
-  const t = tick(n, INPUT_COST.listActionCostSec);
+  const cost = listCostSec(n.level);
+  if (n.mode !== 'standard' || !n.lastResult.ok || n.status !== 'playing' || cost <= 0) return n;
+  const t = tick(n, cost);
   return { ...t, effects: [...n.effects, ...t.effects] };
 }

@@ -14,6 +14,16 @@ describe('Café Rush tuning harness', () => {
       expect(runShift(4, bot, 77)).toEqual(runShift(4, bot, 77));
     }
     expect(runShift(2, 'average', 1)).not.toEqual(runShift(2, 'average', 2));
+    expect(runShift(2, 'human-list', 5, 'standard', 'list')).toEqual(runShift(2, 'human-list', 5, 'standard', 'list'));
+  });
+
+  it('list-mode bots pay the list cost where the level charges it (QA-R09)', () => {
+    // Same seed, same bot: from L3 the list run spends game time on every action, so it fits in fewer.
+    const direct = runShift(3, 'average', 9, 'standard', 'direct');
+    const list = runShift(3, 'average', 9, 'standard', 'list');
+    expect(list.actions).toBeLessThan(direct.actions);
+    // L1–L2 waive it: identical play.
+    expect(runShift(1, 'average', 9, 'standard', 'list')).toEqual({ ...runShift(1, 'average', 9, 'standard', 'direct'), input: 'list' });
   });
 
   it('runs every level × bot fast and meets the difficulty targets', async () => {
@@ -32,12 +42,14 @@ describe('Café Rush tuning harness', () => {
       // Bots use the public API; a rejected action means a bot bug or an unclear rule.
       expect(r.rejectedPerShift, `L${r.level} ${r.bot} rejected`).toBeLessThan(1);
     }
-    // Monotone: within a level the better bot never does worse.
-    for (const l of [1, 2, 3, 4, 5]) {
-      const [n, a, e] = (['novice', 'average', 'expert'] as const).map((b) => rows.find((r) => r.level === l && r.bot === b)!);
-      expect(a!.avgScore).toBeGreaterThanOrEqual(n!.avgScore);
-      expect(e!.avgScore).toBeGreaterThanOrEqual(a!.avgScore);
+    // Monotone: within a level and input the better bot never does worse.
+    for (const input of ['direct', 'list'] as const) {
+      for (const l of [1, 2, 3, 4, 5]) {
+        const [n, a, e] = (['novice', 'average', 'expert'] as const).map((b) => rows.find((r) => r.level === l && r.bot === b && r.input === input)!);
+        expect(a!.avgScore).toBeGreaterThanOrEqual(n!.avgScore);
+        expect(e!.avgScore).toBeGreaterThanOrEqual(a!.avgScore);
+      }
     }
-    for (const t of checkTargets(rows)) expect(t.met, `${t.label} = ${Math.round(t.value * 100)}% (goal ${t.target})`).toBe(true);
+    for (const t of checkTargets(rows)) expect(t.met, `${t.label} = ${t.count ? t.value : `${Math.round(t.value * 100)}%`} (goal ${t.target})`).toBe(true);
   }, 120_000);
 });

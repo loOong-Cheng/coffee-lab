@@ -212,6 +212,12 @@ function summarize(samples: Sample[], ann: Array<{ t: number; kind: string | nul
 }
 
 type Ann = { t: number; kind: string | null; text: string };
+
+/** Open the recipe wall if it is closed (it is open by default on desktop since the QA-R07 fix). */
+async function openWall(page: Page) {
+  const wall = page.getByTestId('rush-wall');
+  if (!(await wall.evaluate((d) => (d as HTMLDetailsElement).open))) await wall.locator('summary').click();
+}
 async function harvest(page: Page): Promise<{ samples: unknown[]; ann: Ann[] }> {
   return page.evaluate(() => {
     const q = (window as unknown as { __qa: { samples: unknown[]; ann: Array<{ t: number; kind: string | null; text: string }> } }).__qa;
@@ -302,7 +308,7 @@ test('recipe wall numbers equal src/content/drinks.ts at every level; flags the 
   await page.getByTestId('rush-level-5').click();
   await page.getByTestId('rush-play-list').click();
   const wall = page.getByTestId('rush-wall');
-  await wall.locator('summary').click();
+  await openWall(page);
   await page.getByTestId('rush-pause').click();
   await expect(wall).toContainText('Numbers come from the Drink Atlas');
   const items = await wall.locator('li').allInnerTexts();
@@ -342,7 +348,7 @@ test('no real-skill, taste or sensing claims across lobby, HUD, wall and results
   await page.goto('/#/xr?game=rush');
   const texts: string[] = [await page.getByTestId('rush-lobby').innerText()];
   await page.getByTestId('rush-play-list').click();
-  await page.getByTestId('rush-wall').locator('summary').click();
+  await openWall(page);
   for (let i = 0; i < 400 && !(await page.getByTestId('rush-results').isVisible()); i++) {
     const rec = page.locator('.xr-action[data-recommended]').first();
     if (await rec.count()) await rec.click({ timeout: 1000 }).catch(() => {});
@@ -474,7 +480,7 @@ for (const locale of ['en', 'zh'] as const) {
         await rec.click({ timeout: 10_000 });
         await page.waitForTimeout(400);
       }
-      await page.getByTestId('rush-wall').locator('summary').click();
+      await openWall(page);
       const a1 = await new AxeBuilder({ page }).withTags(TAGS).analyze();
       await page.getByTestId('rush-pause').click();
       const a2 = await new AxeBuilder({ page }).withTags(TAGS).analyze();
@@ -560,7 +566,7 @@ test('WebXR gate: navigator.xr present but isSessionSupported throws → no VR o
   expect(realErrors(errors).filter((e) => !/SecurityError|NotSupported/.test(e))).toEqual([]);
 });
 
-// ─────────────────────────── open bugs (expected-fail markers; remove test.fail when fixed) ───────────────────────────
+// ─────────────────────────── gate #2 bugs (QA-R01–R07 fixed → normal assertions; QA-R08 still an expected-fail marker) ───────────────────────────
 async function fast(page: Page, speed: number) {
   await page.addInitScript((s) => ((window as unknown as { __coffeeLabRushSpeed: number }).__coffeeLabRushSpeed = s), speed);
 }
@@ -594,24 +600,28 @@ test('control: in Relaxed mode a serve IS announced (isolates QA-R01 to the Stan
   expect(ann.filter((a) => !/: one /.test(a.text)).length).toBeGreaterThan(0);
 });
 
-test('QA-R01 [open, P1] Standard action-list mode: a serve result is announced to screen readers', async ({ page, isMobile }) => {
-  test.skip(isMobile, 'once');
-  test.fail(true, 'QA-R01: listAct() ticks INPUT_COST after the serve, so the announce guard `f.atMs === s.tMs` in RushGame never matches');
-  test.setTimeout(90_000);
-  await fast(page, 8);
-  await seedRush(page);
-  await installProbe(page);
-  await page.goto('/#/xr?game=rush');
-  await page.getByTestId('rush-play-list').click();
-  await playUntilServed(page);
-  await page.waitForTimeout(300);
-  const { ann } = await harvest(page);
-  expect(ann.filter((a) => !/: one /.test(a.text)).map((a) => a.text)).not.toEqual([]);
-});
+for (const level of [1, 3] as const) {
+  test(`QA-R01 [fixed, P1] Standard action-list mode L${level}: a serve result and new orders are announced to screen readers`, async ({ page, isMobile }) => {
+    test.skip(isMobile, 'once');
+    test.setTimeout(90_000);
+    await fast(page, 8);
+    // L3 still charges the list cost after each action (the case the old atMs guard missed)
+    await seedRush(page, { stars: level === 3 ? { 1: 1, 2: 1 } : {} });
+    await installProbe(page);
+    await page.goto('/#/xr?game=rush');
+    await page.getByTestId(`rush-level-${level}`).click();
+    await page.getByTestId('rush-play-list').click();
+    await playUntilServed(page);
+    await page.waitForTimeout(300);
+    const { ann } = await harvest(page);
+    expect(ann.filter((a) => !/: one /.test(a.text)).map((a) => a.text)).not.toEqual([]);
+    expect(ann.filter((a) => /: one /.test(a.text)).length, 'new orders announced').toBeGreaterThan(0);
+    expect(new Set(ann.map((a) => a.kind)), 'one polite region').toEqual(new Set(['polite']));
+  });
+}
 
-test('QA-R02 [open, P1] phone: the order ticket (patience bar / leave cue) is on screen while you act on the suggested step', async ({ page, isMobile }) => {
+test('QA-R02 [fixed, P1] phone: the order ticket (patience bar / leave cue) is on screen while you act on the suggested step', async ({ page, isMobile }) => {
   test.skip(!isMobile, 'phone only');
-  test.fail(true, 'QA-R02: on Pixel 7 the tickets sit ~500 px above the action list; acting scrolls them away');
   test.setTimeout(90_000);
   await seedRush(page);
   await page.goto('/#/xr?game=rush');
@@ -635,35 +645,39 @@ test('QA-R02 [open, P1] phone: the order ticket (patience bar / leave cue) is on
   expect(both).toEqual(both.map(() => true));
 });
 
-test('QA-R03 [open, P1] recipe wall: yuenyeung / phin do not show a "milk ≈ N ml" line when the build takes no milk', async ({ page, isMobile }) => {
+test('QA-R03 [fixed, P1] recipe wall: yuenyeung / phin name the real milk component (no bare "milk ≈ N ml") when the build takes no pitcher milk', async ({ page, isMobile }) => {
   test.skip(isMobile, 'once');
-  test.fail(true, 'QA-R03: wall prints drinks.ts milkMl (evaporated / condensed milk) as "milk ≈50 ml" / "≈25 ml" with no pitcher mark; the Rush build is milk: none + an extra');
   await seedRush(page, { stars: { 1: 1, 2: 1, 3: 1, 4: 1 } });
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-level-5').click();
   await page.getByTestId('rush-play-list').click();
-  await page.getByTestId('rush-wall').locator('summary').click();
-  const items = await page.getByTestId('rush-wall').locator('li').allInnerTexts();
-  const suspect = items.filter((l) => /^(Yuenyeung|Vietnamese)/.test(l) && /milk ≈\d+ ml(?! → pitcher)/.test(l));
+  const wall = page.getByTestId('rush-wall');
+  await openWall(page);
+  const items = (await wall.locator('li').allInnerTexts()).map((l) => l.replace(/\s+/g, ' '));
+  const names = ['yuenyeung', 'vietnamese-phin'].map((id) => drinks.find((d) => d.id === id)!.name.en);
+  const lines = items.filter((l) => names.some((n) => l.startsWith(n)));
+  expect(lines).toHaveLength(2);
+  const suspect = lines.filter((l) => /· milk ≈\d+ ml(?! → pitcher)/.test(l));
   expect(suspect).toEqual([]);
+  for (const l of lines) expect(l).toMatch(/(condensed|evaporated) milk ≈\d+ ml/);
 });
 
-test('QA-R04 [open, P1] real-time references beyond the espresso shot are shown (phin 4–5 min, pour-over 2:30–4:00)', async ({ page, isMobile }) => {
+test('QA-R04 [fixed, P1] real-time references beyond the espresso shot are shown (phin 4–5 min, pour-over 2:30–4:00)', async ({ page, isMobile }) => {
   test.skip(isMobile, 'once');
-  test.fail(true, 'QA-R04: PROCESS.*.real and drinks.ts timeNote are never rendered; the only reference in 2D is the HUD "real shot ≈ 25–35 s"');
   await seedRush(page, { stars: { 1: 1, 2: 1, 3: 1 } });
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-level-4').click();
   await page.getByTestId('rush-play-list').click();
-  await page.getByTestId('rush-wall').locator('summary').click();
+  await openWall(page);
   const text = await page.getByTestId('rush-player').innerText();
   expect(text).toMatch(/4–5 min/);
   expect(text).toMatch(/2:30–4:00/);
+  expect(text).toMatch(/real bloom 30–45 s/);
+  expect(text).toMatch(/depends on wand power/);
 });
 
-test('QA-R05 [open, P2] desktop: starting a shift shows the HUD timer and moves focus into the game', async ({ page, isMobile }) => {
+test('QA-R05 [fixed, P2] desktop: starting a shift shows the HUD timer and moves focus into the game', async ({ page, isMobile }) => {
   test.skip(isMobile, 'desktop');
-  test.fail(true, 'QA-R05: the lobby scroll offset is kept (Play buttons are below the 800 px fold) and focus drops to <body>');
   await seedRush(page);
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-play-list').scrollIntoViewIfNeeded();
@@ -676,9 +690,8 @@ test('QA-R05 [open, P2] desktop: starting a shift shows the HUD timer and moves 
   expect(st).toEqual({ timerInView: true, focusOnBody: false });
 });
 
-test('QA-R06 [open, P2] pause: the dialog takes focus and the recipe wall can still be read while paused', async ({ page, isMobile }) => {
+test('QA-R06 [fixed, P2] pause: the dialog takes focus and the recipe wall can still be read while paused', async ({ page, isMobile }) => {
   test.skip(isMobile, 'desktop');
-  test.fail(true, 'QA-R06: role=dialog without a focus move; the overlay covers the wall, so a paused learner cannot study the recipes');
   await seedRush(page);
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-play-list').click();
@@ -689,19 +702,33 @@ test('QA-R06 [open, P2] pause: the dialog takes focus and the recipe wall can st
     .getByRole('button', { name: 'Resume' })
     .evaluate((b) => b === document.activeElement);
   expect(resumeFocused).toBe(true);
-  await page.getByTestId('rush-wall').locator('summary').click({ timeout: 3000 });
-  await expect(page.getByTestId('rush-wall')).toHaveAttribute('open', '');
+  // the wall is open by default on desktop (QA-R07): it must still toggle (not be covered) and be readable while paused
+  const wall = page.getByTestId('rush-wall');
+  const wasOpen = await wall.evaluate((d) => (d as HTMLDetailsElement).open);
+  await wall.locator('summary').click({ timeout: 3000 });
+  expect(await wall.evaluate((d) => (d as HTMLDetailsElement).open)).toBe(!wasOpen);
+  if (wasOpen) await wall.locator('summary').click({ timeout: 3000 });
+  await expect(wall).toHaveAttribute('open', '');
+  const li = wall.locator('li').first();
+  await li.scrollIntoViewIfNeeded();
+  const uncovered = await li.evaluate((el) => {
+    const r = el.getBoundingClientRect();
+    const hit = document.elementFromPoint(r.left + Math.min(20, r.width / 2), r.top + r.height / 2);
+    return !!hit && el.contains(hit);
+  });
+  expect(uncovered, 'wall line is not covered by the pause UI').toBe(true);
 });
 
-test('QA-R07 [open, P1] guided tier: the ratio for the current order is visible without opening the collapsed wall', async ({ page, isMobile }) => {
+test('QA-R07 [fixed, P1] guided tier: the ratio for the current order is visible without opening the collapsed wall', async ({ page, isMobile }) => {
   test.skip(isMobile, 'once');
-  test.fail(true, 'QA-R07: RUSH_DESIGN §9 says guided shows the wall entry on the ticket; tickets show only drink + customer and the wall is a closed <details>');
   await seedRush(page);
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-play-list').click();
   await expect(page.getByTestId('rush-ticket').first()).toBeVisible({ timeout: 10_000 });
   const visible = await page.getByTestId('rush-player').innerText(); // closed <details> content is not rendered
   expect(visible).toMatch(/1:\d/);
+  // on the ticket itself, not only on the (desktop-open) wall
+  await expect(page.getByTestId('rush-ticket').first()).toContainText(/1:\d/);
 });
 
 test('QA-R08 [open, P2] zh: Rush tickets and wall use one language (no Latin glosses in drink names)', async ({ page, isMobile }) => {
@@ -711,7 +738,7 @@ test('QA-R08 [open, P2] zh: Rush tickets and wall use one language (no Latin glo
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-play-list').click();
   await expect(page.getByTestId('rush-ticket').first()).toBeVisible({ timeout: 10_000 });
-  await page.getByTestId('rush-wall').locator('summary').click();
+  await openWall(page);
   const names = await page.locator('[data-testid="rush-ticket"] strong').allInnerTexts();
   const wall = await page.getByTestId('rush-wall').locator('li strong').allInnerTexts();
   expect([...names, ...wall].filter((n) => /[A-Za-z]/.test(n))).toEqual([]);

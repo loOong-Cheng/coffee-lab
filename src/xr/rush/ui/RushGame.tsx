@@ -3,7 +3,7 @@
  * same reducer actions; the action list adds a small game-time handling cost (Standard mode).
  * Best stars come from the learner's `simulated` events (activityId 'rush:<level>').
  */
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useRef, useState, type Ref } from 'react';
 import { Link } from 'react-router';
 import type { Guidance } from '../../../domain/contracts';
 import { audio, type SfxName } from '../../../audio';
@@ -14,10 +14,24 @@ import { Callout } from '../../../ui/primitives/Callout';
 import { GuidanceSelector } from '../../../ui/primitives/Guidance';
 import { announce } from '../../../ui/primitives/announcer';
 import { shallowEqual } from '../../ui/useMission';
-import { LEVELS, RELAXED, RUSH_LEVELS, type RushLevelNo } from '../config';
-import { drinkName, recipeWall } from '../drinks';
+import { LEVELS, RELAXED, RUSH_LEVELS, listCostSec, type RushLevelNo } from '../config';
+import { drinkName, processTimings, recipeWall, wallEntry, wallFacts } from '../drinks';
 import { explain } from '../judge';
-import { coachSuggest, createCoach, createRushStore, listActions, listKey, processProgress, whileBrewsHint, type RushStore } from '../play';
+import {
+  announceCursor,
+  coachSuggest,
+  createAnnounceQueue,
+  createCoach,
+  createRushStore,
+  isLeaving,
+  listActions,
+  listKey,
+  processProgress,
+  processReal,
+  rushAnnouncements,
+  whileBrewsHint,
+  type RushStore,
+} from '../play';
 import { bestStarsFromEvents, rushCompletionEvent, rushResult, unlockedLevels, type RushResult } from '../record';
 import { createShift, itemIn, listAct, reduce, slotLocked, tick, type PlayerAction, type RushState, type SlotId } from '../sim';
 import { R, SLOT_TEXT, customerName, fmtR, itemText } from '../strings';
@@ -171,12 +185,28 @@ function RushLobby({ setup, onChange, onStart, can3d }: { setup: RushSetup; onCh
       </ul>
       <div className="xr-card">
         <h2>{t(R.options)}</h2>
+        <ol className="rush-howto">
+          {R.howTo.map((s) => (
+            <li key={s.en}>{t(s)}</li>
+          ))}
+        </ol>
+      </div>
+      <div className="xr-card">
+        <h2>{t(R.settings)}</h2>
         <label className="rush-check">
           <input type="checkbox" checked={setup.relaxed} onChange={(e) => onChange({ ...setup, relaxed: e.target.checked })} data-testid="rush-relaxed" />
           <span>{t(R.relaxed)}</span>
         </label>
         <p className="xr-small xr-muted">{t(fmtR(R.relaxedNote, { n: RELAXED.orders }))}</p>
-        <GuidanceSelector value={setup.guidance} onChange={(g) => onChange({ ...setup, guidance: g })} locale={locale} variant="full" label={t(R.options)} />
+        {/* Compact pills + Rush's own tier notes: the shared "full" copy describes lesson features Rush does not have (QA-R10). */}
+        <GuidanceSelector value={setup.guidance} onChange={(g) => onChange({ ...setup, guidance: g })} locale={locale} variant="compact" label={t(R.tierHeading)} />
+        <ul className="rush-tiers xr-small">
+          {(['guided', 'assisted', 'independent'] as const).map((g) => (
+            <li key={g} data-current={g === setup.guidance || undefined}>
+              {t(R.tierNotes[g])}
+            </li>
+          ))}
+        </ul>
         <div className="xr-row">
           {can3d ? (
             <Button icon="cube" onClick={() => onStart({ ...setup, level, mode: '3d' })} data-testid="rush-play-3d">
@@ -227,20 +257,58 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
     return () => clearInterval(id);
   }, [store, speed]);
 
-  // sounds + announcements
+  // sounds
   useEffect(
     () =>
-      store.onEffects((effects, s) => {
+      store.onEffects((effects) => {
         for (const e of effects) {
           const n = SFX[e];
           if (n) audio.play(n);
         }
-        const f = s.feedback.at(-1);
-        if (f && f.atMs === s.tMs && (effects.some((e) => e.startsWith('serve') || e === 'order-timeout' || e === 'shift-over') || f.kind === 'mistake'))
-          announce(t(f.text), f.kind === 'mistake' || f.kind === 'warn' ? 'assertive' : 'polite');
       }),
-    [store, t],
+    [store],
   );
+
+  // screen reader (QA-R01): one polite live region; every serve result, arrivals, walk-outs and the leave cue
+  useEffect(() => {
+    const q = createAnnounceQueue((text) => announce(text, 'polite'));
+    let cur = announceCursor(store.get());
+    const leavingCue = setup.guidance !== 'independent';
+    const unsub = store.subscribe(() => {
+      const r = rushAnnouncements(store.get(), cur, leavingCue);
+      cur = r.cursor;
+      if (r.items.length) q.push(r.items.map((i) => ({ text: t(i.text), urgent: i.urgent })));
+    });
+    return () => {
+      unsub();
+      q.dispose();
+    };
+  }, [store, t, setup.guidance]);
+
+  // shift start (QA-R05): show the HUD from the top and move focus into the game
+  const hudHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    try {
+      window.scrollTo({ top: 0, behavior: 'instant' as ScrollBehavior }); // base.css sets smooth scrolling
+    } catch {
+      /* non-browser */
+    }
+    hudHeading.current?.focus({ preventScroll: true });
+  }, []);
+
+  // pause dialog (QA-R06): focus Resume; give focus back to the HUD Pause button on resume
+  const resumeRef = useRef<HTMLButtonElement>(null);
+  const wasPaused = useRef(false);
+  useEffect(() => {
+    if (status === 'paused') {
+      wasPaused.current = true;
+      resumeRef.current?.focus();
+    } else if (wasPaused.current && status === 'playing') {
+      wasPaused.current = false;
+      const a = document.activeElement;
+      if (!a || a === document.body || !a.isConnected) document.querySelector<HTMLElement>('[data-testid="rush-pause"]')?.focus();
+    }
+  }, [status]);
 
   // keyboard: P = pause
   useEffect(() => {
@@ -276,7 +344,23 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
 
   return (
     <section className="rush" data-testid="rush-player" data-mode={mode} data-vr={canVR || undefined} data-status={status} aria-label={t(R.title)}>
-      <Hud store={store} onExit={onExit} />
+      <Hud store={store} onExit={onExit} headingRef={hudHeading} />
+      {status === 'paused' ? (
+        <div className="rush-paused" role="dialog" aria-labelledby="rush-paused-h">
+          <p id="rush-paused-h" className="rush-paused__h">
+            {t(R.paused)}
+          </p>
+          <p className="xr-small">{t(R.pausedNote)}</p>
+          <Button ref={resumeRef} size="lg" icon="play" onClick={() => store.set(reduce(store.get(), { type: 'resume' }))}>
+            {t(R.resume)}
+          </Button>
+        </div>
+      ) : null}
+      {/* Tickets + clock: one strip that stays on screen while you act (sticky on phones, QA-R02). */}
+      <div className="rush-live" data-testid="rush-live">
+        <LiveClock store={store} />
+        <Tickets store={store} guidance={setup.guidance} />
+      </div>
       <div className="rush-main">
         <div className="rush-col">
           {mode === '3d' ? (
@@ -304,28 +388,44 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
               />
             </Suspense>
           ) : null}
-          <Tickets store={store} guidance={setup.guidance} />
           <Bench store={store} />
           <Feedback store={store} />
         </div>
         <aside className="rush-col">
           <ActionList store={store} coach={setup.guidance === 'guided' ? coach : null} onAct={(a) => act(a, true)} />
-          <Wall level={setup.level} />
+          <Wall level={setup.level} defaultOpen={!mobile && wideScreen()} />
         </aside>
       </div>
-      {status === 'paused' ? (
-        <div className="rush-paused" role="dialog" aria-label={t(R.paused)}>
-          <p>{t(R.paused)}</p>
-          <Button size="lg" icon="play" onClick={() => store.set(reduce(store.get(), { type: 'resume' }))}>
-            {t(R.resume)}
-          </Button>
-        </div>
-      ) : null}
     </section>
   );
 }
 
-function Hud({ store, onExit }: { store: RushStore; onExit(): void }) {
+function wideScreen(): boolean {
+  try {
+    return !!window.matchMedia?.('(min-width: 761px)').matches;
+  } catch {
+    return false;
+  }
+}
+
+const clockText = (left: number) => `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;
+
+/** Phone copy of the HUD clock inside the sticky ticket strip (the HUD keeps the accessible one). */
+function LiveClock({ store }: { store: RushStore }) {
+  const { t } = useI18n();
+  const v = useRush(store, (s) => ({
+    relaxed: s.mode === 'relaxed',
+    left: Math.max(0, Math.ceil((s.shiftMs - s.tMs) / 1000)),
+    served: s.stats.correct + s.stats.partly,
+  }));
+  return (
+    <p className="rush-live__clock" aria-hidden="true">
+      {v.relaxed ? t(fmtR(R.served, { n: v.served, m: RELAXED.orders })) : `${t(R.clock)} ${clockText(v.left)}`}
+    </p>
+  );
+}
+
+function Hud({ store, onExit, headingRef }: { store: RushStore; onExit(): void; headingRef?: Ref<HTMLHeadingElement> }) {
   const { t } = useI18n();
   const h = useRush(store, (s) => ({
     points: s.stats.points,
@@ -340,9 +440,9 @@ function Hud({ store, onExit }: { store: RushStore; onExit(): void }) {
   return (
     <header className="rush-hud" data-testid="rush-hud">
       <div className="rush-hud__title">
-        <strong>
+        <h1 className="rush-hud__h" ref={headingRef} tabIndex={-1}>
           {t(R.title)} · {t(fmtR(R.level, { n: h.level }))}
-        </strong>
+        </h1>
         <span className="rush-badge">{t(R.simulated)}</span>
         <span className="rush-badge rush-badge--muted">{t(R.gameTimeShot)}</span>
       </div>
@@ -361,7 +461,7 @@ function Hud({ store, onExit }: { store: RushStore; onExit(): void }) {
         </div>
         <div>
           <dt>{h.relaxed ? t(R.waitsForever) : t(R.timeLeft)}</dt>
-          <dd data-testid="rush-time">{h.relaxed ? t(fmtR(R.served, { n: h.served, m: RELAXED.orders })) : `${Math.floor(h.left / 60)}:${String(h.left % 60).padStart(2, '0')}`}</dd>
+          <dd data-testid="rush-time">{h.relaxed ? t(fmtR(R.served, { n: h.served, m: RELAXED.orders })) : clockText(h.left)}</dd>
         </div>
       </dl>
       <div className="xr-row rush-hud__buttons">
@@ -389,9 +489,19 @@ function Tickets({ store, guidance }: { store: RushStore; guidance: Guidance }) 
   const { t } = useI18n();
   const orders = useRush(
     store,
-    (s) => s.orders.map((o) => ({ id: o.id, drinkId: o.drinkId, customerId: o.customerId, left: o.remainingMs === null ? null : Math.round((o.remainingMs / (o.patienceMs ?? 1)) * 20) / 20, sec: o.remainingMs === null ? null : Math.ceil(o.remainingMs / 1000) })),
+    (s) =>
+      s.orders.map((o) => ({
+        id: o.id,
+        drinkId: o.drinkId,
+        customerId: o.customerId,
+        left: o.remainingMs === null ? null : Math.round((o.remainingMs / (o.patienceMs ?? 1)) * 20) / 20,
+        sec: o.remainingMs === null ? null : Math.ceil(o.remainingMs / 1000),
+        leaving: isLeaving(o),
+      })),
     (a, b) => JSON.stringify(a) === JSON.stringify(b),
   );
+  // Guided + assisted: the wall's key numbers for this drink on its ticket (QA-R07). Independent: use the wall.
+  const showFacts = guidance !== 'independent';
   return (
     <section className="rush-tickets" aria-labelledby="rush-orders-h" data-testid="rush-tickets">
       <h2 id="rush-orders-h" className="xr-side__h">
@@ -400,11 +510,18 @@ function Tickets({ store, guidance }: { store: RushStore; guidance: Guidance }) 
       {orders.length === 0 ? <p className="xr-small xr-muted">{t(R.noOrders)}</p> : null}
       <ul>
         {orders.map((o) => {
-          const leaving = o.left !== null && o.left <= 0.3;
+          const leaving = o.leaving;
+          const w = showFacts ? wallEntry(o.drinkId) : undefined;
+          const facts = w ? wallFacts(w) : [];
           return (
             <li key={o.id} className="rush-ticket" data-leaving={leaving || undefined} data-testid="rush-ticket">
               <strong>{t(drinkName(o.drinkId))}</strong>
               <span className="xr-small">{t(customerName(o.customerId))}</span>
+              {facts.length ? (
+                <span className="rush-ticket__facts" data-testid="rush-ticket-facts">
+                  {facts.map((f) => t(f)).join(' · ')}
+                </span>
+              ) : null}
               {o.left === null ? (
                 <span className="xr-small xr-muted">{t(R.waitsForever)}</span>
               ) : (
@@ -432,7 +549,7 @@ function Bench({ store }: { store: RushStore }) {
       rows: BENCH.map((slot) => {
         const it = itemIn(s, slot);
         const p = processProgress(s, slot);
-        return { slot, item: it ? itemText(it) : null, busy: slotLocked(s, slot), p: p === null ? null : Math.round(p * 10) / 10 };
+        return { slot, item: it ? itemText(it) : null, busy: slotLocked(s, slot), p: p === null ? null : Math.round(p * 10) / 10, real: processReal(s, slot) };
       }).filter((r) => r.item || r.busy),
       counter: Object.entries(s.slots)
         .filter(([k, id]) => k.startsWith('counter') && id)
@@ -453,6 +570,7 @@ function Bench({ store }: { store: RushStore }) {
           <li key={r.slot}>
             <span>{t(SLOT_TEXT[r.slot])}</span>: {r.item ? t(r.item) : ''} {r.busy ? <em className="xr-muted">({t(R.working)})</em> : null}
             {r.p !== null ? <progress className="rush-proc" max={1} value={r.p} aria-label={t(SLOT_TEXT[r.slot])} /> : null}
+            {r.real ? <span className="xr-small xr-muted rush-real">{t(R.gameTimeShort)} · {t(r.real)}</span> : null}
           </li>
         ))}
         {v.counter.map((c, i) => (
@@ -496,6 +614,7 @@ function Feedback({ store }: { store: RushStore }) {
 
 function ActionList({ store, coach, onAct }: { store: RushStore; coach: ReturnType<typeof createCoach> | null; onAct(a: PlayerAction): void }) {
   const { t } = useI18n();
+  const cost = useRush(store, (s) => (s.mode === 'standard' ? listCostSec(s.level) : 0), Object.is);
   const key = useRush(store, listKey, Object.is);
   const { list, hint } = useMemo(() => {
     const s = store.get();
@@ -521,7 +640,7 @@ function ActionList({ store, coach, onAct }: { store: RushStore; coach: ReturnTy
           {t(hint)}
         </p>
       ) : null}
-      <p className="xr-muted xr-small">{t(R.actionsNote)}</p>
+      <p className="xr-muted xr-small">{cost > 0 ? t(fmtR(R.actionsNote, { n: cost })) : t(R.actionsNoteFree)}</p>
       <ul className="xr-actions__list" ref={ref}>
         {list.map((a) => (
           <li key={a.id}>
@@ -545,24 +664,40 @@ function ActionList({ store, coach, onAct }: { store: RushStore; coach: ReturnTy
   );
 }
 
-export function Wall({ level }: { level: RushLevelNo }) {
+export function Wall({ level, defaultOpen = false }: { level: RushLevelNo; defaultOpen?: boolean }) {
   const { t } = useI18n();
   const wall = useMemo(() => recipeWall(level), [level]);
+  const timings = useMemo(() => processTimings(level), [level]);
+  // Open by default on desktop (QA-R07); the user's own toggles are kept (the prop never changes).
+  const [open] = useState(defaultOpen);
   return (
-    <details className="rush-wall" data-testid="rush-wall">
+    <details className="rush-wall" data-testid="rush-wall" open={open}>
       <summary>{t(R.wall)}</summary>
       <p className="xr-small xr-muted">{t(R.wallNote)}</p>
       <ul>
         {wall.map((w) => (
           <li key={w.drinkId} data-new={w.isNew || undefined}>
             <strong>{t(w.name)}</strong>
-            {w.ratio ? ` · ${w.doseG} g → ${w.outG} g (${w.ratio})` : ''}
-            {w.milkMl ? ` · ${t({ zh: '奶', en: 'milk' })} ≈${w.milkMl} ml${w.pitcherMark ? ` → ${t({ zh: '奶缸刻度', en: 'pitcher mark' })} ${w.pitcherMark}` : ''}` : ''}
+            {wallFacts(w).map((f) => ` · ${t(f)}`)}
             <br />
             <span className="xr-small">{t(w.keyPoint)}</span>
+            {w.timeNote ? (
+              <>
+                <br />
+                <span className="xr-small xr-muted">{t(w.timeNote)}</span>
+              </>
+            ) : null}
           </li>
         ))}
       </ul>
+      <h3 className="rush-wall__h">{t(R.timingHeading)}</h3>
+      <div className="rush-timing" data-testid="rush-timing">
+        {timings.map((r) => (
+          <p key={r.what.en} className="xr-small">
+            {t(fmtR(R.timingRow, { w: t(r.what), g: r.gameSec, r: t(r.real) }))}
+          </p>
+        ))}
+      </div>
     </details>
   );
 }
@@ -590,7 +725,8 @@ function Results({ store, result: r, setup, onAgain, onNext, onExit }: { store: 
       </p>
       <p>{r.mode === 'relaxed' ? t(R.starRuleRelaxed) : t(R.starRule)}</p>
       <p>
-        {t(fmtR(R.points, { p: r.points, m: r.potential }))} · {t(fmtR(R.counts, { c: r.correct, p: r.partly, w: r.wrongServes, t: r.timeouts }))}
+        {t(fmtR(R.points, { p: r.points, m: r.potential, pct: r.potential ? Math.round((r.points / r.potential) * 100) : 0 }))} ·{' '}
+        {t(fmtR(R.counts, { c: r.correct, p: r.partly, w: r.wrongServes, t: r.timeouts }))}
       </p>
       {canNext && r.stars >= 1 ? <p role="status">{t(fmtR(R.unlockedNext, { n: next }))}</p> : null}
       <p className="xr-small xr-muted">
@@ -616,6 +752,11 @@ function Results({ store, result: r, setup, onAgain, onNext, onExit }: { store: 
             <li key={rec.orderId} data-outcome={rec.outcome}>
               <strong>{t(drinkName(rec.drinkId))}</strong> — {t(R.outcome[rec.outcome])}
               {rec.points ? ` · +${rec.points}` : ''}
+              {rec.outcome === 'timeout' ? (
+                <ul>
+                  <li data-testid="rush-left-why">{t(fmtR(R.leftWhy, { s: Math.round((rec.closedMs - rec.arrivedMs) / 1000) }))}</li>
+                </ul>
+              ) : null}
               {rec.diffs.length ? (
                 <ul>
                   {rec.diffs.map((d, i) => {

@@ -94,7 +94,7 @@ All clocks are **compressed game time**. Every process label carries its real re
 | | L1 | L2 | L3 | L4 | L5 |
 |---|---|---|---|---|---|
 | Shift / arrival gap (s) | 150 / 12 | 180 / 12 | 180 / 11 | 210 / 11 | 240 / 11 |
-| Patience × / slack (s) | 2.4 / 12 | 2.2 / 12 | 1.9 / 10 | 1.9 / 10 | 1.8 / 10 |
+| Patience × / slack (s) | 2.4 / 12 | 2.4 / 12 (was 2.2; QA gate #2) | 1.9 / 10 | 1.9 / 10 | 1.8 / 10 |
 | End-of-shift ramp (arrival / patience) | .80 / .90 | .80 / .88 | .78 / .86 | .78 / .85 | .75 / .82 |
 | Max open orders | 2 | 2 | 3 | 3 | 3 |
 
@@ -121,7 +121,10 @@ Feedback states **what differs and why**:
   - customers wait indefinitely (2 at a time);
   - the shift ends after 8 serves;
   - stars come from the share of textbook serves (50 / 75 / 95%).
-- **Guidance tiers** (M2): guided shows the wall entry and next-step ghost cues on the ticket; assisted shows the wall only; independent shows neither. The tier is recorded in the event.
+- **Guidance tiers** (M2; QA gate #2 fix): guided highlights the suggested next step and shows "while it brews…" hints; guided and assisted show the wall's key numbers (ratio, milk or its carrier, water mark) on each ticket and the "About to leave!" cue; independent shows neither, so the player reads the wall. Feedback after each serve is the same in every tier. The lobby states these per-tier rules in Rush's own words. The tier is recorded in the event.
+- **Wall and real time** (QA gate #2): the wall is open by default on desktop and names the real milk component (evaporated milk in the HK milk tea, condensed milk) where the build takes no pitcher milk. It ends with a "Game time vs real time" legend for every compressed process at that level (`processTimings`, from `PROCESS.*.real`), shows the Atlas `timeNote` per drink, and a running process on the bench shows its real reference.
+- **Screen reader** (QA gate #2): one polite live region. Every serve result, walk-out and process mistake is said at once; new orders and the leave cue (once per order, not in independent) are de-duplicated and spaced ≥ 1.5 s apart (`rushAnnouncements`, `createAnnounceQueue`).
+- **Phone layout** (QA gate #2): the tickets and a clock copy form a sticky strip at the top, so patience bars and the leave cue stay visible while acting.
 - The same actions are available from a keyboard/screen-reader action list (M2). Pause works at any time; reset starts a fresh attempt.
 - The game never relies on colour alone, keeps a seated counter height, mutes all sound, and honours reduced motion (M2 scene rules from the XR Lab).
 
@@ -155,7 +158,7 @@ Feedback states **what differs and why**:
   - Lobby: level select; Relaxed toggle; guidance tier.
   - Level unlocks are derived from `simulated` events (`rush:<level>`, score = stars ÷ 3).
   - HUD: patience bars, an "about to leave" cue, score/tips/streak, pause, and the honest labels.
-  - The action list costs +0.5 s of game time per action (`INPUT_COST`, not in Relaxed mode).
+  - The action list costs +0.5 s of game time per action (`INPUT_COST`, not in Relaxed mode). **QA gate #2 (QA-R09):** waived on L1–L2 (`LevelConfig.listCost`); the tuning bots now pay it in list mode, and `reports/GAME_TUNING.md` has separate list rows with a `human-list` profile.
   - Guided coach: the expert planner with no errors gives the next step and a "while that brews…" hint.
   - 2D wall, results with per-order what/why, and SFX.
   - The pour-over specs now live in `src/xr/rush/filterSpecs.ts`, with a TODO to move them into `BUILD_SPECS`.
@@ -166,6 +169,7 @@ Feedback states **what differs and why**:
 - **M2c, done (HARDWARE-UNVERIFIED — built and tested without a headset):** WebXR mode on the 3D counter. See section 14.
 
 - **Tuning change:** L2 holds 2 open orders, with patience × 2.2. The novice bot reaches ≥1★ in 83% of shifts, and L3–L5 config is unchanged.
+- **QA gate #2 retune:** L2 patience × 2.4 (novice ≥1★ 88%); list cost waived on L1–L2; the guided coach takes ready milk off the wand first. A `human-list` bot (follows the coach after 1.4–2.2 s, pays the list cost) gets ≥2★ on L1 and ≥1★ on L2 in 100% of shifts. See `reports/GAME_TUNING.md`.
 
 ## 14. VR mode (M2c) — controls, HUD, comfort, testing
 

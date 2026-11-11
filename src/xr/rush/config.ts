@@ -47,8 +47,15 @@ export const PROCESS = {
   },
 } as const;
 
-/** Action-list play: each action also costs this much game time (no reach time otherwise). Not in Relaxed mode. */
+/**
+ * Action-list play: each action also costs this much game time (no reach time otherwise). Not in Relaxed
+ * mode, and WAIVED on L1–L2 (see `LevelConfig.listCost`): QA gate #2 measured a guided first-timer at
+ * ~1.4–2.2 s per list action — slower than the average 3D reach (1.3 s) — so on the learning levels the
+ * surcharge only double-charged the phone / keyboard / screen-reader players (QA-R09).
+ */
 export const INPUT_COST = { listActionCostSec: 0.5 };
+/** Game seconds one action-list action costs on a level (Standard mode). */
+export const listCostSec = (level: RushLevelNo): number => (LEVELS[level].listCost ? INPUT_COST.listActionCostSec : 0);
 
 // ───────────────────────────── patience ─────────────────────────────
 export const PATIENCE = {
@@ -84,6 +91,8 @@ export interface LevelConfig {
   rampArrivalEnd: number;
   rampPatienceEnd: number;
   maxOpenOrders: number;
+  /** Does an action-list action pay `INPUT_COST.listActionCostSec`? (false on the learning levels L1–L2) */
+  listCost: boolean;
   mix: readonly MixEntry[];
 }
 
@@ -104,6 +113,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampArrivalEnd: 0.8,
     rampPatienceEnd: 0.9,
     maxOpenOrders: 2,
+    listCost: false,
     mix: mix({ 'espresso-shot': 4, ristretto: 3, lungo: 3 }),
   },
   2: {
@@ -115,11 +125,13 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     firstArrivalSec: 2,
     arrivalSec: 12,
     arrivalJitter: 0.2,
-    patienceMult: 2.2,
+    // 2.2 → 2.4 (QA gate #2): a guided list player at ~2 s per action needs ~6 s more per milk drink.
+    patienceMult: 2.4,
     patienceSlackSec: 12,
     rampArrivalEnd: 0.8,
     rampPatienceEnd: 0.88,
     maxOpenOrders: 2,
+    listCost: false,
     mix: mix({ 'espresso-macchiato': 2, cortado: 2, cappuccino: 3, 'flat-white': 3, 'caffe-latte': 3, mocha: 2, 'espresso-shot': 1 }),
   },
   3: {
@@ -136,6 +148,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampArrivalEnd: 0.78,
     rampPatienceEnd: 0.86,
     maxOpenOrders: 3,
+    listCost: true,
     mix: mix({ americano: 3, 'long-black': 3, 'iced-latte': 3, affogato: 2, 'cafe-cubano': 2, yuenyeung: 2, cappuccino: 1, 'flat-white': 1, 'caffe-latte': 1 }),
   },
   4: {
@@ -152,6 +165,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampArrivalEnd: 0.78,
     rampPatienceEnd: 0.85,
     maxOpenOrders: 3,
+    listCost: true,
     mix: mix({ 'pourover-cone': 3, 'japanese-iced-pourover': 2, 'vietnamese-phin': 2, americano: 1, 'caffe-latte': 1, 'espresso-shot': 1, cappuccino: 1 }),
   },
   5: {
@@ -168,6 +182,7 @@ export const LEVELS: Record<RushLevelNo, LevelConfig> = {
     rampArrivalEnd: 0.75,
     rampPatienceEnd: 0.82,
     maxOpenOrders: 3,
+    listCost: true,
     mix: mix({
       'espresso-shot': 2,
       ristretto: 1,
@@ -215,7 +230,7 @@ export const SCORING = {
 // ───────────────────────────── bots (tuning harness only) ─────────────────────────────
 export type BotPlanning = 'serial' | 'pipelined' | 'parallel';
 export interface BotProfile {
-  id: 'novice' | 'average' | 'expert';
+  id: 'novice' | 'average' | 'expert' | 'human-list';
   /** Mean seconds per action (reach, handle, read); ±latencyJitter. */
   latencySec: number;
   latencyJitter: number;
@@ -225,12 +240,24 @@ export interface BotProfile {
   maxJobs: number;
   /** Skip orders whose patience left is below this bot's estimated make time (time-management triage). */
   triage: boolean;
+  /** Take ready milk off the steam wand before anything else (the guided coach does, so slow players avoid overheating). */
+  wandFirst?: boolean;
+  /**
+   * Plays by following the guided coach like a person: sees the suggested step, reacts after its latency,
+   * then does whatever the coach suggests at that moment (planning fields are unused).
+   */
+  followsCoach?: boolean;
 }
 
 export const BOT_PROFILES: Record<BotProfile['id'], BotProfile> = {
   novice: { id: 'novice', latencySec: 1.9, latencyJitter: 0.3, errorRate: 0.15, planning: 'serial', maxJobs: 1, triage: false },
   average: { id: 'average', latencySec: 1.3, latencyJitter: 0.25, errorRate: 0.07, planning: 'pipelined', maxJobs: 2, triage: true },
   expert: { id: 'expert', latencySec: 0.85, latencyJitter: 0.2, errorRate: 0.02, planning: 'parallel', maxJobs: 3, triage: true },
+  /**
+   * QA gate #2 "guided first-timer" on the ACTION LIST: reads the suggested step for 1.4–2.2 s, then does
+   * what the guided coach suggests (never errs), and pays the list cost per action.
+   */
+  'human-list': { id: 'human-list', latencySec: 1.8, latencyJitter: 0.4 / 1.8, errorRate: 0, planning: 'parallel', maxJobs: 2, triage: true, followsCoach: true },
 };
 
 export const TUNING = { shiftsPerCell: 40, seedBase: 1000 };

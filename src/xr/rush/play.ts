@@ -9,9 +9,9 @@ import type { LocalizedText } from '../../domain/contracts';
 import { CUPS, MILK_ML, SHOT_STYLES, WATER_ML, type Extra } from '../../features/cafe/model';
 import { createBot, decide, type Bot } from './bots';
 import { PROCESS, type BotProfile, type RushLevelNo } from './config';
-import { hotWaterSec, steamSec } from './drinks';
-import { actionText, fmtR, R } from './strings';
-import { COUNTERS, SLOTS, itemIn, reduce, type PlayerAction, type RushState, type SlotId } from './sim';
+import { drinkName, hotWaterSec, steamSec } from './drinks';
+import { actionText, customerName, fmtR, R } from './strings';
+import { COUNTERS, SLOTS, itemIn, reduce, type Order, type PlayerAction, type RushState, type SlotId } from './sim';
 
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 export const RUSH_EXTRAS: readonly Extra[] = ['chocolate', 'ice-cream', 'sugar', 'condensed-milk', 'milk-tea'];
@@ -103,7 +103,7 @@ export function listKey(s: RushState): string {
 }
 
 // ───────────────────────────── coach (guided tier) ─────────────────────────────
-const COACH: BotProfile = { id: 'expert', latencySec: 1, latencyJitter: 0, errorRate: 0, planning: 'parallel', maxJobs: 2, triage: true };
+const COACH: BotProfile = { id: 'expert', latencySec: 1, latencyJitter: 0, errorRate: 0, planning: 'parallel', maxJobs: 2, triage: true, wandFirst: true };
 export type Coach = Bot;
 export const createCoach = (level: RushLevelNo): Coach => createBot(COACH, 1, level);
 
@@ -268,4 +268,137 @@ export function processProgress(s: RushState, slot: SlotId): number | null {
     default:
       return null;
   }
+}
+
+/** Real-world reference for the process running at a slot (shown next to its game-time bar, QA-R04). */
+export function processReal(s: RushState, slot: SlotId): LocalizedText | null {
+  const m = s.m;
+  switch (slot) {
+    case 'grinder':
+      return m.grinderMs > 0 ? PROCESS.grind.real : null;
+    case 'group1':
+    case 'group2': {
+      const g = m.groups[slot === 'group1' ? 0 : 1];
+      return g ? PROCESS.shot[g.style].real : null;
+    }
+    case 'wand':
+      return m.wand && m.wand.remainingMs > 0 ? PROCESS.steam.real : null;
+    case 'hotwater':
+      return m.hotwater ? PROCESS.hotWater.real : null;
+    case 'kettleBase':
+      return m.kettleMs > 0 ? PROCESS.kettle.real : null;
+    case 'dripper':
+    case 'phin': {
+      const b = slot === 'dripper' ? 'pourover' : 'phin';
+      const st = m.brewers[b].stage;
+      return st === 'bloom' ? PROCESS.bloom[b].real : st === 'drawdown' ? PROCESS.drawdown[b].real : null;
+    }
+    default:
+      return null;
+  }
+}
+
+// ───────────────────────────── screen-reader announcements ─────────────────────────────
+/** A ticket shows "About to leave!" at or below this share of its patience. */
+export const LEAVING_SHARE = 0.3;
+export const isLeaving = (o: Pick<Order, 'remainingMs' | 'patienceMs'>): boolean =>
+  o.remainingMs !== null && !!o.patienceMs && o.remainingMs / o.patienceMs <= LEAVING_SHARE;
+
+/** Feedback that reaches the screen reader: every serve result, arrivals, walk-outs, process mistakes. */
+const ANNOUNCE: Record<string, boolean> = {
+  'serve-correct': true,
+  'serve-partly': true,
+  'serve-wrong': true,
+  'order-timeout': true,
+  'milk-overheated': true,
+  'shot-wasted': true,
+  'brew-wasted': true,
+  'bloom-rushed': true,
+  'shift-over': true,
+  'order-in': false,
+};
+
+export interface AnnounceCursor {
+  /** Shift attempt the cursor belongs to (a reset starts a new feedback log). */
+  attempt: number;
+  seq: number;
+  leaving: readonly string[];
+}
+export interface Announcement {
+  text: LocalizedText;
+  /** Result of the player's own action or a loss: say it now. Otherwise (arrivals, leave cue) it may wait. */
+  urgent: boolean;
+}
+export const announceCursor = (s: RushState): AnnounceCursor => ({ attempt: s.attempt, seq: s.seq.feedback, leaving: [] });
+
+/**
+ * What to announce since `cur` (pure; QA-R01). Reads the feedback log by sequence number, so it does not
+ * matter how much game time passed in the same transition (e.g. the list cost ticking after a serve).
+ * The "about to leave" cue is announced once per order, and only where the tier shows it.
+ */
+export function rushAnnouncements(s: RushState, cur: AnnounceCursor, leavingCue: boolean): { cursor: AnnounceCursor; items: Announcement[] } {
+  const items: Announcement[] = [];
+  const fresh = s.attempt !== cur.attempt; // a reset shift starts its log again
+  const since = fresh ? 0 : cur.seq;
+  for (const f of s.feedback) {
+    if (f.seq <= since) continue;
+    const urgent = ANNOUNCE[f.code];
+    if (urgent !== undefined || f.kind === 'mistake') items.push({ text: f.text, urgent: urgent ?? true });
+  }
+  const leaving = leavingCue ? s.orders.filter(isLeaving).map((o) => o.id) : [];
+  for (const o of s.orders) {
+    if (!leaving.includes(o.id) || (!fresh && cur.leaving.includes(o.id))) continue;
+    const c = customerName(o.customerId);
+    const d = drinkName(o.drinkId);
+    items.push({ text: { zh: fmtR(R.leavingAnn, { c: c.zh, d: d.zh }).zh, en: fmtR(R.leavingAnn, { c: c.en, d: d.en }).en }, urgent: false });
+  }
+  return { cursor: { attempt: s.attempt, seq: s.seq.feedback, leaving }, items };
+}
+
+/**
+ * One polite live region, without flooding: urgent messages are said at once; arrivals and leave cues
+ * are de-duplicated, capped and said at most once per `gapMs`. Timers are injectable for unit tests.
+ */
+export function createAnnounceQueue(
+  say: (text: string) => void,
+  opts: { gapMs?: number; now?: () => number; setTimer?: (fn: () => void, ms: number) => unknown; clearTimer?: (h: unknown) => void } = {},
+) {
+  const gap = opts.gapMs ?? 1500;
+  const now = opts.now ?? (() => Date.now());
+  const setTimer = opts.setTimer ?? ((fn, ms) => setTimeout(fn, ms));
+  const clearTimer = opts.clearTimer ?? ((h) => clearTimeout(h as ReturnType<typeof setTimeout>));
+  let pending: string[] = [];
+  let last = -Infinity;
+  let timer: unknown = null;
+  const emit = (text: string) => {
+    say(text);
+    last = now();
+  };
+  const flush = () => {
+    timer = null;
+    if (!pending.length) return;
+    const wait = last + gap - now();
+    if (wait > 0) {
+      timer = setTimer(flush, wait);
+      return;
+    }
+    emit(pending.splice(0).join(' '));
+  };
+  return {
+    push(items: ReadonlyArray<{ text: string; urgent: boolean }>) {
+      const urgent: string[] = [];
+      for (const i of items) {
+        const list = i.urgent ? urgent : pending;
+        if (i.text && !list.includes(i.text)) list.push(i.text);
+      }
+      if (pending.length > 3) pending = pending.slice(-3);
+      if (urgent.length) emit(urgent.join(' '));
+      if (pending.length && timer === null) timer = setTimer(flush, Math.max(0, last + gap - now()));
+    },
+    dispose() {
+      if (timer !== null) clearTimer(timer);
+      timer = null;
+      pending = [];
+    },
+  };
 }
