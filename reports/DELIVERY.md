@@ -18,6 +18,14 @@
    - **pourover-bloom:** rinse, 15 g dose, tare, bloom, staged pours to 250 g ≈ 1:16.7, illustrative pour model.
 
    Each mission can be played three ways: in **WebXR** where supported, as a **3D scene with mouse/touch**, or via a **keyboard/screen-reader action list**. Guidance tiers (guided / assisted / independent) change the cues. Every result is recorded as evidence `simulated`, and each mission states what it does not train: grip, weight, heat, taste, real pour control. Deep links: `#/xr?mission=<id>`. Each mission is also linked from its lesson as an optional activity.
+9b. **Coffee Brands (`#/brands`):** 35 major brands (café chains, roasters/capsule/instant, equipment makers; global + Chinese) with what each is known for, what a beginner can learn, menu decoders where well sourced, links to drinks, lessons and equipment, sources, an "as of" year, and a no-affiliation note. No logos.
+9c. **Café Rush (XR Lab game, `#/xr?game=rush`):** an Overcooked-style coffee bar.
+   - Serve customers different drinks from one counter.
+   - The recipe wall shows real ratios from the curriculum. Brewing uses compressed, labelled game time.
+   - Patience and arrival rate tighten over 5 levels. Relaxed mode has no timers.
+   - Guidance tiers include "while that brews" hints. Results explain what differed.
+   - Playable via the action list (keyboard/phone), the 3D counter (mouse/touch) and WebXR (**hardware-unverified**).
+   - Difficulty is tuned with bot players: `reports/GAME_TUNING.md`.
 10. **Sound & music:** original procedural SFX and a generative café-music composer (off by default) with 6 moods incl. culture-inspired bossa / kissa / espresso-bar; header music control; WAV previews in `reports/audio/` (`reports/AUDIO_QA.md`).
 11. **Offline / install:** production build is a PWA; after the first load lessons, kitchen mode, journal, atlas and settings work offline.
 12. **Your data stays on the device:** export / import / reset in Settings; no account, no network calls at runtime.
