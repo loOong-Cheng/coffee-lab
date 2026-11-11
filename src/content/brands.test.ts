@@ -176,6 +176,12 @@ describe('brands: safety and honesty', () => {
     expect(brands.filter((b) => b.kind === 'equipment' && !b.safetyNote).map((b) => b.id)).toEqual([]);
   });
 
+  it('QA-B03: zh disclaimer uses the zh app name; brand source titles are English (shown on en pages too)', () => {
+    expect(BRAND_DISCLAIMER.zh).toContain('咖啡实验室');
+    expect(BRAND_DISCLAIMER.zh).not.toMatch(/Coffee Lab/);
+    expect(sources.filter((s) => s.id.startsWith('brand-') && /[぀-ヿ一-鿿]/.test(s.title)).map((s) => s.id)).toEqual([]);
+  });
+
   it('no brand source note quotes the Manner discount amount the docs say is omitted', () => {
     expect(sources.filter((s) => s.id.startsWith('brand-') && /\byuan\b|元/i.test(`${s.title} ${s.note ?? ''}`)).map((s) => s.id)).toEqual([]);
   });

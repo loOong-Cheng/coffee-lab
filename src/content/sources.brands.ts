@@ -135,14 +135,14 @@ export const sources: SourceRef[] = [
   },
   {
     id: 'brand-donews-saturnbird',
-    title: 'DoNews — 三顿半“返航计划”空罐回收（2019 年推出）',
+    title: 'DoNews (Chinese-language) — Saturnbird’s “Return Voyage” empty-cup recycling programme (launched 2019)',
     url: 'https://www.donews.com/news/detail/1/6261260.html',
     accessed: CHECKED,
     note: 'Collection totals not used in the app.',
   },
   {
     id: 'brand-thepaper-yongpu',
-    title: '澎湃新闻 — 永璞咖啡品牌报道（2014 年上海成立；2018 年推出冷萃咖啡液）',
+    title: 'The Paper / Pengpai News (Chinese-language) — Yongpu Coffee brand report (founded Shanghai 2014; cold-brew concentrate 2018)',
     url: 'https://m.thepaper.cn/baijiahao_16592013',
     accessed: CHECKED,
     note: 'Cross-checked with other Chinese business press in the same search; sales rankings not used.',

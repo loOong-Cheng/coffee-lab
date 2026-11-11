@@ -549,7 +549,7 @@ export const activities: Activity[] = [
       {
         heading: L('家里的摩卡壶（1933）', 'The moka pot at home (1933)'),
         body: L(
-          'Alfonso Bialetti 在 1933 年推出铝制 Moka Express，让意大利家庭在炉子上就能做出浓咖啡。',
+          '阿方索·比乐蒂在 1933 年推出八角形铝制摩卡壶，让意大利家庭在炉子上就能做出浓咖啡。',
           'Alfonso Bialetti’s aluminium Moka Express of 1933 let Italian households brew strong coffee on the stove.',
         ),
         illustration: 'moka-pot',

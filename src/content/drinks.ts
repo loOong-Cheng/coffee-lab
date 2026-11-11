@@ -741,7 +741,7 @@ export const drinks: DrinkRecipe[] = [
     name: L('摩卡壶咖啡', 'Moka pot coffee'),
     tagline: L('炉上做出的浓郁咖啡，接近浓缩但不完全相同。', 'Strong stovetop coffee — espresso-adjacent, but not the same thing.'),
     origin: L(
-      '意大利，1933 年 Alfonso Bialetti 推出铝制 Moka Express。“灵感来自洗衣锅炉”的说法流传很广，但缺乏原始文献。',
+      '意大利，1933 年阿方索·比乐蒂推出八角形铝制摩卡壶。“灵感来自洗衣锅炉”的说法流传很广，但缺乏原始文献。',
       'Italy, 1933: Alfonso Bialetti launched the aluminium Moka Express. The popular “inspired by a laundry boiler” story lacks primary documentation.',
     ),
     cultureNote: L(

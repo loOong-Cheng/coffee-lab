@@ -912,7 +912,7 @@ export const timeline: CultureTimelineEvent[] = [
     year: 1933,
     yearLabel: L('1933 年', '1933'),
     title: L('摩卡壶', 'The moka pot'),
-    body: L('Alfonso Bialetti 推出铝制 Moka Express，浓咖啡进入了意大利家庭的厨房。“灵感来自洗衣锅炉”的说法缺乏原始文献。', 'Alfonso Bialetti launches the aluminium Moka Express, bringing strong coffee into Italian kitchens. The “laundry boiler” inspiration story lacks primary documentation.'),
+    body: L('阿方索·比乐蒂推出八角形铝制摩卡壶，浓咖啡进入了意大利家庭的厨房。“灵感来自洗衣锅炉”的说法缺乏原始文献。', 'Alfonso Bialetti launches the aluminium Moka Express, bringing strong coffee into Italian kitchens. The “laundry boiler” inspiration story lacks primary documentation.'),
     kind: 'innovation',
     placeId: 'milan-turin',
     relatedDrinkIds: ['moka-pot-coffee', 'cafe-cubano'],

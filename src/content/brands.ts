@@ -50,7 +50,7 @@ const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 const AS_OF = 2026;
 
 export const BRAND_DISCLAIMER: LocalizedText = L(
-  '品牌名称仅用于识别，Coffee Lab 与这些公司没有任何关联，也不代表推荐或背书；不使用任何商标图形。产品、杯型和公司信息会变化，这里的内容核对于标注的核对年份，请以品牌当前官方信息为准。',
+  '品牌名称仅用于识别，咖啡实验室与这些公司没有任何关联，也不代表推荐或背书；不使用任何商标图形。产品、杯型和公司信息会变化，这里的内容核对于标注的核对年份，请以品牌当前官方信息为准。',
   'Brand names are used only to identify them. Coffee Lab is not affiliated with, sponsored by or endorsing any of these companies, and shows no logos. Products, cup sizes and company facts change; each entry was checked in the year shown, so check the brand’s current official information.',
 );
 
@@ -101,7 +101,7 @@ export const brands: Brand[] = [
       'A chain “Tall latte” is about 355 ml — far bigger than a cappuccino at an Italian bar, so the same name can mean a very different milk-to-coffee ratio. And a Caramel Macchiato is really a vanilla-syrup latte, not a traditional espresso macchiato.',
     ),
     menuDecoder: [
-      L('Short：约 8 液量盎司（≈240 毫升），菜单上常不列出，可以直接问', 'Short: about 8 fl oz (≈240 ml); often not on the board — just ask'),
+      L('小杯：约 8 液量盎司（≈240 毫升），菜单上常不列出，可以直接问', 'Short: about 8 fl oz (≈240 ml); often not on the board — just ask'),
       L('中杯：约 12 液量盎司（≈355 毫升）', 'Tall: about 12 fl oz (≈355 ml)'),
       L('大杯：约 16 液量盎司（≈475 毫升）', 'Grande: about 16 fl oz (≈475 ml)'),
       L('超大杯：热饮约 20 液量盎司（≈590 毫升），冷饮约 24 液量盎司（≈710 毫升）', 'Venti: hot about 20 fl oz (≈590 ml), iced about 24 fl oz (≈710 ml)'),
@@ -738,11 +738,11 @@ export const brands: Brand[] = [
     country: L('意大利', 'Italy'),
     founded: 1919,
     knownFor: L(
-      'Alfonso Bialetti 的金属作坊始于 1919 年；1933 年推出的八角形铝制摩卡壶 Moka Express 成了意大利家庭厨房的经典。',
+      '阿方索·比乐蒂的金属作坊始于 1919 年；1933 年推出的八角形铝制摩卡壶成了意大利家庭厨房的经典。',
       'Alfonso Bialetti’s metal workshop dates from 1919; the eight-sided aluminium Moka Express he launched in 1933 became a fixture of Italian home kitchens.',
     ),
     signature: [
-      L('Moka Express 摩卡壶（1933）', 'Moka Express stovetop pot (1933)'),
+      L('经典八角铝制摩卡壶（1933 年）', 'Moka Express stovetop pot (1933)'),
     ],
     learnFromIt: L(
       '摩卡壶靠下壶水蒸气的压力把热水推过咖啡粉，压力只有意式机的一小部分，所以它做的是浓郁的炉火咖啡，而不是真正的意式浓缩。',
