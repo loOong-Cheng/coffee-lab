@@ -273,7 +273,7 @@ export const activities: Activity[] = [
       {
         heading: L('风味轮是一本词典', 'The flavour wheel is a dictionary'),
         body: L(
-          'SCA 与世界咖啡研究组织（WCR）的咖啡风味轮把词汇从笼统（“果香”）排到具体（“蓝莓”）。先从笼统的词开始，“果香”“坚果感”就是很好的答案。',
+          'SCA 与世界咖啡研究组织的咖啡风味轮把词汇从笼统（“果香”）排到具体（“蓝莓”）。先从笼统的词开始，“果香”“坚果感”就是很好的答案。',
           'The SCA and World Coffee Research flavour wheel arranges words from general (“fruity”) to specific (“blueberry”). Start general — “fruity” or “nutty” is a great answer.',
         ),
         illustration: 'flavor-wheel-abstract',
@@ -333,7 +333,7 @@ export const activities: Activity[] = [
       },
       {
         id: 'exp-sensory-q3',
-        prompt: L('下面哪一项描述的是“醇厚度（body）”？', 'Which of these describes “body”?'),
+        prompt: L('下面哪一项描述的是“醇厚度”？', 'Which of these describes “body”?'),
         options: [
           { id: 'a', text: L('咖啡在口中的重量和质地', 'The weight and texture of the coffee in your mouth'), correct: true, feedback: L('对，像清茶与糖浆、脱脂奶与全脂奶的区别。', 'Yes — like tea versus syrup, skim versus whole milk.') },
           { id: 'b', text: L('咖啡因含量', 'How much caffeine it has'), correct: false, feedback: L('咖啡因和口感关系不大；醇厚度说的是质地。', 'Caffeine has little to do with mouthfeel; body is about texture.') },
@@ -654,12 +654,12 @@ export const activities: Activity[] = [
           'Coffee beans are the seeds of the coffee cherry, usually two per fruit, flat sides facing each other.',
         ),
         illustration: 'coffee-cherry',
-        callout: { kind: 'tip', text: L('有时一颗果实里只长出一粒圆形的种子，叫“圆豆”（peaberry）。', 'Sometimes a cherry grows a single round seed — a “peaberry”.') },
+        callout: { kind: 'tip', text: L('有时一颗果实里只长出一粒圆形的种子，叫“圆豆”。', 'Sometimes a cherry grows a single round seed — a “peaberry”.') },
       },
       {
         heading: L('两大主要品种', 'Two main species'),
         body: L(
-          '阿拉比卡（Coffea arabica）原产于埃塞俄比亚高地，大多数精品咖啡都是它，常种在较高海拔。罗布斯塔（Coffea canephora）更耐病、通常咖啡因更多、风味更厚重偏苦，在越南、巴西等地大量种植。',
+          '阿拉比卡（小粒种）原产于埃塞俄比亚高地，大多数精品咖啡都是它，常种在较高海拔。罗布斯塔（中粒种）更耐病、通常咖啡因更多、风味更厚重偏苦，在越南、巴西等地大量种植。',
           'Arabica (Coffea arabica) originated in the Ethiopian highlands and makes up most specialty coffee, often grown at higher altitudes. Robusta (Coffea canephora) is hardier, usually higher in caffeine and heavier or more bitter, and widely grown in places such as Vietnam and Brazil.',
         ),
         illustration: 'species-compare',
@@ -736,7 +736,7 @@ export const activities: Activity[] = [
     questions: [
       {
         id: 'exp-origin-q1',
-        prompt: L('“日晒处理（natural）”指的是什么？', 'What does “natural process” mean?'),
+        prompt: L('“日晒处理”指的是什么？', 'What does “natural process” mean?'),
         options: [
           { id: 'a', text: L('咖啡豆在整颗果实里一起晒干', 'The beans are dried inside the whole cherry'), correct: true, feedback: L('对，果肉在干燥时包着种子。', 'Right — the fruit surrounds the seed while it dries.') },
           { id: 'b', text: L('有机认证的咖啡', 'Certified organic coffee'), correct: false, feedback: L('“natural”说的是干燥方式，有机是另一种独立认证。', '“Natural” describes the drying method; organic is a separate certification.') },

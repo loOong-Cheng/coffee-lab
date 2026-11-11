@@ -250,7 +250,7 @@ export const places: CulturePlace[] = [
     lat: 23.11,
     lon: -82.37,
     summary: L(
-      '古巴咖啡（café cubano）：把糖和最先流出的咖啡打成浅色泡沫（espumita）。一大份“colada”常倒进小杯与朋友分享；古巴的山区也种植咖啡。',
+      '古巴咖啡：把糖和最先流出的咖啡打成浅色泡沫。一大份“colada”常倒进小杯与朋友分享；古巴的山区也种植咖啡。',
       'Café cubano: sugar whipped with the first drops of coffee into a pale foam (espumita). A larger “colada” is poured into tiny cups to share; Cuba’s mountains also grow coffee.',
     ),
     relatedDrinkIds: ['cafe-cubano', 'moka-pot-coffee'],
@@ -280,7 +280,7 @@ export const places: CulturePlace[] = [
     lat: 9.03,
     lon: 38.74,
     summary: L(
-      '在埃塞俄比亚，咖啡仪式（buna）是待客的核心：现场烘豆、研磨，在 jebena 陶壶里煮，分 abol、tona、baraka 三轮奉上。埃塞俄比亚也是非洲最大的咖啡生产国之一。',
+      '在埃塞俄比亚，咖啡仪式（buna）是待客的核心：现场烘豆、研磨，在传统陶壶里煮，分 abol、tona、baraka 三轮奉上。埃塞俄比亚也是非洲最大的咖啡生产国之一。',
       'In Ethiopia the coffee ceremony (buna) is central to hospitality: beans roasted and ground on the spot, brewed in a clay jebena and served in three rounds — abol, tona, baraka. Ethiopia is also one of Africa’s largest coffee producers.',
     ),
     relatedDrinkIds: ['ethiopian-buna'],
@@ -483,7 +483,7 @@ export const places: CulturePlace[] = [
     lat: 19.53,
     lon: -96.92,
     summary: L(
-      '墨西哥在韦拉克鲁斯、恰帕斯、瓦哈卡等地种植咖啡。陶罐咖啡（café de olla）是加肉桂和粗糖一起煮的家常饮品；它源自墨西哥革命的说法属于流行故事。',
+      '墨西哥在韦拉克鲁斯、恰帕斯、瓦哈卡等地种植咖啡。陶罐咖啡是加肉桂和粗糖一起煮的家常饮品；它源自墨西哥革命的说法属于流行故事。',
       'Mexico grows coffee in Veracruz, Chiapas, Oaxaca and beyond. Café de olla — simmered with cinnamon and piloncillo — is a home favourite; the story that it began in the Mexican Revolution is a popular legend.',
     ),
     producing: true,
@@ -549,7 +549,7 @@ export const timeline: CultureTimelineEvent[] = [
     yearLabel: L('传说——设定在约 9 世纪；最早文字记载于 1671 年', 'Legend — set c. 9th century; first written down 1671'),
     title: L('跳舞的山羊', 'The dancing goats'),
     body: L(
-      '一位埃塞俄比亚牧羊人发现山羊吃了红色果实后格外兴奋——这个故事最早在 1671 年才被写下（Antoine Faustus Nairon），比故事年代晚了几个世纪。“Kaldi”这个名字和细节在后来的版本中各不相同。',
+      '一位埃塞俄比亚牧羊人发现山羊吃了红色果实后格外兴奋——这个故事最早在 1671 年才被写下，比故事年代晚了几个世纪。“Kaldi”这个名字和细节在后来的版本中各不相同。',
       'An Ethiopian goatherd notices his goats grow lively after eating red berries. The story was first written down in 1671 (Antoine Faustus Nairon), centuries after its supposed setting; the name “Kaldi” and other details vary between later retellings.',
     ),
     kind: 'legend',
@@ -925,7 +925,7 @@ export const timeline: CultureTimelineEvent[] = [
     year: 1938,
     yearLabel: L('1930 年代末至 1940 年代（资料说法不一）', 'Late 1930s–1940s (sources differ)'),
     title: L('拉杆机器与油脂', 'The lever and crema'),
-    body: L('Achille Gaggia 的拉杆活塞机器带来更高的压力和表面那层油脂（crema），现代浓缩风格由此成形。', 'Achille Gaggia’s lever-piston machines bring much higher pressure and the crema on top — the modern espresso style takes shape.'),
+    body: L('Achille Gaggia 的拉杆活塞机器带来更高的压力和表面那层油脂，现代浓缩风格由此成形。', 'Achille Gaggia’s lever-piston machines bring much higher pressure and the crema on top — the modern espresso style takes shape.'),
     kind: 'innovation',
     disputed: true,
     placeId: 'milan-turin',

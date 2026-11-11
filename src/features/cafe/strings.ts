@@ -190,15 +190,15 @@ export const COMPONENT_TEXT: Record<Component, LocalizedText> = {
 export const METHOD_TEXT: Record<Method, LocalizedText> = {
   espresso: L('意式咖啡机', 'Espresso machine'),
   moka: L('摩卡壶', 'Moka pot'),
-  phin: L('越南滴滤壶（Phin）', 'Vietnamese phin'),
-  ibrik: L('土耳其壶（Cezve）', 'Cezve / ibrik'),
+  phin: L('越南滴滤壶', 'Vietnamese phin'),
+  ibrik: L('土耳其壶', 'Cezve / ibrik'),
   pot: L('小锅煮泡', 'Saucepan / pot'),
 };
 export const SHOTS_TEXT: Record<Shots, LocalizedText> = { 1: L('单份', 'Single'), 2: L('双份', 'Double') };
 export const SHOT_STYLE_TEXT: Record<ShotStyle, { label: LocalizedText; sub: LocalizedText }> = {
-  ristretto: { label: L('短萃 Ristretto', 'Ristretto'), sub: L('约 1:1.3 · 更短', '≈1:1.3 · short') },
+  ristretto: { label: L('短萃', 'Ristretto'), sub: L('约 1:1.3 · 更短', '≈1:1.3 · short') },
   normal: { label: L('标准', 'Normal'), sub: L('约 1:2', '≈1:2') },
-  lungo: { label: L('长萃 Lungo', 'Lungo'), sub: L('约 1:3 · 更长', '≈1:3 · long') },
+  lungo: { label: L('长萃', 'Lungo'), sub: L('约 1:3 · 更长', '≈1:3 · long') },
 };
 export const WATER_TEXT: Record<WaterOrder, LocalizedText> = {
   none: L('不加水', 'No water'),

@@ -53,8 +53,8 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'espresso-shot',
     category: 'espresso',
-    name: L('意式浓缩（Espresso）', 'Espresso'),
-    tagline: L('小杯、浓缩、带一层油脂（crema）——大多数咖啡馆奶咖的基底。', 'Small, concentrated, topped with crema — the base of most café milk drinks.'),
+    name: L('意式浓缩', 'Espresso'),
+    tagline: L('小杯、浓缩、带一层金棕色油脂——大多数咖啡馆奶咖的基底。', 'Small, concentrated, topped with crema — the base of most café milk drinks.'),
     origin: L('意大利，20 世纪初；最早的意式咖啡机原型出现在 1880—1900 年代的都灵和米兰。', 'Italy, early 20th century; the first espresso-style machines appeared in Turin and Milan between the 1880s and 1900s.'),
     cultureNote: L(
       '在意大利点“un caffè”通常就是一杯浓缩，很多人站在吧台前一两分钟喝完。“espresso”一词常被解释为“为你即时现做”，词源说法不一。',
@@ -88,7 +88,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'ristretto',
     category: 'espresso',
-    name: L('芮斯崔朵（Ristretto，短萃浓缩）', 'Ristretto'),
+    name: L('芮斯崔朵', 'Ristretto'),
     tagline: L('更短、更浓的一份浓缩，常被形容为更浓稠、更集中。', 'A shorter, more concentrated shot — often described as thicker and more intense.'),
     origin: L('意大利；意大利语“ristretto”意为“受限的、浓缩的”。', 'Italy; “ristretto” is Italian for “restricted” or “narrowed”.'),
     cultureNote: L(
@@ -120,7 +120,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'lungo',
     category: 'espresso',
-    name: L('朗戈（Lungo，长萃浓缩）', 'Lungo'),
+    name: L('朗戈', 'Lungo'),
     tagline: L('让更多水穿过同一份粉的“长”浓缩，口感更淡，有时更苦涩。', 'A “long” shot with more water through the same puck — lighter, sometimes drier or more bitter.'),
     origin: L('意大利；“lungo”意为“长”。', 'Italy; “lungo” means “long”.'),
     cultureNote: L(
@@ -148,7 +148,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'americano',
     category: 'espresso',
-    name: L('美式咖啡（Americano）', 'Americano'),
+    name: L('美式咖啡', 'Americano'),
     tagline: L('浓缩加热水，浓度接近滴滤咖啡，但保留浓缩的风格。', 'Espresso lengthened with hot water — filter-like strength with espresso character.'),
     origin: L(
       '名字常被归因于二战时期在意大利的美国士兵用热水冲淡浓缩——这是流传很广的说法，缺乏可靠文献。',
@@ -183,7 +183,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'long-black',
     category: 'espresso',
-    name: L('长黑咖啡（Long Black）', 'Long black'),
+    name: L('长黑咖啡', 'Long black'),
     tagline: L('先放热水、后加浓缩，表面油脂保留得更多。', 'Hot water first, espresso on top — more of the crema stays on the surface.'),
     origin: L('澳大利亚和新西兰的咖啡馆传统。', 'A café staple in Australia and New Zealand.'),
     cultureNote: L(
@@ -210,7 +210,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'affogato',
     category: 'espresso',
-    name: L('阿芙佳朵（Affogato）', 'Affogato'),
+    name: L('阿芙佳朵', 'Affogato'),
     tagline: L('热浓缩浇在冰淇淋上的甜点咖啡，冷热对比是它的乐趣。', 'Hot espresso poured over ice cream — a dessert built on hot-cold contrast.'),
     origin: L('意大利；“affogato”意为“淹没”。', 'Italy; “affogato” means “drowned”.'),
     cultureNote: L(
@@ -238,7 +238,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'espresso-macchiato',
     category: 'espresso-milk',
-    name: L('浓缩玛奇朵（Espresso Macchiato）', 'Espresso macchiato'),
+    name: L('浓缩玛奇朵', 'Espresso macchiato'),
     tagline: L('一份浓缩“点”上一小勺奶泡，柔和但仍以咖啡为主。', 'An espresso “marked” with a spoonful of foam — softened, still coffee-forward.'),
     origin: L('意大利；“macchiato”意为“被标记的、带斑点的”。', 'Italy; “macchiato” means “stained” or “marked”.'),
     cultureNote: L(
@@ -266,7 +266,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'cortado',
     category: 'espresso-milk',
-    name: L('可塔朵（Cortado）', 'Cortado'),
+    name: L('可塔朵', 'Cortado'),
     tagline: L('浓缩与差不多等量的热奶，平衡、小杯、奶泡很少。', 'Espresso “cut” with a similar amount of warm milk — balanced, small, little foam.'),
     origin: L('西班牙；“cortar”意为“切”，指用牛奶“切”开浓缩的强度。', 'Spain; from “cortar”, to cut — milk cuts the espresso’s intensity.'),
     cultureNote: L(
@@ -294,10 +294,10 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'cappuccino',
     category: 'espresso-milk',
-    name: L('卡布奇诺（Cappuccino）', 'Cappuccino'),
+    name: L('卡布奇诺', 'Cappuccino'),
     tagline: L('浓缩、热奶和较厚的奶泡，口感轻盈蓬松。', 'Espresso with steamed milk and a thicker cap of foam — light and airy.'),
     origin: L(
-      '意大利；名字通常追溯到嘉布遣会（Capuchin）修士长袍的颜色，经由维也纳的“Kapuziner”咖啡。把它归功于某位修士的故事属于民间传说。',
+      '意大利；名字通常追溯到嘉布遣会修士长袍的颜色，中间经过维也纳以这些修士命名的“嘉布遣咖啡”。把它归功于某位修士的故事属于民间传说。',
       'Italy; the name is usually traced to the colour of Capuchin friars’ habits, via Vienna’s “Kapuziner” coffee. Stories crediting one particular friar are folklore.',
     ),
     cultureNote: L(
@@ -331,7 +331,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'flat-white',
     category: 'espresso-milk',
-    name: L('澳白（Flat White）', 'Flat white'),
+    name: L('澳白', 'Flat white'),
     tagline: L('比拿铁小、咖啡感更强，表面是一层薄而细腻的奶泡。', 'Smaller and more coffee-forward than a latte, with a thin, silky layer of microfoam.'),
     origin: L(
       '澳大利亚与新西兰都声称是自己发明的（常见说法分别指向 1980 年代的悉尼和惠灵顿/奥克兰）——起源存在争议。',
@@ -365,7 +365,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'caffe-latte',
     category: 'espresso-milk',
-    name: L('拿铁（Caffè Latte）', 'Caffè latte'),
+    name: L('拿铁', 'Caffè latte'),
     tagline: L('大杯、奶多、顺滑，咖啡在奶中变得柔和。', 'Large, milky and smooth — the coffee softened by plenty of milk.'),
     origin: L('意大利语“caffè e latte”即“咖啡和牛奶”；现代咖啡馆版本在国际连锁时代广泛流行。', 'From Italian “caffè e latte”, coffee and milk; the modern café version spread with international coffee chains.'),
     cultureNote: L(
@@ -395,10 +395,10 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'mocha',
     category: 'espresso-milk',
-    name: L('摩卡（Mocha）', 'Mocha'),
+    name: L('摩卡', 'Mocha'),
     tagline: L('浓缩、巧克力和热奶——像咖啡味的热可可。', 'Espresso, chocolate and steamed milk — like a coffee-forward hot chocolate.'),
     origin: L(
-      '名字来自也门港口摩卡（Mocha），那里曾是咖啡贸易的重要港口；它后来如何与巧克力联系在一起，说法不一。',
+      '名字来自也门港口摩卡，那里曾是咖啡贸易的重要港口；它后来如何与巧克力联系在一起，说法不一。',
       'Named after Mocha, the Yemeni port once central to the coffee trade; how the name became linked with chocolate is uncertain.',
     ),
     cultureNote: L(
@@ -429,7 +429,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'iced-latte',
     category: 'cold',
-    name: L('冰拿铁（Iced Latte）', 'Iced latte'),
+    name: L('冰拿铁', 'Iced latte'),
     tagline: L('浓缩、冷牛奶和冰块，不需要打奶，夏天的入门饮品。', 'Espresso, cold milk and ice — no steaming needed, an easy summer start.'),
     origin: L('全球咖啡馆的现代饮品，没有单一起源。', 'A modern café drink worldwide with no single origin.'),
     cultureNote: L(
@@ -458,7 +458,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'pourover-cone',
     category: 'pourover',
-    name: L('锥形滤杯手冲（V60 式）', 'Cone pour-over (V60-style)'),
+    name: L('锥形滤杯手冲', 'Cone pour-over (V60-style)'),
     tagline: L('细口壶分段注水，杯感清晰干净，最能体现豆子的个性。', 'Staged pours from a gooseneck for a clear, clean cup that shows off the beans.'),
     origin: L(
       '1908 年德国德累斯顿的 Melitta Bentz 发明了纸质咖啡滤纸；带螺旋肋的 60° 锥形滤杯由日本 HARIO 在 2000 年代中期推出。',
@@ -704,7 +704,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'greek-frappe',
     category: 'cold',
-    name: L('希腊冰咖啡（Frappé）', 'Greek frappé'),
+    name: L('希腊冰咖啡', 'Greek frappé'),
     tagline: L('速溶咖啡摇出厚厚的泡沫，加冰加水，慢慢用吸管喝。', 'Instant coffee shaken into a thick foam, over ice — sipped slowly through a straw.'),
     origin: L(
       '希腊。流行的故事说它诞生于 1957 年塞萨洛尼基国际博览会上的一次“意外”，但发明人有不同说法，也有证据显示类似产品更早就有广告。',
@@ -816,7 +816,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'vietnamese-phin',
     category: 'regional',
-    name: L('越南滴滤冰奶咖（Cà phê sữa đá）', 'Vietnamese iced coffee (cà phê sữa đá)'),
+    name: L('越南滴滤冰奶咖', 'Vietnamese iced coffee (cà phê sữa đá)'),
     tagline: L('慢慢滴滤的浓咖啡遇上炼乳和冰，浓、甜、冰爽。', 'Slow-dripped strong coffee meets condensed milk and ice — bold, sweet, icy.'),
     origin: L(
       '越南。咖啡通常被认为在 19 世纪中叶法国殖民时期传入（常见说法为 1857 年，未经原始文献核实）。如今越南是世界主要咖啡生产国之一，以罗布斯塔为主。',
@@ -842,7 +842,7 @@ export const drinks: DrinkRecipe[] = [
       L('加入咖啡粉，摇平，轻轻放上压片。', 'Add the coffee, shake level, and rest the press plate on it lightly.'),
       L('倒约 20 毫升热水闷蒸 30 秒，再加满，盖上盖子。', 'Pour about 20 ml hot water to bloom for 30 s, then fill to the top and cover.'),
       L('等待滴完（约 4–5 分钟），搅匀咖啡和炼乳。', 'Wait for it to drip through (about 4–5 minutes) and stir with the milk.'),
-      L('倒入装满冰块的杯子。想喝热的就直接喝（cà phê sữa nóng）。', 'Pour over a glass of ice — or drink it hot as cà phê sữa nóng.'),
+      L('倒入装满冰块的杯子。想喝热的就不倒在冰上，直接喝。', 'Pour over a glass of ice — or drink it hot as cà phê sữa nóng.'),
     ],
     difficulty: 1,
     safetyNotes: [
@@ -889,10 +889,10 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'cafe-de-olla',
     category: 'regional',
-    name: L('墨西哥陶罐咖啡（Café de olla）', 'Café de olla'),
+    name: L('墨西哥陶罐咖啡', 'Café de olla'),
     tagline: L('咖啡与肉桂、粗糖一起在锅里煮，温暖、带香料味。', 'Coffee simmered with cinnamon and unrefined cane sugar — warm and spiced.'),
     origin: L(
-      '墨西哥；名字来自传统陶罐（olla de barro）。常说它源自墨西哥革命时期的女兵（soldaderas），但这只是流行故事，没有可靠史料。',
+      '墨西哥；名字来自煮它的传统陶罐。常说它源自墨西哥革命时期的女兵，但这只是流行故事，没有可靠史料。',
       'Mexico; named after the traditional clay pot (olla de barro). It is often said to come from the women soldiers (soldaderas) of the Mexican Revolution, but that is a popular story without solid historical sources.',
     ),
     cultureNote: L(
@@ -902,7 +902,7 @@ export const drinks: DrinkRecipe[] = [
     equipment: ['saucepan', 'fine-strainer', 'grinder', 'scale', 'mug'],
     recipe: {
       summary: L(
-        '示例（约 4 杯）：1 升水、1 根肉桂、约 50 克墨西哥粗糖（piloncillo，可用红糖代替），煮到糖溶化后离火，加入约 50 克中粗研磨咖啡，加盖浸泡约 5 分钟后过滤。',
+        '示例（约 4 杯）：1 升水、1 根肉桂、约 50 克墨西哥粗糖（可用红糖代替），煮到糖溶化后离火，加入约 50 克中粗研磨咖啡，加盖浸泡约 5 分钟后过滤。',
         'Illustrative (about 4 cups): 1 litre water, 1 cinnamon stick, about 50 g piloncillo (or dark brown sugar); simmer until dissolved, take off the heat, add about 50 g medium-coarse coffee, cover and steep about 5 minutes, then strain.',
       ),
       doseG: 50,
@@ -927,11 +927,11 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'ethiopian-buna',
     category: 'regional',
-    name: L('埃塞俄比亚咖啡（Jebena Buna）', 'Ethiopian coffee (jebena buna)'),
+    name: L('埃塞俄比亚咖啡', 'Ethiopian coffee (jebena buna)'),
     tagline: L('在陶壶中煮的浓郁咖啡，属于一场分三轮、以待客为核心的仪式。', 'Strong coffee brewed in a clay pot — part of a three-round ceremony centred on hospitality.'),
     origin: L('埃塞俄比亚和厄立特里亚——阿拉比卡咖啡的故乡。', 'Ethiopia and Eritrea — the homeland of arabica coffee.'),
     cultureNote: L(
-      '传统仪式中，主人当着客人的面烘焙生豆、研磨，在 jebena 陶壶里煮，常伴有焚香和爆米花等小食。咖啡分三轮奉上，阿姆哈拉语称 abol、tona、baraka（意为“祝福”），一轮比一轮淡。各地区和家庭的做法不同；下面只是简化的家庭版，不是仪式本身。',
+      '传统仪式中，主人当着客人的面烘焙生豆、研磨，在传统陶壶里煮，常伴有焚香和爆米花等小食。咖啡分三轮奉上，阿姆哈拉语称 abol、tona、baraka（意为“祝福”），一轮比一轮淡。各地区和家庭的做法不同；下面只是简化的家庭版，不是仪式本身。',
       'In the traditional ceremony the host roasts green beans in front of guests, grinds them and brews in a clay jebena, often with incense and snacks such as popcorn. Coffee is served in three rounds — in Amharic abol, tona and baraka (“blessing”) — each lighter than the last. Practices vary by region and family; the recipe below is a simplified home version, not the ceremony itself.',
     ),
     equipment: ['saucepan', 'grinder', 'scale', 'cup'],
@@ -963,7 +963,7 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'arabic-qahwa',
     category: 'regional',
-    name: L('阿拉伯咖啡（Gahwa / Qahwa）', 'Arabic coffee (gahwa / qahwa)'),
+    name: L('阿拉伯咖啡', 'Arabic coffee (gahwa / qahwa)'),
     tagline: L('浅烘咖啡加豆蔻慢煮，用小杯一口一口奉上，配椰枣。', 'Lightly roasted coffee simmered with cardamom, served a few sips at a time with dates.'),
     origin: L('阿拉伯半岛及周边地区。', 'The Arabian Peninsula and neighbouring regions.'),
     cultureNote: L(
@@ -973,7 +973,7 @@ export const drinks: DrinkRecipe[] = [
     equipment: ['dallah', 'saucepan', 'grinder', 'scale', 'espresso-cup'],
     recipe: {
       summary: L(
-        '示例：500 毫升水 + 约 15–20 克浅烘、中粗研磨咖啡，小火煮约 10–15 分钟；离火加入约 5 克豆蔻粉（有人加藏红花或丁香），静置沉淀后倒入 dallah 或保温壶。',
+        '示例：500 毫升水 + 约 15–20 克浅烘、中粗研磨咖啡，小火煮约 10–15 分钟；离火加入约 5 克豆蔻粉（有人加藏红花或丁香），静置沉淀后倒入阿拉伯咖啡壶或保温壶。',
         'Illustrative: 500 ml water + about 15–20 g light-roast, medium-coarse coffee, simmered about 10–15 minutes; off the heat add about 5 g ground cardamom (some add saffron or clove), let it settle, then pour into a dallah or thermos.',
       ),
       doseG: 18,
@@ -982,7 +982,7 @@ export const drinks: DrinkRecipe[] = [
     steps: [
       L('锅中放水和咖啡粉，煮开后转小火慢煮 10–15 分钟。', 'Bring water and coffee to a boil, then simmer gently 10–15 minutes.'),
       L('离火加入豆蔻（和其他香料），静置几分钟让渣沉淀。', 'Off the heat, add cardamom (and any other spices) and let it settle a few minutes.'),
-      L('小心倒入 dallah 或保温壶，留下底部的渣。', 'Pour carefully into a dallah or thermos, leaving the sediment behind.'),
+      L('小心倒入阿拉伯咖啡壶或保温壶，留下底部的渣。', 'Pour carefully into a dallah or thermos, leaving the sediment behind.'),
       L('倒入无把小杯，每次只倒一小口的量，配椰枣。', 'Pour into small handleless cups, only a few sips at a time, with dates.'),
     ],
     difficulty: 2,
@@ -994,8 +994,8 @@ export const drinks: DrinkRecipe[] = [
   {
     id: 'cafe-cubano',
     category: 'regional',
-    name: L('古巴咖啡（Café Cubano）', 'Café cubano'),
-    tagline: L('糖与第一滴咖啡打成浅色泡沫（espumita），甜而浓烈。', 'Sugar whipped with the first drops of coffee into a pale foam (espumita) — sweet and intense.'),
+    name: L('古巴咖啡', 'Café cubano'),
+    tagline: L('糖与第一滴咖啡打成浅色泡沫，甜而浓烈。', 'Sugar whipped with the first drops of coffee into a pale foam (espumita) — sweet and intense.'),
     origin: L('古巴，也是迈阿密等地古巴裔社区的日常饮品。', 'Cuba, and a daily ritual in Cuban communities such as Miami’s.'),
     cultureNote: L(
       '一大份“colada”常倒在小杯里和同事朋友分享。家里多用摩卡壶，咖啡馆用意式机。',

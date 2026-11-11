@@ -4,7 +4,7 @@
  */
 import { describe, expect, it } from 'vitest';
 import { DIAGRAM_PARTS, type Activity, type ActivityKind, type Lesson } from '../domain/contracts';
-import { CORE_TRACK_IDS, activities, drinks, equipment, getActivity, getLesson, lessons, sources, tracks } from './index';
+import { CORE_TRACK_IDS, activities, brands, drinks, equipment, getActivity, getLesson, lessons, places, sources, timeline, tracks } from './index';
 
 // ───────────────────────── helpers ─────────────────────────
 const dupes = (ids: string[]): string[] => ids.filter((id, i) => ids.indexOf(id) !== i);
@@ -218,6 +218,27 @@ describe('bilingual text', () => {
     findBadLocalized(equipment, 'equipment', bad);
     findBadLocalized(drinks, 'drinks', bad);
     expect(bad).toEqual([]);
+  });
+
+  // User rule (QA-R08): one language at a time. A zh name/title is the Chinese name only, never
+  // "意式浓缩（Espresso）". Latin names on their own (e.g. a brand, "Chemex 手冲") are allowed.
+  it('no zh name or title carries Latin words in parentheses', () => {
+    const glossed = /[（(][^）)]*[A-Za-zÀ-ÿ][^）)]*[）)]/;
+    const bad: string[] = [];
+    const walk = (value: unknown, path: string): void => {
+      if (Array.isArray(value)) return value.forEach((v, i) => walk(v, `${path}[${i}]`));
+      if (!value || typeof value !== 'object') return;
+      for (const [k, v] of Object.entries(value as Record<string, unknown>)) {
+        const loc = v as { zh?: unknown; en?: unknown } | null;
+        if ((k === 'name' || k === 'title') && loc && typeof loc.zh === 'string' && typeof loc.en === 'string') {
+          if (glossed.test(loc.zh)) bad.push(`${path}.${k}: ${loc.zh}`);
+        } else walk(v, `${path}.${k}`);
+      }
+    };
+    walk({ tracks, lessons, activities, equipment, drinks, brands, places, timeline }, 'content');
+    expect(bad).toEqual([]);
+    // the rule is live for the catalog QA flagged
+    expect(drinks.find((d) => d.id === 'espresso-shot')?.name.zh).toBe('意式浓缩');
   });
 });
 

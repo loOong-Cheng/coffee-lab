@@ -704,9 +704,8 @@ test('QA-R07 [open, P1] guided tier: the ratio for the current order is visible 
   expect(visible).toMatch(/1:\d/);
 });
 
-test('QA-R08 [open, P2] zh: Rush tickets and wall use one language (no Latin glosses in drink names)', async ({ page, isMobile }) => {
+test('QA-R08 [fixed] zh: Rush tickets and wall use one language (no Latin glosses in drink names)', async ({ page, isMobile }) => {
   test.skip(isMobile, 'once');
-  test.fail(true, 'QA-R08: drinks.ts zh names carry Latin glosses, e.g. 意式浓缩（Espresso）, 朗戈（Lungo，长萃浓缩）');
   await seedRush(page, { locale: 'zh' });
   await page.goto('/#/xr?game=rush');
   await page.getByTestId('rush-play-list').click();

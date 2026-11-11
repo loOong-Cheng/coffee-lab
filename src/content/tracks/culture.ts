@@ -96,14 +96,14 @@ export const lessons: Lesson[] = [
     level: 'beginner',
     title: L('意式浓缩与意大利吧台', 'Espresso and the Italian bar'),
     goal: L(
-      '能按时间排列意式咖啡机发展的几个关键节点，解释油脂（crema）从何而来，并纠正关于浓缩咖啡的常见误解。',
+      '能按时间排列意式咖啡机发展的几个关键节点，解释油脂从何而来，并纠正关于浓缩咖啡的常见误解。',
       'Order key milestones in espresso machine history, explain where crema comes from, and correct common espresso misconceptions.',
     ),
     prerequisites: [],
     keyConcepts: [
       L('浓缩是一种冲煮方法，不是一种豆子', 'Espresso is a brewing method, not a bean'),
       L('从蒸汽机器到拉杆，再到电动泵', 'From steam machines to levers to electric pumps'),
-      L('拉杆机器的高压带来了油脂（crema）', 'High-pressure lever machines brought crema'),
+      L('拉杆机器的高压带来了油脂', 'High-pressure lever machines brought crema'),
       L('摩卡壶把浓咖啡带进了意大利家庭', 'The moka pot brought strong coffee into Italian homes'),
       L('吧台习俗是文化习惯，不是规则', 'Bar customs are habits, not rules'),
     ],
@@ -219,7 +219,7 @@ export const activities: Activity[] = [
         callout: {
           kind: 'myth',
           text: L(
-            '这是传说：已知最早的文字版本写于 1671 年（Antoine Faustus Nairon），距离故事发生的年代已过去好几个世纪；人物名字和细节在不同版本中各不相同。',
+            '这是传说：已知最早的文字版本写于 1671 年，距离故事发生的年代已过去好几个世纪；人物名字和细节在不同版本中各不相同。',
             'This is a legend: the earliest known written version dates from 1671 (Antoine Faustus Nairon), centuries after the supposed events, and names and details vary between retellings.',
           ),
         },
@@ -227,7 +227,7 @@ export const activities: Activity[] = [
       {
         heading: L('最早可信的证据：15 世纪的也门', 'First credible evidence: 15th-century Yemen'),
         body: L(
-          '目前可信的最早饮用证据来自 15 世纪也门的苏菲派社群，他们喝咖啡以便在夜间祈祷时保持清醒。咖啡经红海港口摩卡（Mocha）对外贸易。',
+          '目前可信的最早饮用证据来自 15 世纪也门的苏菲派社群，他们喝咖啡以便在夜间祈祷时保持清醒。咖啡经红海港口摩卡对外贸易。',
           'The earliest credible evidence of coffee drinking comes from Sufi communities in 15th-century Yemen, who drank it to stay alert for night devotions. Coffee was traded through the Red Sea port of Mocha.',
         ),
         illustration: 'mocha-port',
@@ -297,7 +297,7 @@ export const activities: Activity[] = [
       },
       {
         id: 'cul-origins-q3',
-        prompt: L('“摩卡（mocha）”这个名字来自哪里？', 'Where does the name “mocha” come from?'),
+        prompt: L('“摩卡”这个名字来自哪里？', 'Where does the name “mocha” come from?'),
         options: [
           { id: 'a', text: L('也门的港口摩卡', 'The port of Mocha in Yemen'), correct: true, feedback: L('对，它曾是咖啡贸易的重要港口。', 'Yes — once a key coffee-trading port.') },
           { id: 'b', text: L('西班牙语里的“巧克力”', 'The Spanish word for chocolate'), correct: false, feedback: L('巧克力的联系是后来才有的，名字本身来自港口。', 'The chocolate link came later; the name comes from the port.') },
@@ -362,7 +362,7 @@ export const activities: Activity[] = [
       {
         heading: L('伊斯坦布尔，约 1555 年', 'Istanbul, c. 1555'),
         body: L(
-          '奥斯曼史学家佩切维（İbrahim Peçevi）记载，两位分别来自阿勒颇和大马士革的商人在伊斯坦布尔开了咖啡馆。人们在这里聊天、下棋、听诗、交换消息，咖啡馆因此被称为“智者的学校”。',
+          '奥斯曼史学家佩切维记载，两位分别来自阿勒颇和大马士革的商人在伊斯坦布尔开了咖啡馆。人们在这里聊天、下棋、听诗、交换消息，咖啡馆因此被称为“智者的学校”。',
           'The Ottoman chronicler İbrahim Peçevi recorded two merchants from Aleppo and Damascus opening coffeehouses in Istanbul. People came to talk, play games, hear poetry and trade news — hence the nickname “schools of the wise”.',
         ),
         illustration: 'coffeehouse-ottoman',
@@ -370,7 +370,7 @@ export const activities: Activity[] = [
       {
         heading: L('伦敦的“便士大学”', 'London’s “penny universities”'),
         body: L(
-          '伦敦第一家咖啡馆在 1652 年由 Pasqua Rosée 开设。花一便士买杯咖啡，就能加入各种辩论，所以有了“便士大学”的绰号。著名的劳合社（Lloyd’s）保险市场就起源于 17 世纪末 Edward Lloyd 的咖啡馆。',
+          '伦敦第一家咖啡馆在 1652 年由 Pasqua Rosée 开设。花一便士买杯咖啡，就能加入各种辩论，所以有了“便士大学”的绰号。著名的劳合社保险市场就起源于 17 世纪末 Edward Lloyd 的咖啡馆。',
           'London’s first coffeehouse was opened by Pasqua Rosée in 1652. For a penny’s coffee you could join any debate — hence “penny universities”. The Lloyd’s insurance market grew out of Edward Lloyd’s coffeehouse in the late 1600s.',
         ),
         illustration: 'coffeehouse-london',
@@ -391,7 +391,7 @@ export const activities: Activity[] = [
       {
         heading: L('巴黎的文学咖啡馆', 'Paris and its literary cafés'),
         body: L(
-          '普罗可布咖啡馆（Café Procope）开业于 1680 年代末（资料记为 1686 或 1689 年），后来成为作家和思想家的聚会场所。巴黎的咖啡馆与沙龙一起，成为思想交流的重要空间。',
+          '普罗可布咖啡馆开业于 1680 年代末（资料记为 1686 或 1689 年），后来成为作家和思想家的聚会场所。巴黎的咖啡馆与沙龙一起，成为思想交流的重要空间。',
           'Café Procope opened in the late 1680s (sources say 1686 or 1689) and became a meeting place for writers and thinkers. Alongside salons, Paris cafés became key spaces for exchanging ideas.',
         ),
         illustration: 'coffeehouse-paris',
@@ -524,7 +524,7 @@ export const activities: Activity[] = [
       {
         heading: L('拉杆与油脂', 'The lever and crema'),
         body: L(
-          'Achille Gaggia 的拉杆活塞机器（专利在 1930 年代末，战后才大规模商用）能产生高得多的压力，做出表面那层金棕色的油脂（crema）。今天我们熟悉的浓缩风格由此成形。',
+          'Achille Gaggia 的拉杆活塞机器（专利在 1930 年代末，战后才大规模商用）能产生高得多的压力，做出表面那层金棕色的油脂。今天我们熟悉的浓缩风格由此成形。',
           'Achille Gaggia’s lever-piston machines (patented in the late 1930s, widely sold after WWII) produced much higher pressure and the golden-brown crema on top. The espresso style we know took shape here.',
         ),
         illustration: 'espresso-lever',
@@ -540,7 +540,7 @@ export const activities: Activity[] = [
       {
         heading: L('在意大利的吧台', 'At the Italian bar'),
         body: L(
-          '在意大利点“un caffè”就是一杯浓缩，许多人站在吧台前（al banco）一两分钟喝完，站着喝通常也比坐下便宜。卡布奇诺多在早上喝——这是习惯，不是规则。',
+          '在意大利点“un caffè”就是一杯浓缩，许多人站在吧台前一两分钟喝完，站着喝通常也比坐下便宜。卡布奇诺多在早上喝——这是习惯，不是规则。',
           'In Italy “un caffè” is an espresso, often drunk standing at the bar (al banco) in a minute or two — standing is usually cheaper than sitting. Cappuccino is mostly a morning drink — a custom, not a rule.',
         ),
         illustration: 'italian-bar',
@@ -612,7 +612,7 @@ export const activities: Activity[] = [
       },
       {
         id: 'cul-espresso-q3',
-        prompt: L('关于油脂（crema），哪句话最准确？', 'Which statement about crema is most accurate?'),
+        prompt: L('关于油脂，哪句话最准确？', 'Which statement about crema is most accurate?'),
         options: [
           { id: 'a', text: L('它是压力带来的气泡和油脂，能反映新鲜度，但不能保证好喝', 'It’s gas bubbles and oils created by pressure; it can hint at freshness but doesn’t guarantee a tasty shot'), correct: true, feedback: L('对，好看的油脂下面也可能是一杯酸涩的浓缩。', 'Right — beautiful crema can sit on a sour shot.') },
           { id: 'b', text: L('有油脂就说明这杯一定好喝', 'Crema proves the shot is good'), correct: false, feedback: L('新鲜豆子即使萃取不足也能产生很多油脂，口味才是裁判。', 'Fresh beans make lots of crema even when under-extracted; taste is the judge.') },
@@ -674,7 +674,7 @@ export const activities: Activity[] = [
       {
         heading: L('埃塞俄比亚咖啡仪式', 'The Ethiopian coffee ceremony'),
         body: L(
-          '主人在客人面前烘焙生豆、研磨，在 jebena 陶壶里煮，常伴有焚香和爆米花等小食。咖啡分三轮奉上——阿姆哈拉语称 abol、tona、baraka（“祝福”），一轮比一轮淡。整个仪式可能持续很久，是相聚和交流的时间。',
+          '主人在客人面前烘焙生豆、研磨，在传统陶壶里煮，常伴有焚香和爆米花等小食。咖啡分三轮奉上——阿姆哈拉语称 abol、tona、baraka（“祝福”），一轮比一轮淡。整个仪式可能持续很久，是相聚和交流的时间。',
           'The host roasts green beans in front of guests, grinds them and brews in a clay jebena, often with incense and snacks such as popcorn. Coffee comes in three rounds — in Amharic abol, tona and baraka (“blessing”) — each lighter than the last. It can take a long time: the point is being together.',
         ),
         illustration: 'jebena',
@@ -683,7 +683,7 @@ export const activities: Activity[] = [
       {
         heading: L('越南：慢慢滴的那一杯', 'Vietnam: the slow drip'),
         body: L(
-          '金属滴滤壶（phin）放在杯口，浓咖啡一滴一滴落在炼乳上，再倒在冰上就是 cà phê sữa đá。越南是世界主要咖啡生产国之一，以罗布斯塔为主；河内还有蛋咖啡等变化。',
+          '金属滴滤壶放在杯口，浓咖啡一滴一滴落在炼乳上，再倒在冰上就是越南滴滤冰奶咖。越南是世界主要咖啡生产国之一，以罗布斯塔为主；河内还有蛋咖啡等变化。',
           'A metal phin sits on the glass and strong coffee drips onto condensed milk; pour it over ice for cà phê sữa đá. Vietnam is one of the world’s major producers, mostly of robusta; Hanoi also offers variations such as egg coffee.',
         ),
         illustration: 'phin',
@@ -703,7 +703,7 @@ export const activities: Activity[] = [
       {
         heading: L('墨西哥：陶罐咖啡', 'Mexico: café de olla'),
         body: L(
-          '咖啡与肉桂、粗糖（piloncillo）一起在陶罐里煮，名字就来自陶罐（olla）。常说它源自墨西哥革命时期的女兵，但这只是流行故事。',
+          '咖啡与肉桂、粗糖一起在陶罐里煮，名字就来自陶罐（olla）。常说它源自墨西哥革命时期的女兵，但这只是流行故事。',
           'Coffee simmered with cinnamon and piloncillo in a clay pot — the olla that gives it its name. It is often linked to the women soldiers of the Mexican Revolution, but that is a popular story, not documented history.',
         ),
         illustration: 'olla',
@@ -775,7 +775,7 @@ export const activities: Activity[] = [
         options: [
           { id: 'a', text: L('常说是因为当年鲜奶稀缺，但难以证实；如今它就是一种深受喜爱的风格', 'It’s often said fresh milk was scarce, though that’s hard to verify; today it’s simply a beloved style'), correct: true, feedback: L('对，区分“常见说法”和“已证实的史实”。', 'Right — separate “commonly told” from “documented”.') },
           { id: 'b', text: L('法律规定必须加炼乳', 'Condensed milk was required by law'), correct: false, feedback: L('没有这样的规定，这是饮食习惯的演变。', 'No such law — it’s a culinary habit that evolved.') },
-          { id: 'c', text: L('越南咖啡从来不加奶', 'Vietnamese coffee is never drunk with milk'), correct: false, feedback: L('黑咖啡（cà phê đen）和奶咖啡都很常见。', 'Both black (cà phê đen) and milk versions are common.') },
+          { id: 'c', text: L('越南咖啡从来不加奶', 'Vietnamese coffee is never drunk with milk'), correct: false, feedback: L('黑咖啡和奶咖啡都很常见。', 'Both black (cà phê đen) and milk versions are common.') },
         ],
         explanation: L('诚实地讲文化，就要标出不确定的部分。', 'Telling culture honestly means flagging what’s uncertain.'),
       },

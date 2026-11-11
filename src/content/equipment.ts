@@ -178,7 +178,7 @@ export const equipment: Equipment[] = [
     category: 'brewer',
     name: L('手冲滤杯', 'Pour-over dripper'),
     description: L(
-      '放滤纸、承接咖啡粉的漏斗，常见有锥形（如 V60 式）和平底（如蛋糕杯式）。形状和出水孔会影响流速，但没有“唯一正确”的滤杯。',
+      '放滤纸、承接咖啡粉的漏斗，常见有锥形和平底（如蛋糕杯式）。形状和出水孔会影响流速，但没有“唯一正确”的滤杯。',
       'The cone or flat-bottom funnel that holds the filter and grounds (cone “V60-style”, flat “wave-style”, etc.). Shape and holes affect flow, but no single dripper is “correct”.',
     ),
     essentialFor: ['pourover'],
@@ -219,7 +219,7 @@ export const equipment: Equipment[] = [
   {
     id: 'aeropress',
     category: 'brewer',
-    name: L('爱乐压（AeroPress）', 'AeroPress'),
+    name: L('爱乐压', 'AeroPress'),
     description: L(
       '先浸泡、再用手的轻压力把咖啡推过滤纸的小型冲煮器。耐摔、便携，配方变化极多。2005 年由发明家 Alan Adler 推出。',
       'A small brewer that steeps, then uses gentle hand pressure to push coffee through a paper filter. Sturdy, portable and endlessly tweakable. Introduced by inventor Alan Adler in 2005.',
@@ -255,7 +255,7 @@ export const equipment: Equipment[] = [
   {
     id: 'ibrik',
     category: 'brewer',
-    name: L('土耳其咖啡壶（cezve / ibrik）', 'Cezve / ibrik'),
+    name: L('土耳其咖啡壶', 'Cezve / ibrik'),
     description: L(
       '长柄小铜壶或不锈钢壶，用来在小火上煮极细的咖啡粉，形成泡沫。',
       'A small long-handled pot (often copper or steel) for slowly heating very finely ground coffee on low heat to form foam.',
@@ -265,7 +265,7 @@ export const equipment: Equipment[] = [
   {
     id: 'phin',
     category: 'brewer',
-    name: L('越南滴滤壶（phin）', 'Vietnamese phin filter'),
+    name: L('越南滴滤壶', 'Vietnamese phin filter'),
     description: L(
       '放在杯口上的金属小滤器，带压片和盖子，咖啡缓慢滴入杯中，通常 4–5 分钟。',
       'A small metal filter that sits on the cup, with a press plate and lid; coffee drips slowly into the cup, usually over 4–5 minutes.',
@@ -298,7 +298,7 @@ export const equipment: Equipment[] = [
   {
     id: 'jebena',
     category: 'brewer',
-    name: L('埃塞俄比亚陶壶（jebena）', 'Jebena (Ethiopian clay pot)'),
+    name: L('埃塞俄比亚陶壶', 'Jebena (Ethiopian clay pot)'),
     description: L(
       '圆肚、细长颈的陶制咖啡壶，埃塞俄比亚和厄立特里亚咖啡仪式的核心器具。家里也可以用小锅做简化版。',
       'A round-bellied, long-necked clay coffee pot at the centre of Ethiopian and Eritrean coffee ceremonies. A saucepan works for a simplified home version.',
@@ -308,7 +308,7 @@ export const equipment: Equipment[] = [
   {
     id: 'dallah',
     category: 'brewer',
-    name: L('阿拉伯咖啡壶（dallah）', 'Dallah (Arabic coffee pot)'),
+    name: L('阿拉伯咖啡壶', 'Dallah (Arabic coffee pot)'),
     description: L(
       '有弯曲长嘴的金属咖啡壶，用来冲煮和倒阿拉伯咖啡（常加豆蔻），也是待客的象征。保温壶也常被用来盛装。',
       'A metal pot with a long curved spout used to brew and pour Arabic coffee (often with cardamom) and a symbol of hospitality. A thermos is also commonly used to serve.',
@@ -386,7 +386,7 @@ export const equipment: Equipment[] = [
     category: 'serving',
     name: L('雪克杯（摇杯）', 'Shaker'),
     description: L(
-      '带盖子的摇杯，用来摇出希腊冰咖啡（frappé）那样的泡沫。带紧盖子的罐子也可以。',
+      '带盖子的摇杯，用来摇出希腊冰咖啡那样的泡沫。带紧盖子的罐子也可以。',
       'A lidded shaker for whipping up foam, as in Greek frappé. A tightly lidded jar works too.',
     ),
     safety: L('只摇冷饮，热液体摇晃会产生压力喷出。', 'Shake cold liquids only — shaking hot liquid can build pressure and spray.'),

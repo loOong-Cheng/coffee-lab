@@ -238,7 +238,7 @@ export const activities: Activity[] = [
       {
         heading: L('意式浓缩是什么', 'What makes espresso espresso'),
         body: L(
-          '意式浓缩是让热水在压力下（很多机器约为 9 bar）快速穿过一小块压实的细咖啡粉，几十秒内得到一小杯浓郁的咖啡，表面常有一层金棕色的油脂（crema）。',
+          '意式浓缩是让热水在压力下（很多机器约为 9 bar）快速穿过一小块压实的细咖啡粉，几十秒内得到一小杯浓郁的咖啡，表面常有一层金棕色的油脂。',
           'Espresso forces hot water under pressure — around 9 bar on many machines — through a small, compact bed of fine coffee. In under a minute you get a small, concentrated drink, often topped with golden-brown crema.',
         ),
         illustration: 'espresso-cross-section',
@@ -800,7 +800,7 @@ export const activities: Activity[] = [
       {
         heading: L('短萃、常规、长萃', 'Short, normal, long'),
         body: L(
-          '比例越小越短、越浓（常称 ristretto 风格，约 1:1–1:1.5）；约 1:2 常被当作“常规”；比例更大更长、更淡（lungo 风格，约 1:2.5–1:3 或更多）。名称和数字在不同咖啡馆、不同国家并不统一。',
+          '比例越小越短、越浓（常称短萃，即芮斯崔朵，约 1:1–1:1.5）；约 1:2 常被当作“常规”；比例更大更长、更淡（长萃，即朗戈，约 1:2.5–1:3 或更多）。名称和数字在不同咖啡馆、不同国家并不统一。',
           'Smaller ratios are shorter and more concentrated (often called ristretto-style, about 1:1–1:1.5); around 1:2 is often treated as "normal"; bigger ratios are longer and lighter (lungo-style, about 1:2.5–1:3 or more). Names and numbers vary between cafés and countries.',
         ),
         illustration: 'short-normal-long',
@@ -1707,7 +1707,7 @@ export const activities: Activity[] = [
       {
         heading: L('常见奶咖一览', 'Milk drinks at a glance'),
         body: L(
-          '卡布奇诺：意式 + 奶 + 较厚的奶泡。拿铁：意式 + 更多牛奶、较薄的奶泡，杯子更大。澳白（Flat White，也译“馥芮白”）：通常杯子比拿铁小、牛奶更少，奶泡很薄、丝滑，咖啡味更突出。可塔朵（Cortado）：意式加上大约等量的热牛奶。',
+          '卡布奇诺：意式 + 奶 + 较厚的奶泡。拿铁：意式 + 更多牛奶、较薄的奶泡，杯子更大。澳白（也叫“馥芮白”）：通常杯子比拿铁小、牛奶更少，奶泡很薄、丝滑，咖啡味更突出。可塔朵：意式加上大约等量的热牛奶。',
           'Cappuccino: espresso, milk and a thicker foam layer. Latte: espresso with more milk and thinner foam, in a bigger cup. Flat white: usually a smaller cup than a latte, so less milk, with thin, silky foam — the coffee stands out. Cortado: espresso cut with roughly equal warm milk.',
         ),
         illustration: 'milk-drinks',

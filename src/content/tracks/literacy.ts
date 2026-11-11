@@ -154,7 +154,7 @@ export const activities: Activity[] = [
         callout: {
           kind: 'culture',
           text: L(
-            '约 5% 的果实只有一颗圆形种子，叫“圆豆”（peaberry）。',
+            '约 5% 的果实只有一颗圆形种子，叫“圆豆”。',
             'About 5% of cherries hold a single round seed, called a peaberry.',
           ),
         },
@@ -162,7 +162,7 @@ export const activities: Activity[] = [
       {
         heading: L('两大品种', 'Two main species'),
         body: L(
-          '阿拉比卡（Arabica）通常种在较高海拔、气候较温和的地方，风味常更细腻、酸质更明显。罗布斯塔（Robusta，学名 Canephora）更耐病、种在较低较热的地方，咖啡因更多，口感常更厚重、苦味更突出，很多意式拼配会用到它。',
+          '阿拉比卡（小粒种）通常种在较高海拔、气候较温和的地方，风味常更细腻、酸质更明显。罗布斯塔（中粒种）更耐病、种在较低较热的地方，咖啡因更多，口感常更厚重、苦味更突出，很多意式拼配会用到它。',
           'Arabica usually grows at higher, milder altitudes and often tastes more delicate and acidic. Robusta (Canephora) is hardier, grows lower and warmer, carries more caffeine and tends to taste heavier and more bitter — many espresso blends include some.',
         ),
         illustration: 'arabica-robusta',
