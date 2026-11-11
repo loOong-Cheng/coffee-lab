@@ -149,3 +149,14 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - Lead re-run on that commit: typecheck ✓ · unit 518/518 · full e2e **278 passed / 16 viewport skips / 0 failed**.
 - Cold-run flake: App/home/lesson/cafe unit tests timed out only on a cold first `vitest run`. Mitigation: RTL `asyncUtilTimeout` 5 s and vitest `testTimeout` 20 s. After clearing the vite/vitest caches, two consecutive runs were 518/518. The original failure could not be reproduced on demand, so this stays a mitigation, not a proven fix.
 - Still hardware-unverified: the fixed meshes have only been seen in headless Chromium (software WebGL), not on a headset.
+
+## Music mood switch fix (2026-11-11)
+- User report: "the music does not switch correctly." A debugging fork fixed it in `47425cc` (`src/audio/music.ts`). The old deferred `pendingMood` caused three problems:
+  - switching away and straight back played the wrong mood;
+  - a stale choice survived `stop()`;
+  - the switch waited up to ~5 s for already-scheduled bars to finish.
+- Now notes go through per-mood voice gains. A switch fades the old voices out (~0.4 s), and the new mood starts ~0.12 s later. The last choice always wins.
+- New `src/audio/music.test.ts` (7 tests, fake AudioContext): 6 of 7 failed before the fix.
+- Lead re-run on `47425cc`: typecheck ✓ · unit **525/525** (54 files) · full e2e **278 passed / 16 viewport skips / 0 failed**.
+- Lead code review: `setMood` while stopped only records the choice; retired voices are disconnected after 2.5 s; nothing throws from the music path.
+- Not verified: audible behavior by a human ear. The fork's headless Web Audio probe measured the new mood at 0.13 s and the old voices at ~1/70 of their level by 0.6 s.
