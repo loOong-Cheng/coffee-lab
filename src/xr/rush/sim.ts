@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Café Rush — pure deterministic simulation (no rendering, no Babylon, no React).
  *
  * One discrete ACTION API shared by the 3D scene, the XR controllers and the accessible keyboard
@@ -13,7 +13,7 @@
 import type { Guidance, LocalizedText } from '../../domain/contracts';
 import type { CupSize, Extra, MilkMl, ShotStyle, WaterMl } from '../../features/cafe/model';
 import { CUSTOMERS } from '../../features/cafe/specs';
-import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, type RushLevelNo } from './config';
+import { FIXED_STEP_MS, INPUT_COST, LEVELS, PROCESS, RELAXED, SCORING, type RushLevelNo } from './config';
 import { basePoints, drinkName, hotWaterSec, steamSec, workEstimateSec, type Brewer } from './drinks';
 import { explain, judge, judgementSummary, type Addition, type Explanation, type RushDiff } from './judge';
 import { rngNext } from './rng';
@@ -874,4 +874,16 @@ export function reduce(s: RushState, a: RushAction): RushState {
       return d;
     }
   }
+}
+
+
+/**
+ * Action-list input (keyboard / screen reader): the same action, plus a small handling cost in game
+ * time so a list player cannot act faster than a hand could reach. Standard mode only.
+ */
+export function listAct(s: RushState, a: PlayerAction): RushState {
+  const n = reduce(s, a);
+  if (n.mode !== 'standard' || !n.lastResult.ok || n.status !== 'playing') return n;
+  const t = tick(n, INPUT_COST.listActionCostSec);
+  return { ...t, effects: [...n.effects, ...t.effects] };
 }

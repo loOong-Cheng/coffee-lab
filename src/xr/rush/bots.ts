@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Tuning bots. They play through the SAME public action API as a human (reduce/tick), with a
  * per-action latency, an error rate (one wrong component, fixed after the customer's feedback)
  * and a planning style:
@@ -93,6 +93,29 @@ function prog(c: CupItem): Prog {
   return p;
 }
 const coffeeDone = (p: Prog, n: Needs) => (n.shot ? p.shot : n.brewer ? p.brew : true);
+
+/** Can this cup still become the drink? (Used to adopt a cup a human took, and to bin a wrong one.) */
+export function compatible(c: CupItem, n: Needs, allowRushedBloom = false): boolean {
+  if (c.size !== n.cup) return false;
+  let coffee = false;
+  for (const a of c.adds) {
+    if (a.k === 'shot') {
+      if (!n.shot || a.style !== n.shot || coffee) return false;
+      coffee = true;
+    } else if (a.k === 'brew') {
+      if (a.brewer !== n.brewer || (!a.bloomed && !allowRushedBloom) || coffee) return false;
+      coffee = true;
+    } else if (a.k === 'water') {
+      if (n.water === 'none' || a.ml !== n.waterMl || (n.water === 'after') !== coffee) return false;
+    } else if (a.k === 'milk') {
+      if (a.texture !== n.milk || a.ml !== n.milkMl || a.overheated) return false;
+    } else if (a.k === 'ice') {
+      if (!n.ice) return false;
+    } else if (!n.extras.includes(a.extra)) return false;
+  }
+  if (n.water === 'before' && coffee && !c.adds.some((a) => a.k === 'water')) return false;
+  return true;
+}
 const complete = (p: Prog, n: Needs) =>
   coffeeDone(p, n) && (n.water === 'none' || p.water) && (n.milk === 'none' || p.milk) && (!n.ice || p.ice) && n.extras.every((e) => p.extras.has(e));
 
@@ -216,6 +239,7 @@ function jobAction(bot: Bot, s: RushState, job: Job): RushAction | null {
   if (!loc) return null;
   const locked = slotLocked(s, loc);
   const p = prog(cup);
+  if (!compatible(cup, n, job.rushBloom)) job.redo = true;
   const needsHeld = job.redo || (n.ice && !p.ice) || n.extras.some((e) => !p.extras.has(e)) || complete(p, n);
   if (needsHeld) return locked ? null : grab(loc);
   const onTray = loc === 'tray1' || loc === 'tray2';
@@ -302,7 +326,7 @@ function handleHeld(bot: Bot, s: RushState, h: Item): RushAction | null {
   switch (h.kind) {
     case 'cup': {
       const job = jobOfCup(bot, h.id);
-      if (!job || job.redo) {
+      if (!job || job.redo || !compatible(h, job.needs, job.rushBloom)) {
         if (job) {
           job.redo = false;
           job.cupId = null;
@@ -420,6 +444,18 @@ function syncJobs(bot: Bot, s: RushState) {
     // Triage: a customer about to leave is not worth starting (their order still counts as missed).
     if (p.triage && o.remainingMs !== null && o.remainingMs < workEstimateSec(o.drinkId) * (p.latencySec / PATIENCE.perActionSec) * 1000) continue;
     bot.jobs.push(newJob(bot, o.id, o.drinkId));
+  }
+  // Adopt cups started by someone else (a human, when this bot is the guided-tier coach).
+  for (const j of bot.jobs) {
+    if (j.cupId && s.items[j.cupId]) continue;
+    j.cupId = null;
+    for (const id in s.items) {
+      const it = s.items[id]!;
+      if (it.kind === 'cup' && !jobOfCup(bot, id) && compatible(it, j.needs, j.rushBloom)) {
+        j.cupId = id;
+        break;
+      }
+    }
   }
 }
 

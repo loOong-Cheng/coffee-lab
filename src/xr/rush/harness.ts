@@ -108,6 +108,8 @@ export function checkTargets(rows: TuningRow[]): TargetCheck[] {
   const out: TargetCheck[] = [];
   const n1 = get(1, 'novice').star1;
   out.push({ label: 'novice L1 ≥1★', value: n1, target: '≥ 90%', met: n1 >= 0.9 });
+  const n2 = get(2, 'novice').star1;
+  out.push({ label: 'novice L2 ≥1★ (M2: gentle milk intro)', value: n2, target: '≥ 50%', met: n2 >= 0.5 });
   for (const l of RUSH_LEVELS) {
     const v = get(l, 'average').star1;
     out.push({ label: `average L${l} ≥1★`, value: v, target: '≥ 60%', met: v >= 0.6 });
@@ -153,7 +155,7 @@ export function tuningMarkdown(rows: TuningRow[]): string {
   lines.push('- **Queue cap is the main governor.** New customers enter only while fewer than *max open* orders wait, so a slower player meets fewer customers instead of an avalanche. Arrival gaps are short so a fast player is never starved (see the idle column).');
   lines.push('- **3★ needs speed tips**: 1★/2★ come from correct drinks, 3★ (≥ 110% of menu value) needs fast, correct serves. This separates the average bot (0–15% 2★+ from L2 on) from the expert.');
   lines.push('- **Triage matters.** Without skipping customers who are about to leave, even the expert collapsed on L5 (9.5 timeouts/shift); with triage it serves 14/shift. The design doc asks M2 to teach this (patience bars, "about to leave" cue).');
-  lines.push('- **Novice = strictly serial** (never overlaps tasks). It clears L1 every time and drops fast after milk arrives on L2: overlapping tasks is the skill the levels teach. Relaxed mode (no timers) is the path for players who want the recipes without the clock.');
+  lines.push('- **Novice = strictly serial** (never overlaps tasks). L2 (first milk level) holds only 2 customers at a time with extra patience so it still clears it most shifts; from L3 on, overlapping tasks is the skill the levels teach. Relaxed mode (no timers) is the path for players who want the recipes without the clock.');
   lines.push('- Targets were kept as briefed; L5 margins at M1 hand-off: average 1★ 80% (goal 60%), expert 3★ 73% (goal 40%).');
   lines.push('');
   lines.push('## Level knobs (from `src/xr/rush/config.ts`)');

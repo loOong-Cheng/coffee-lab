@@ -4,3 +4,4 @@ export * from './drinks';
 export * from './judge';
 export * from './sim';
 export * from './record';
+export * from './filterSpecs';

@@ -1,4 +1,4 @@
-import { describe, expect, it } from 'vitest';
+﻿import { describe, expect, it } from 'vitest';
 import { drinks } from '../../content/drinks';
 import { getBuildSpec } from '../../features/cafe/specs';
 import { LEVELS, PROCESS, RELAXED, RUSH_LEVELS, SCORING } from './config';
@@ -338,7 +338,7 @@ describe('Café Rush · evidence record', () => {
     });
     expect(r.notTrained.length).toBeGreaterThan(0);
     const ev = rushCompletionEvent(r, { immersive: true, touch: false });
-    expect(ev).toMatchObject({ evidence: 'simulated', mode: 'xr', activityId: 'xr-cafe-rush-l1', lessonId: '' });
+    expect(ev).toMatchObject({ evidence: 'simulated', mode: 'xr', activityId: 'rush:1', lessonId: '' });
     expect(rushCompletionEvent(r, { immersive: false, touch: false }).mode).toBe('desktop');
     expect(ev.score).toBeGreaterThanOrEqual(0);
     expect(ev.score).toBeLessThanOrEqual(1);

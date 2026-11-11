@@ -1,4 +1,4 @@
-/**
+﻿/**
  * /xr — the optional XR coffee lab: mission picker (#/xr), deep-linked mission
  * briefs (#/xr?mission=<id>), and the player. Capability check → "Enter VR"
  * only when the browser reports support; otherwise 3D here or the action list.
@@ -20,6 +20,10 @@ import { MISSIONS, getMission, missionHref, parseMissionParam } from './missions
 import { detectWebGL, xrEntryState, type XrEntryState } from './entry';
 import { S } from './strings';
 import { MissionPlayer } from './ui/MissionPlayer';
+import { RushGame } from './rush/ui/RushGame';
+import { R as RUSH } from './rush/strings';
+import { bestStarsFromEvents } from './rush/record';
+import { RUSH_LEVELS } from './rush/config';
 import './xr.css';
 
 /** Per-mission stores survive route remounts within this page session so "Exit" → "Resume" works. */
@@ -33,7 +37,8 @@ export default function XrRoute() {
   const { t, locale } = useI18n();
   const location = useLocation();
   const def = getMission(parseMissionParam(location.search));
-  useDocumentTitle(def ? def.short : S.labTitle);
+  const game = new URLSearchParams(location.search).get('game');
+  useDocumentTitle(game === 'rush' ? RUSH.title : def ? def.short : S.labTitle);
   const defaultGuidance = useLearner((s) => s.prefs.defaultGuidance);
   const support = useXrSupport();
   const caps = useCapabilities();
@@ -75,6 +80,7 @@ export default function XrRoute() {
     );
   }
 
+  if (game === 'rush') return <RushGame can3d={entry.canPlay3D} canVR={entry.canEnterVR} mobile={caps?.screen === 'mobile'} />;
   if (!def) return <Picker entry={entry} guidance={guidance} setGuidance={setGuidance} />;
 
   const resumable = (() => {
@@ -171,6 +177,24 @@ function Picker({ entry, guidance, setGuidance }: { entry: XrEntryState; guidanc
         <h2>{t(S.playingAt)}</h2>
         <GuidanceSelector value={guidance} onChange={setGuidance} locale={locale} label={t(S.playingAt)} />
       </div>
+      <h2 className="xr-section-h">{t(RUSH.gamesHeading)}</h2>
+      <ul className="xr-games">
+        <li className="xr-card xr-mission" data-testid="xr-game-rush">
+          <h3>
+            <Link to="/xr?game=rush">{t(RUSH.title)}</Link>
+          </h3>
+          <p>{t(RUSH.tagline)}</p>
+          <p className="xr-small" data-testid="xr-game-rush-stars">
+            {(() => {
+              const best = bestStarsFromEvents(events);
+              return RUSH_LEVELS.map((l) => `L${l} ${'★'.repeat(best[l] ?? 0)}${'☆'.repeat(3 - (best[l] ?? 0))}`).join(' · ');
+            })()}
+          </p>
+          <Link className="cl-btn cl-btn--primary cl-btn--md" to="/xr?game=rush">
+            {t(RUSH.openGame)}
+          </Link>
+        </li>
+      </ul>
       <h2 className="xr-section-h">{t(S.missionsHeading)}</h2>
       <ul className="xr-missions">
         {MISSIONS.map((m) => {
