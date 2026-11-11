@@ -9,6 +9,7 @@ import { learnerActions, useLearner } from '../../state';
 import { Button, Callout, EmptyState, Illustration, Tag } from '../../ui';
 import { drinkPracticeId, brewKindForDrink } from '../practice/plan';
 import { equipmentName, getDrink } from '../practice/catalog';
+import { DrinkBrands } from '../brands/DrinkBrands';
 import { drinkIllustration } from './art';
 import { gearStatus, mentionsLegend } from './filters';
 import { CATEGORY_TEXT, CONFIDENCE_TEXT, DIFFICULTY_TEXT } from './text';
@@ -300,6 +301,8 @@ export function DrinkDetail({ drinkId }: { drinkId: string }) {
           </ul>
         </section>
       )}
+
+      <DrinkBrands drinkId={drink.id} />
 
       {sources.length > 0 && (
         <details className="at-sources">

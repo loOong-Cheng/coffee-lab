@@ -1,0 +1,273 @@
+/* Coffee Brands. Prefix: br-. Tokens only (light + dark come from tokens.css). */
+.br-page,
+.br-detail {
+  display: grid;
+  gap: var(--space-5);
+}
+.br-detail {
+  max-width: 52rem;
+  margin-inline: auto;
+}
+.br-head {
+  display: grid;
+  gap: var(--space-2);
+}
+.br-title {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-2xl);
+  line-height: var(--leading-tight);
+}
+.br-lead {
+  margin: 0;
+  max-width: var(--measure);
+  color: var(--color-text-muted);
+  font-size: var(--text-lg);
+}
+.br-h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+.br-count {
+  font-size: var(--text-base);
+  font-weight: var(--weight-regular);
+  color: var(--color-text-muted);
+}
+.br-small {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.br-meta {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* filters */
+.br-filters {
+  display: grid;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+}
+.br-input {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 48px;
+  padding: var(--space-2) var(--space-3);
+  border: 1.5px solid var(--color-border-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text);
+  font: inherit;
+  font-size: 1rem;
+}
+.br-input:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 1px;
+}
+.br-fieldset {
+  display: grid;
+  gap: var(--space-2);
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+.br-fieldset > legend {
+  padding: 0;
+  margin-bottom: var(--space-2);
+}
+.br-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.br-chips .cl-chip {
+  min-height: var(--tap-min);
+}
+.br-filters__foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+/* list */
+.br-group {
+  display: grid;
+  gap: var(--space-3);
+}
+.br-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: var(--space-3);
+  grid-template-columns: 1fr;
+}
+@media (min-width: 40rem) {
+  .br-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .br-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+.br-grid > li {
+  display: grid;
+}
+.br-card {
+  position: relative;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-3);
+  align-items: start;
+  min-height: var(--tap-min);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  transition:
+    transform var(--dur-fast) var(--ease-out),
+    box-shadow var(--dur-fast) var(--ease-out);
+}
+.br-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-2);
+}
+.br-card:has(.br-card__link:focus-visible) {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+.br-card__body {
+  display: grid;
+  gap: var(--space-1);
+  min-width: 0;
+}
+.br-card__body > p {
+  margin: 0;
+}
+.br-card__title {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-tight);
+}
+.br-card__link {
+  color: var(--color-text);
+  text-decoration: none;
+}
+.br-card__link::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+}
+.br-card__link:focus-visible {
+  outline: none;
+}
+.br-card__known {
+  font-size: var(--text-sm);
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.br-badge {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-surface-2);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+/* detail */
+.br-back {
+  justify-self: start;
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+}
+.br-hero {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--space-4);
+  align-items: start;
+}
+.br-hero .br-badge {
+  width: 64px;
+  height: 64px;
+}
+.br-hero__body {
+  display: grid;
+  gap: var(--space-2);
+}
+.br-hero__body > p {
+  margin: 0;
+}
+.br-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-1);
+}
+.br-section {
+  display: grid;
+  gap: var(--space-3);
+}
+.br-section > p {
+  margin: 0;
+  max-width: var(--measure);
+}
+.br-list {
+  display: grid;
+  gap: var(--space-1);
+  margin: 0;
+  padding-left: 1.2em;
+}
+.br-pills {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.br-pill,
+.br-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.br-chip {
+  background: var(--color-surface-2);
+}
+.br-pill:hover {
+  border-color: var(--color-accent);
+}
+.br-sources {
+  font-size: var(--text-sm);
+}
+.br-sources > summary {
+  display: flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  cursor: pointer;
+}
+.br-sources a {
+  overflow-wrap: anywhere;
+}

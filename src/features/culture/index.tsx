@@ -8,6 +8,7 @@ import { useDocumentTitle } from '../../app/useDocumentTitle';
 import { getTrackLessons, places, timeline } from '../../content';
 import { useI18n } from '../../i18n';
 import { Button, Icon } from '../../ui';
+import { BrandsEntryLink } from '../brands/BrandsEntry';
 import { CultureExplorer } from './CultureExplorer';
 import { S } from './strings';
 import './culture.css';
@@ -35,6 +36,7 @@ export default function CulturePage() {
           <Button variant="ghost" size="sm" icon="clock" onClick={jumpToTimeline} data-testid="culture-jump-timeline">
             {t(S.jumpTimeline)}
           </Button>
+          <BrandsEntryLink testId="culture-brands-link" />
         </div>
       </header>
       <CultureExplorer

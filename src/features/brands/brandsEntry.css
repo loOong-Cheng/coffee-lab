@@ -1,0 +1,41 @@
+/* Entry links into /brands (atlas + culture + drink detail). Prefix: br-entry / br-drink. Tokens only. */
+.br-entry {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  gap: var(--space-1);
+  min-height: var(--tap-min);
+  font-weight: var(--weight-bold);
+  color: var(--color-accent);
+}
+.br-drink {
+  display: grid;
+  gap: var(--space-2);
+}
+.br-drink > h2 {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: var(--text-xl);
+}
+.br-drink ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+.br-drink a {
+  display: inline-flex;
+  align-items: center;
+  min-height: var(--tap-min);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  text-decoration: none;
+}
+.br-drink a:hover {
+  border-color: var(--color-accent);
+}

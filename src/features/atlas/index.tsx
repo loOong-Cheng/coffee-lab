@@ -13,6 +13,7 @@ import { useLearner } from '../../state';
 import { Button, Chip, EmptyState, Illustration, SegmentedControl, Tag } from '../../ui';
 import { drinks } from '../practice/catalog';
 import { CultureEntryLink } from '../culture/CultureEntry';
+import { BrandsEntryLink } from '../brands/BrandsEntry';
 import { drinkIllustration } from './art';
 import { DrinkDetail } from './DrinkDetail';
 import {
@@ -117,6 +118,7 @@ function AtlasHome() {
         </h1>
         <p className="at-lead">{t(S.lead(drinks.length, categoryCount))}</p>
         <CultureEntryLink testId="atlas-culture-link" />
+        <BrandsEntryLink testId="atlas-brands-link" />
       </header>
 
       {featured && !anyFilter && (
