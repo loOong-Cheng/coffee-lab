@@ -168,3 +168,8 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - Lead review: on → `setMood` + `start()` + fade-in, so a stopped generator restarts.
 - Lead re-run on `7985395`: typecheck ✓ · unit **527/527** · full e2e **278 passed / 16 viewport skips / 0 failed**.
 - Not verified by a human ear.
+
+## U6 · Coffee brands + Café Rush M1 (2026-11-11)
+- **Brands content** (coffee-curriculum, `36490ac`): 35 brands (12 chains, 10 roasters, 13 equipment), sources doc `docs/CONTENT_SOURCES_BRANDS.md`; 20 `verified` / 15 `rule-of-thumb`. Open: some zh brand names need a native check; Cotti HQ reported differently (text says so).
+- **Brands UI** (web-product-engineer, `e3f2dd8`): `#/brands`, `#/brands/:id`, links from Atlas + Culture, "Brands known for this" on drink detail. Lead re-run on merged main: typecheck ✓ · unit 551/551 · full e2e **291 passed / 17 viewport skips / 0 failed** (`--workers=6`). Note: 2 unrelated specs (offline setup, learn:112) flaked once each at 12 workers under concurrent agent load and passed when run alone. Treat as load flakiness; watch.
+- **Café Rush M1** (xr-interaction-engineer, `c5339b7`): design doc `docs/RUSH_DESIGN.md`, deterministic sim `src/xr/rush/` (shared action API, judging reuses café `evaluate()`/`BUILD_SPECS`, recipe wall derived from `drinks.ts`, compressed game time labelled with real references, evidence `simulated`), 3 bot profiles + tuning harness → `reports/GAME_TUNING.md` (all lead targets met; novice cliff at L2 noted for M2). Lead re-run on merged main: typecheck ✓ · unit **580/580**. No UI yet.
