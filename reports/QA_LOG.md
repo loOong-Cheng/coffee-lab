@@ -332,3 +332,9 @@ Not bugs (checked):
 ### Not tested
 - **Real headset: NOT TESTED ON HEADSET.** This covers the immersive session, controllers, grip and trigger, haptics, readability of the in-headset HUD and wall, recenter and seated mode, and frame rate.
 - Real phones, a human first-time player (a scripted guided player stands in), real screen-reader software, and audio/SFX.
+
+### QA gate #2 fixes (2026-11-11)
+- Content (`4e54ea9`, `c745a0c`, `7168206`): QA-R08 fixed, 29 zh names now one language, plus ~30 teaching-text glosses reworded; content test guards zh names and titles. QA-B01/B02/B03 fixed: brand safety notes on all equipment brands, zh sources without English notes, zh disclaimer 咖啡实验室, en source titles in English.
+- Café Rush (`273e740`): QA-R01 to R07 and R10, R11 fixed: polite announcements; list cost waived L1–L2 and L2 patience ×2.4; `human-list` bot; sticky ticket strip on phone; key ratios on tickets and the wall open on desktop; correct component labels (evaporated/condensed milk); a game-vs-real time legend for every process; focus, inline pause, accurate lobby copy, walk-out reasons.
+- Lead re-run on merged main `bcde8ed`: typecheck ✓ · unit **612/612** · full e2e **344 passed / 42 viewport skips / 0 failed**.
+- Open (follow-up): list mode L3–L5 still hard at human pace (human-list ≥1★ 28/20/3%); real-speed L2 e2e uses a random seed; desktop tickets scroll away during long action lists.
