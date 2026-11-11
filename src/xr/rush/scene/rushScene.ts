@@ -28,38 +28,16 @@ import { COUNTER, COUNTER_HEIGHT } from '../../scene/layout';
 import { CUP_CAPACITY_ML, type CupSize } from '../../../features/cafe/model';
 import { summarize } from '../judge';
 import { processProgress, type RushStore, type Target } from '../play';
-import { SLOTS, type Item, type RushState, type SlotId } from '../sim';
+import { SLOTS, type Item, type PlayerAction, type RushState, type SlotId } from '../sim';
+import { TARGET_POS } from '../vr';
+import type { LocalizedText } from '../../../domain/contracts';
+import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
+import { Color3 as C3 } from '@babylonjs/core/Maths/math.color';
+import type { RushXr } from './rushXr';
 
-type V3 = [number, number, number];
+type V3 = readonly [number, number, number];
 
-/** Station-local anchor of every target (y 0 = counter top; the user stands at −z). */
-export const TARGET_POS: Record<Target, V3> = {
-  grinder: [-0.62, 0, 0.22],
-  group1: [-0.34, 0.25, 0.25],
-  group2: [-0.12, 0.25, 0.25],
-  tray1: [-0.34, 0, 0.17],
-  tray2: [-0.12, 0, 0.17],
-  wand: [0.1, 0, 0.17],
-  hotwater: [0.26, 0, 0.17],
-  kettleBase: [0.45, 0, 0.26],
-  dripper: [0.64, 0, 0.27],
-  phin: [0.64, 0, 0.06],
-  counter1: [-0.42, 0, -0.17],
-  counter2: [-0.24, 0, -0.17],
-  counter3: [-0.06, 0, -0.17],
-  counter4: [0.12, 0, -0.17],
-  counter5: [-0.42, 0, -0.01],
-  counter6: [-0.24, 0, -0.01],
-  counter7: [-0.06, 0, -0.01],
-  counter8: [0.12, 0, -0.01],
-  shelf: [-0.66, 0, -0.16],
-  knock: [-0.64, 0, 0.0],
-  ice: [0.32, 0, -0.18],
-  extras: [0.5, 0, -0.18],
-  fridge: [0.68, 0, -0.17],
-  bin: [0.32, 0, -0.01],
-  pass: [0.47, 0, 0.06],
-};
+export { TARGET_POS };
 /** Where an item sits when held (in front of the counter edge, raised). */
 const HAND_POS: V3 = [0, 0.2, -0.38];
 const ITEM_Y: Partial<Record<SlotId, number>> = { grinder: 0.1, group1: -0.07, group2: -0.07, dripper: 0, phin: 0 };
@@ -75,6 +53,13 @@ export interface RushSceneOptions {
   selected(): Target | null;
   onPick(t: Target): void;
   onXrChange?(inXr: boolean): void;
+  /** Immersive mode (hardware-unverified): text, the coach hint, and the same reducer actions. */
+  tr(t: LocalizedText): string;
+  targetText(t: Target): LocalizedText;
+  hint(): LocalizedText | null;
+  onAct(a: PlayerAction): void;
+  onReplay(): void;
+  onLobby(): void;
 }
 
 export interface RushSceneHandle {
@@ -88,6 +73,8 @@ export interface RushSceneHandle {
   /** Test hook: client coordinates of a target's anchor. */
   project(t: Target): { x: number; y: number } | null;
   stats(): { meshes: number; drawCalls: number; fps: number };
+  /** Test hook (e2e): emulated in-headset panels + the controllers' intent functions, no session. */
+  vrTest(): (RushXr['debug'] & { emulate(on: boolean): void }) | null;
   dispose(): void;
 }
 
@@ -137,6 +124,11 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
   };
   fitCabinet();
   const room = buildRoom(scene, mats, root);
+  // Raise the pendant lamp so it never hangs between the user's eyes and the recipe wall / order rail.
+  for (const n of ['lamp-cord', 'lamp-shade', 'lamp-bulb']) {
+    const m = scene.getMeshByName(n);
+    if (m) m.position.y += 0.35;
+  }
 
   // ── static stations (merged per station) ──
   const parts: Mesh[] = [];
@@ -359,10 +351,36 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
   };
 
   const hl = () => new Set(opts.highlight());
+  let xrPads: ReadonlyMap<Target, 'hover' | 'snap'> = new Map();
+  let xrPadKey = '';
   const paintPads = () => {
     const h = hl();
     const sel = opts.selected();
-    for (const [t, ring] of pads) ring.material = t === sel ? mats.ringNear : h.has(t) ? mats.ringSnap : mats.ringIdle;
+    for (const [t, ring] of pads) {
+      const over = xrPads.get(t);
+      ring.material = over || t === sel ? mats.ringNear : h.has(t) ? mats.ringSnap : mats.ringIdle;
+      ring.scaling.setAll(over === 'snap' ? 1.45 : over === 'hover' ? 1.25 : 1);
+    }
+  };
+  // hover outline on the item(s) at the pointed targets (XR)
+  const outlined = new Set<AbstractMesh>();
+  const outlineColor = new C3(0.94, 0.73, 0.23);
+  const outline = (targets: readonly Target[]) => {
+    const want = new Set<AbstractMesh>();
+    const st = store.get();
+    for (const t of targets) {
+      const id = (st.slots as Record<string, string | null>)[t];
+      const rig = id ? rigs.get(id) : undefined;
+      for (const m of rig?.node.getChildMeshes() ?? []) want.add(m);
+    }
+    for (const m of outlined) if (!want.has(m)) m.renderOutline = false;
+    for (const m of want) {
+      m.renderOutline = true;
+      m.outlineColor = outlineColor;
+      m.outlineWidth = 0.004;
+    }
+    outlined.clear();
+    for (const m of want) outlined.add(m);
   };
 
   // ── camera ──
@@ -388,37 +406,103 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
   };
   resetView();
 
+  let xr: RushXr | null = null;
+  let time = 0;
+  let lastInputAt = 0;
+  let frameNo = 0;
+
   // ── input: tap / click a target ──
   const pickAt = (x: number, y: number): Target | null => {
     const p = scene.pick(x, y, (m) => !!(m.metadata as { target?: Target } | null)?.target && m.isEnabled());
     return p?.hit ? ((p.pickedMesh?.metadata as { target: Target }).target ?? null) : null;
   };
   scene.onPointerObservable.add((pi) => {
-    if (pi.type !== PointerEventTypes.POINTERTAP) return;
+    if (pi.type !== PointerEventTypes.POINTERTAP || xr?.inXR()) return;
+    lastInputAt = time;
     const t = pickAt(scene.pointerX, scene.pointerY);
     if (t) opts.onPick(t);
   });
 
-  let inXR = false;
+  // ── WebXR (only when the browser reports immersive-vr in a secure context; hardware-unverified) ──
+  const setSeatedH = (seated: boolean) => {
+    counterH = seated ? COUNTER_HEIGHT.seated : COUNTER_HEIGHT.standing;
+    root.position.y = counterH;
+    fitCabinet();
+    if (!xr?.inXR()) resetView();
+  };
+  if (opts.xrSupported) {
+    try {
+      const { createRushXr } = await import('./rushXr');
+      xr = await createRushXr({
+        scene,
+        camera,
+        root,
+        floor: room[0]!,
+        store,
+        hand: mats.hand,
+        wall: wallPanel,
+        tr: (t) => opts.tr(t),
+        targetName: (t) => opts.targetText(t),
+        hint: () => opts.hint(),
+        onAct: (a) => opts.onAct(a),
+        onReplay: () => opts.onReplay(),
+        onLobby: () => opts.onLobby(),
+        onXrChange: (now) => {
+          if (!now) {
+            root.rotation.y = 0;
+            root.position.set(0, counterH, 0);
+            dirty = true;
+          }
+          opts.onXrChange?.(now);
+        },
+        seated: () => counterH <= COUNTER_HEIGHT.seated + 0.001,
+        setSeated: setSeatedH,
+        counterH: () => counterH,
+        rigNode: (id) => rigs.get(id)?.node,
+        outline,
+        setPads(p) {
+          const key = [...p].map(([t, m]) => `${t}:${m}`).join();
+          if (key === xrPadKey) return;
+          xrPadKey = key;
+          xrPads = p;
+          paintPads();
+        },
+        restoreView: resetView,
+      });
+    } catch (err) {
+      if (import.meta.env.DEV) console.warn('[rush] WebXR unavailable', err);
+      xr = null; // graceful: the 3D counter keeps working
+    }
+  }
+
+  // Perf: when nobody touches the non-immersive scene, draw every other frame (as in the missions).
+  // Input or camera motion restores full rate at once; the immersive session always draws every frame.
+  camera.onViewMatrixChangedObservable.add(() => (lastInputAt = time));
   engine.runRenderLoop(() => {
+    const dt = Math.min(engine.getDeltaTime() / 1000, 0.1);
+    time += dt;
+    const inXR = !!xr?.inXR();
+    xr?.frame(dt);
     const s = store.get();
     if (dirty) {
       dirty = false;
       sync(s);
       paintPads();
+      lastInputAt = time;
     }
     for (const [slot, bar] of bars) {
       const p = processProgress(s, slot);
       bar.setEnabled(p !== null);
       if (p !== null) bar.scaling.x = Math.max(0.05, p);
     }
-    if (!opts.reducedMotion && s.hand) {
-      bob += engine.getDeltaTime() / 1000;
+    if (!inXR && !opts.reducedMotion && s.hand) {
+      bob += dt;
       const r = rigs.get(s.hand);
       if (r) r.node.position.y = HAND_POS[1] + Math.sin(bob * 2) * 0.006;
     }
-    scene.render();
-    canvas.dataset.drawCalls = String(instrumentation.drawCallsCounter.current);
+    frameNo += 1;
+    if (inXR || time - lastInputAt < 1.5 || frameNo % 2 === 0) scene.render();
+    if (frameNo % 30 === 0) canvas.dataset.drawCalls = String(instrumentation.drawCallsCounter.current);
   });
   const resize = () => engine.resize();
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
@@ -427,24 +511,23 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
 
   const handle: RushSceneHandle = {
     get xrReady() {
-      return false;
+      return !!xr;
     },
     async enterVR() {
-      return { ok: false, error: 'xr-unavailable' };
+      if (!xr) return { ok: false, error: 'xr-unavailable' };
+      return xr.enter();
     },
-    async exitVR() {},
-    inXR: () => inXR,
+    async exitVR() {
+      await xr?.exit();
+    },
+    inXR: () => !!xr?.inXR(),
     resetView,
     setLabels(labels, wall) {
       for (const [t, tag] of tags) tag.set(labels[t]);
       setWall(wall);
+      xr?.invalidate();
     },
-    setSeated(seated) {
-      counterH = seated ? COUNTER_HEIGHT.seated : COUNTER_HEIGHT.standing;
-      root.position.y = counterH;
-      fitCabinet();
-      resetView();
-    },
+    setSeated: setSeatedH,
     project(t) {
       const p = TARGET_POS[t];
       const world = Vector3.TransformCoordinates(v(p[0], p[1] + 0.05, p[2]), root.computeWorldMatrix(true));
@@ -455,16 +538,23 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
       const sy = rect.height / engine.getRenderHeight();
       return { x: rect.left + sp.x * sx, y: rect.top + sp.y * sy };
     },
+    vrTest: () => (xr ? { ...xr.debug, emulate: (on: boolean) => xr?.emulate(on) } : null),
     stats: () => ({ meshes: scene.meshes.length, drawCalls: instrumentation.drawCallsCounter.current, fps: Math.round(engine.getFps()) }),
     dispose() {
       unsub();
       ro?.disconnect();
       window.removeEventListener('resize', resize);
-      engine.stopRenderLoop();
-      scene.dispose();
-      engine.dispose();
+      const x = xr;
+      xr = null;
+      const finish = () => {
+        engine.stopRenderLoop();
+        scene.dispose();
+        engine.dispose();
+      };
+      // end an immersive session first, then tear the engine down
+      if (x) void x.dispose().finally(finish);
+      else finish();
     },
   };
-  void room;
   return handle;
 }

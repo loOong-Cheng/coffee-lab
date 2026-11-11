@@ -87,6 +87,7 @@ export const R = {
   sceneHelp: L('点按台面上的工位或物品：拿起、放下、倒入。工位的更多操作在右侧列表里。', 'Click or tap a station or item to pick up, put down or pour. More station actions are in the list.'),
   selected: L('已选：{s}', 'Selected: {s}'),
   enterVR: L('进入 VR', 'Enter VR'),
+  vrControls: L('VR 中：扳机 = 使用指向的工位；握把 = 拿起，靠近空位松开即放下。', 'In VR: trigger = use what the ray points at; grip = grab, release near a free spot to put it down.'),
   vrFailed: L('VR 会话无法启动——继续在屏幕上玩。', 'The VR session could not start — keep playing on screen.'),
   recenter: L('重新居中', 'Recenter'),
   seated: L('坐姿高度', 'Seated height'),

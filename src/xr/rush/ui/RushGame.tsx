@@ -207,12 +207,19 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
   const reducedMotion = useReducedMotion();
   const status = useRush(store, (s) => s.status);
   const speed = useMemo(testSpeed, []);
+  // In an immersive session the XR frame loop drives the clock (page timers may be throttled there).
+  const [inXr, setInXr] = useState(false);
+  const xrClock = useRef(false);
 
   // clock
   useEffect(() => {
     let last = performance.now();
     const id = setInterval(() => {
       const now = performance.now();
+      if (xrClock.current) {
+        last = now;
+        return;
+      }
       const dt = Math.min((now - last) / 1000, 0.25) * speed;
       last = now;
       store.set(tick(store.get(), dt));
@@ -256,7 +263,7 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
     const r = rushResult(store.get());
     setResult(r);
     try {
-      learnerActions.recordEvent(rushCompletionEvent(r, { immersive: false, touch: mobile }));
+      learnerActions.recordEvent(rushCompletionEvent(r, { immersive: xrClock.current, touch: mobile }));
     } catch {
       /* storage unavailable: the result still shows */
     }
@@ -264,7 +271,8 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
 
   const act = (a: PlayerAction, viaList: boolean) => store.set(viaList ? listAct(store.get(), a) : reduce(store.get(), a));
 
-  if (result) return <Results store={store} result={result} setup={setup} onAgain={() => onNext(setup.level)} onNext={onNext} onExit={onExit} />;
+  // In VR the results stay on an in-headset panel (Play again / Back to lobby) until the session ends.
+  if (result && !inXr) return <Results store={store} result={result} setup={setup} onAgain={() => onNext(setup.level)} onNext={onNext} onExit={onExit} />;
 
   return (
     <section className="rush" data-testid="rush-player" data-mode={mode} data-vr={canVR || undefined} data-status={status} aria-label={t(R.title)}>
@@ -284,6 +292,15 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
                   setMode('list');
                   announce(t(R.sceneFailed), 'assertive');
                 }}
+                onXrChange={(now) => {
+                  xrClock.current = now;
+                  setInXr(now);
+                }}
+                onReplay={() => {
+                  store.set(reduce(store.get(), { type: 'reset' }));
+                  setResult(null);
+                }}
+                onLobby={onExit}
               />
             </Suspense>
           ) : null}

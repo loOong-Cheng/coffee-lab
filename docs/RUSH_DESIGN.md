@@ -163,7 +163,79 @@ Feedback states **what differs and why**:
   - Layout: every target within ±0.75 m of one spot.
   - A click or tap goes through `actionsForTarget()` to the same reducer. A target with several valid actions opens a choice bar.
   - Progress bars, a guided target ring, the wall on the back wall, seated height, and reset view.
-- **M2c, not started:** WebXR controller bindings, the in-headset HUD panel and recenter.
-  - Planned bindings: grip grabs; the trigger acts on the target under the ray, which can reuse `actionsForTarget`.
-  - Until then the game offers no "Enter VR" button. VR stays hardware-unverified.
+- **M2c, done (HARDWARE-UNVERIFIED — built and tested without a headset):** WebXR mode on the 3D counter. See section 14.
+
 - **Tuning change:** L2 holds 2 open orders, with patience × 2.2. The novice bot reaches ≥1★ in 83% of shifts, and L3–L5 config is unchanged.
+
+## 14. VR mode (M2c) — controls, HUD, comfort, testing
+
+**Status: hardware-unverified.** No headset was used to build or test it. CI covers the gate, the pure controller mapping and a test-only emulation of the panels. Nothing else is claimed.
+
+**Gate:**
+- "Enter VR" appears on the 3D counter only when `navigator.xr.isSessionSupported('immersive-vr')` is true in a secure context (`useXrSupport` → `xrEntryState`), WebGL works, and Babylon's WebXR helper initialised.
+- A denied or failed session shows an alert ("The VR session could not start"), and the 3D counter and the action list keep working.
+- Without `navigator.xr` there is no offer and no crash.
+- The session uses `immersive-vr` with a `local-floor` reference space and controllers only: no hand tracking, no teleport, no locomotion.
+
+**Controller map.** Every input goes through `src/xr/rush/vr.ts`, which is pure and unit-tested, and ends in the same `reduce()` actions as the action list and the mouse.
+
+| Input | What happens |
+|---|---|
+| **Trigger** on the target under the ray | `onTrigger` → `actionsForTarget`. One option acts at once; several open a small in-world **choice panel** next to the target, picked with ray + trigger (✕ closes it). "Trigger = use, grip = grab": when a station verb exists (grind, pull a shot…), the grab option is left to the grip. With nothing else to do, the trigger picks the item up (mouse parity). |
+| **Grip** near an item (≤ 16 cm) or on the item under the ray | `grab{slot}`. The item rides on that controller. Gripping the cup shelf offers the cup sizes. |
+| **Grip release** near a free slot that accepts the item | `place{slot}`. The snap radius depends on the tier: guided 20 cm, assisted 14 cm, independent 10 cm. Pointing the ray at a free slot also works. Released elsewhere, you keep carrying the item, and the HUD says how to put it down. |
+| **Hover** | The target ring grows and the item gets an outline. While you carry an item, the ring of the snap target grows bigger. |
+| **Haptics** | Optional subtle pulses via `gamepad.hapticActuators[0].pulse`, feature-detected; nothing happens where they are unsupported. They mark hover, snap, a successful action or a rejected one. They are an affordance only and never claim real touch, weight or force. |
+
+**In-headset HUD.** The panels are world-anchored to the counter, so Recenter moves them too. They are all ray-operated, so nothing needs a physical reach past the ±0.75 m counter.
+- **Left, angled, about 1 m away:**
+  - Café Rush · level;
+  - the "Simulated · game time — real shot ≈ 25–35 s" labels;
+  - score, tips and streak; time left (game time) or "served n/8" in Relaxed mode;
+  - what is in your hands;
+  - the guided "suggested next step";
+  - the last feedback with what/why.
+  - Buttons: Pause/Resume, End shift, Recenter, Seated/Standing, Exit VR.
+  - A footer gives the controller hint and "hardware-unverified".
+- **Order rail above the back right:** up to 3 tickets, each with drink, customer and a patience bar coloured green/amber/red. The ticket also shows either the "⚠ About to leave!" cue (≤ 30% patience; hidden in the independent tier, as in 2D) or the seconds left.
+- **Recipe wall:** scaled ×1.3 in VR. Line text is about 2.2 cm, read at about 1.2–1.3 m, roughly 1° — hardware-unverified readability.
+- **Results panel (centre) at the end of the shift:**
+  - stars, points, counts, and the last 3 orders with the first "what differs";
+  - "Saved as simulated practice";
+  - Play again (a fresh shift in the same session), Back to lobby, Exit VR.
+  - The DOM results screen shows when you leave VR.
+
+**Comfort:**
+- No forced camera motion, no locomotion, nothing moves the user. Recenter places the counter 0.62 m in front of where you look.
+- Seated/Standing switches the counter between 0.74 m and 0.92 m.
+- The pendant lamp is raised in Rush so it never hangs between your eyes and the wall or the order rail.
+- The session pauses the shift when it loses focus, e.g. the system menu.
+- In VR the session's frame loop drives the game clock at 10 Hz (the sim runs fixed 100 ms steps), and the page timer stands down. The flat 3D fallback halves its draw rate after 1.5 s without input, as the missions do; the immersive session always draws every frame.
+
+**Performance caveats (unmeasured on device):**
+- 4 GUI textures: HUD 1024², orders, results and choice. They only re-render when their content key changes; the order rail re-renders about once a second per ticket.
+- The scene is the same low-poly, merged counter as M2b (draw calls < 150 on desktop).
+- No foveation or framebuffer-scale tuning yet.
+
+**How to test on Quest 3:**
+1. Open the live HTTPS site in the Quest Browser → XR Lab → Café Rush → choose a level → "Play on the 3D counter".
+2. Wait for "Enter VR" (under the canvas) and press it. Allow the immersive prompt.
+3. Stand or sit about where you want the counter, look forward, and press **Recenter** on the left panel. Use **Seated** if you are sitting.
+4. Try the sequence:
+   - grip the portafilter on group 1, carry it to the grinder and let go;
+   - trigger the grinder;
+   - grip it back onto group 1;
+   - trigger the cup shelf → choose a cup → grip-release it under group 1;
+   - trigger group 1 → choose the shot;
+   - grip the cup → trigger the pass to serve.
+5. Check:
+   - the laser stops on targets;
+   - the hover ring and outline;
+   - the haptic tick (if any);
+   - the ticket bars and the about-to-leave cue;
+   - the wall and HUD readable without leaning;
+   - choice panels reachable;
+   - Pause, End shift → results panel → Play again;
+   - Exit VR returns to the page.
+6. Report anything off, e.g. the panel distance or text size, the snap radius, the grip/trigger mapping, or frame drops. Until then, VR stays **hardware-unverified**.
+
