@@ -160,3 +160,11 @@ Open: QA-05 (P2, XR intro links ~25 px on phone) — fix only exists on unverifi
 - Lead re-run on `47425cc`: typecheck ✓ · unit **525/525** (54 files) · full e2e **278 passed / 16 viewport skips / 0 failed**.
 - Lead code review: `setMood` while stopped only records the choice; retired voices are disconnected after 2.5 s; nothing throws from the music path.
 - Not verified: audible behavior by a human ear. The fork's headless Web Audio probe measured the new mood at 0.13 s and the old voices at ~1/70 of their level by 0.6 s.
+
+## Music off is instant (2026-11-11)
+- User report: "turning off the music takes some time." A debugging fork fixed it in `7985395`. Before, "off" faded the music bus with tc 0.35 s (still audible after a second) and stopped the scheduler only 2 s later. Notes already scheduled ahead kept playing and could come back after a quick off→on.
+- Now "off" ramps with `STOP_TC` 0.012 s (about −60 dB in under 0.1 s; the ramp only avoids a click) and calls `music.stop()` at once. `stop()` retires the already-scheduled voices. The fade-in when turning music on is unchanged.
+- 2 new unit tests (failed before the fix). The fork's headless Web Audio probe: −165 dB by 100–300 ms after off (was −37 dB).
+- Lead review: on → `setMood` + `start()` + fade-in, so a stopped generator restarts.
+- Lead re-run on `7985395`: typecheck ✓ · unit **527/527** · full e2e **278 passed / 16 viewport skips / 0 failed**.
+- Not verified by a human ear.
