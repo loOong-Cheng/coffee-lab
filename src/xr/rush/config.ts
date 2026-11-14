@@ -20,6 +20,25 @@ export interface TimedProcess {
   real: LocalizedText;
 }
 
+/**
+ * Espresso flow (illustrative, in game time): a few seconds of pre-infusion with nothing in the cup, then a steady
+ * stream. Chosen so the wall's targets take about as long as the earlier fixed timers — 24 g ≈ 5.7 s, 36 g = 7 s,
+ * 54 g = 9 s — so the tuned difficulty holds. The player stops the shot; what reaches the cup decides the style.
+ */
+export const SHOT_FLOW = {
+  doseG: 18,
+  preinfusionSec: 3,
+  gPerSec: 9,
+  /** A forgotten shot stops itself here (1:3.5, very long). */
+  maxG: 63,
+  /** Guided tier: the machine stops a manual shot this far past the target, so it still counts. */
+  guidedGraceG: 4,
+} as const;
+/** Grams in the cup after `elapsedSec` of a running shot. */
+export const shotYieldAt = (elapsedSec: number): number => Math.max(0, (elapsedSec - SHOT_FLOW.preinfusionSec) * SHOT_FLOW.gPerSec);
+/** The style a yield counts as: midway between the wall's 24 / 36 / 54 g targets (1:1.3 / 1:2 / 1:3). */
+export const styleForYield = (g: number): ShotStyle => (g < 30 ? 'ristretto' : g < 45 ? 'normal' : 'lungo');
+
 export const PROCESS = {
   grind: { sec: 2.5, real: L('真实：通常几秒钟，取决于磨豆机', 'real: usually a few seconds, depends on the grinder') },
   shot: {

@@ -1,7 +1,7 @@
 ﻿/** Café Rush UI text (zh + en). Drink/option names come from the Café Counter strings. */
 import type { LocalizedText } from '../../domain/contracts';
 import { CUP_TEXT, EXTRA_TEXT, MILK_TEXT, SHOT_STYLE_TEXT, milkMlText, waterMlText } from '../../features/cafe/strings';
-import type { MilkMl, WaterMl } from '../../features/cafe/model';
+import { SHOT_YIELD_ML, type MilkMl, type WaterMl } from '../../features/cafe/model';
 import type { Item, PlayerAction, RushState, SlotId } from './sim';
 import { drinkName } from './drinks';
 import { CUSTOMERS } from '../../features/cafe/specs';
@@ -102,6 +102,16 @@ export const R = {
   again: L('再来一班', 'Play again'),
   nextLevel: L('下一关', 'Next level'),
   unlockedNext: L('第 {n} 关已解锁！', 'Level {n} unlocked!'),
+  // live shot meter
+  shotsTitle: L('正在萃取', 'Shots running'),
+  shotGroup: L('{n} 号冲煮头', 'Group {n}'),
+  shotTarget: L('{style}：目标 {g} 克', '{style}: target {g} g'),
+  shotPreinfusion: L('预浸泡中，还没出液…', 'pre-infusion — nothing in the cup yet…'),
+  shotNow: L('杯中 {g} 克 · 1:{r}', '{g} g in the cup · 1:{r}'),
+  shotStop: L('停止 {n} 号', 'Stop group {n}'),
+  shotMeterLabel: L('{n} 号冲煮头的出液量', 'Group {n} yield'),
+  shotGuidedNote: L('引导模式：你没停的话，机器会在目标后一点自动停下。', 'Guided: if you do not stop it, the machine stops just past the target.'),
+  shotManualNote: L('看着克数，到目标就停。不停的话会一直流到 63 克。', 'Watch the grams and stop at the target. If you do not, it runs on to 63 g.'),
   // 3D
   loading3d: L('正在加载 3D 吧台…', 'Loading the 3D counter…'),
   sceneFailed: L('3D 吧台无法加载——用操作列表继续玩。', 'The 3D counter could not load — keep playing with the action list.'),
@@ -147,7 +157,7 @@ export function itemText(it: Item): LocalizedText {
       const parts: LocalizedText[] = it.adds.map((a) => {
         switch (a.k) {
           case 'shot':
-            return cat(L('浓缩（', 'shot ('), SHOT_STYLE_TEXT[a.style].label, L('）', ')'));
+            return cat(L('浓缩（', 'shot ('), SHOT_STYLE_TEXT[a.style].label, a.yieldG ? L(`，${a.yieldG} 克`, `, ${a.yieldG} g`) : L('', ''), L('）', ')'));
           case 'brew':
             return a.brewer === 'pourover' ? L('手冲咖啡', 'pour-over coffee') : L('滴滤咖啡', 'phin coffee');
           case 'water':
@@ -196,7 +206,16 @@ export function actionText(s: RushState, a: PlayerAction): LocalizedText {
     case 'knock':
       return L('敲掉用过的粉饼', 'Knock out the used puck');
     case 'startShot':
-      return cat(L(`${a.group} 号冲煮头开始萃取：`, `Start a shot on group ${a.group}: `), SHOT_STYLE_TEXT[a.style].label, L('（', ' ('), SHOT_STYLE_TEXT[a.style].sub, L('）', ')'));
+      return cat(
+        L(`${a.group} 号冲煮头开始萃取：`, `Start a shot on group ${a.group}: `),
+        SHOT_STYLE_TEXT[a.style].label,
+        L(`（目标 ${SHOT_YIELD_ML[a.style]} 克，到了你来停）`, ` (aim for ${SHOT_YIELD_ML[a.style]} g — you stop it)`),
+      );
+    case 'stopShot': {
+      const run = s.m.groups[a.group - 1];
+      const aim = run ? L(`（目标 ${SHOT_YIELD_ML[run.style]} 克）`, ` (target ${SHOT_YIELD_ML[run.style]} g)`) : L('', '');
+      return cat(L(`停止 ${a.group} 号冲煮头的萃取`, `Stop the shot on group ${a.group}`), aim);
+    }
     case 'fillMilk':
       return cat(L('倒冷牛奶到', 'Fill with cold milk to '), milkMlText(a.ml as MilkMl));
     case 'steam':

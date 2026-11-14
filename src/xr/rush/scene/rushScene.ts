@@ -25,10 +25,11 @@ import { buildRoom } from '../../scene/props';
 import { mergeUnder } from '../../scene/merge';
 import { createPanel, createTag, clearStack, text, COLORS, type Panel } from '../../scene/panels';
 import { COUNTER, COUNTER_HEIGHT } from '../../scene/layout';
-import { CUP_CAPACITY_ML, type CupSize } from '../../../features/cafe/model';
+import { CUP_CAPACITY_ML, SHOT_YIELD_ML, type CupSize } from '../../../features/cafe/model';
+import { SHOT_FLOW } from '../config';
 import { summarize } from '../judge';
 import { processProgress, type RushStore, type Target } from '../play';
-import { SLOTS, type Item, type PlayerAction, type RushState, type SlotId } from '../sim';
+import { COUNTERS, SLOTS, type Item, type PlayerAction, type RushState, type SlotId } from '../sim';
 import { TARGET_POS } from '../vr';
 import type { LocalizedText } from '../../../domain/contracts';
 import type { AbstractMesh } from '@babylonjs/core/Meshes/abstractMesh';
@@ -40,7 +41,9 @@ type V3 = readonly [number, number, number];
 export { TARGET_POS };
 /** Where an item sits when held (in front of the counter edge, raised). */
 const HAND_POS: V3 = [0, 0.2, -0.38];
-const ITEM_Y: Partial<Record<SlotId, number>> = { grinder: 0.1, group1: -0.07, group2: -0.07, dripper: 0, phin: 0 };
+/** Item height above its slot anchor: portafilters lock in right under the group head (bottom at y 0.31); cups
+ * stand ON the drip tray (top at 0.016) and the kettle ON its base (0.02) — checked by the geometry audit. */
+const ITEM_Y: Partial<Record<SlotId, number>> = { grinder: 0.1, group1: 0.03, group2: 0.03, tray1: 0.016, tray2: 0.016, kettleBase: 0.02, dripper: 0, phin: 0 };
 
 export interface RushSceneOptions {
   canvas: HTMLCanvasElement;
@@ -72,6 +75,12 @@ export interface RushSceneHandle {
   setSeated(seated: boolean): void;
   /** Test hook: client coordinates of a target's anchor. */
   project(t: Target): { x: number; y: number } | null;
+  /**
+   * Test hook: geometry audit. Boxes (counter-local, metres) of every static part, recorded before merging, plus
+   * every item kind placed at every slot it can occupy (same placement code as the game). Returns pairs of
+   * different objects that interpenetrate by more than 3 mm on every axis. Pivots alone would miss these.
+   */
+  audit(): Array<{ a: string; b: string; depthMm: number }>;
   stats(): { meshes: number; drawCalls: number; fps: number };
   /** Test hook (e2e): emulated in-headset panels + the controllers' intent functions, no session. */
   vrTest(): (RushXr['debug'] & { emulate(on: boolean): void }) | null;
@@ -79,6 +88,11 @@ export interface RushSceneHandle {
 }
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
+interface AuditBox {
+  owner: string;
+  min: [number, number, number];
+  max: [number, number, number];
+}
 const CUP_DIM: Record<CupSize, { d: number; h: number }> = {
   demitasse: { d: 0.06, h: 0.055 },
   small: { d: 0.07, h: 0.075 },
@@ -146,7 +160,19 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     m.parent = root;
     return m;
   };
+  // Geometry audit: one box per static part. Objects that are physically one piece share an owner name; the
+  // multi-object 'hand-stations' / 'extras' / 'brewers' groups get one owner per part so their overlaps count.
+  const staticBoxes: AuditBox[] = [];
+  const SPLIT_OWNERS = new Set(['hand-stations', 'extras']);
   const station = (name: string, ms: Mesh[]) => {
+    ms.forEach((m, i) => {
+      const bb = m.getBoundingInfo().boundingBox;
+      staticBoxes.push({
+        owner: SPLIT_OWNERS.has(name) ? `${name}#${i}` : name.startsWith('machine') ? 'machine' : name,
+        min: [m.position.x + bb.minimum.x, m.position.y + bb.minimum.y, m.position.z + bb.minimum.z],
+        max: [m.position.x + bb.maximum.x, m.position.y + bb.maximum.y, m.position.z + bb.maximum.z],
+      });
+    });
     // MergeMeshes keeps one material only when all match; group by material.
     const byMat = new Map<string, Mesh[]>();
     for (const m of ms) {
@@ -164,13 +190,16 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     box(0.62, 0.42, 0.2, [-0.12, 0.21, 0.36], 'machine'),
     box(0.62, 0.05, 0.12, [-0.12, 0.395, 0.24], 'machine'),
   ]);
+  // group heads stand 6 cm proud of the front on a neck, so a locked-in portafilter clears the body
   station('machine-metal', [
-    cyl(0.07, 0.05, [-0.34, 0.335, 0.25], 'darkSteel'),
-    cyl(0.07, 0.05, [-0.12, 0.335, 0.25], 'darkSteel'),
+    cyl(0.07, 0.05, [-0.34, 0.335, 0.2], 'darkSteel'),
+    cyl(0.07, 0.05, [-0.12, 0.335, 0.2], 'darkSteel'),
+    box(0.05, 0.03, 0.06, [-0.34, 0.345, 0.23], 'darkSteel'),
+    box(0.05, 0.03, 0.06, [-0.12, 0.345, 0.23], 'darkSteel'),
     box(0.5, 0.015, 0.12, [-0.23, 0.008, 0.18], 'darkSteel'),
-    cyl(0.012, 0.22, [0.1, 0.2, 0.2], 'steel'),
     cyl(0.018, 0.06, [0.26, 0.3, 0.2], 'steel'),
   ]);
+  station('wand', [cyl(0.012, 0.22, [0.1, 0.2, 0.2], 'steel')]);
   station('grinder', [box(0.12, 0.26, 0.14, [-0.62, 0.13, 0.3], 'machine'), cyl(0.1, 0.12, [-0.62, 0.32, 0.3], 'hopper', 0.12)]);
   station('kettle-base', [cyl(0.13, 0.02, [0.45, 0.01, 0.26], 'plastic')]);
   station('brewers', [
@@ -188,11 +217,12 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     box(0.16, 0.25, 0.14, [0.68, 0.125, -0.17], 'steel'),
     cyl(0.1, 0.14, [0.32, 0.07, -0.01], 'darkSteel'),
   ]);
+  // four bottles inside the extras target (x 0.43–0.57), clear of the ice bin and the fridge
   station('extras', [
     cyl(0.035, 0.11, [0.44, 0.055, -0.18], 'woodDark'),
-    cyl(0.035, 0.09, [0.49, 0.045, -0.18], 'amber'),
-    cyl(0.035, 0.1, [0.54, 0.05, -0.18], 'ceramic'),
-    cyl(0.035, 0.08, [0.59, 0.04, -0.2], 'paper'),
+    cyl(0.035, 0.09, [0.48, 0.045, -0.18], 'amber'),
+    cyl(0.035, 0.1, [0.52, 0.05, -0.18], 'ceramic'),
+    cyl(0.035, 0.08, [0.555, 0.04, -0.2], 'paper'),
   ]);
   station('pass', [box(0.18, 0.01, 0.12, [0.47, 0.005, 0.06], 'woodLight')]);
   station('ice', [box(0.12, 0.01, 0.1, [0.32, 0.062, -0.18], 'glass')]);
@@ -234,6 +264,46 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     bars.set(s, b);
   }
 
+  // ── live espresso (user report: "I don't see how much comes out of the machine and when to stop") ──
+  // a thin stream from the portafilter into the cup while coffee flows, and a gram readout in front of the group
+  const streams = ([0, 1] as const).map((gi) => {
+    const m = MeshBuilder.CreateCylinder(`stream-${gi}`, { diameter: 0.005, height: 1, tessellation: 8 }, scene);
+    m.parent = root;
+    m.material = mats.espresso;
+    m.isPickable = false;
+    m.setEnabled(false);
+    return m;
+  });
+  const readouts = ([0, 1] as const).map((gi) => {
+    const p = TARGET_POS[gi === 0 ? 'group1' : 'group2'];
+    const tag = createTag(scene, `shot-g-${gi}`, '', root);
+    tag.mesh.position.set(p[0], 0.22, p[2] - 0.13);
+    tag.mesh.scaling.setAll(1.3);
+    tag.mesh.setEnabled(false);
+    return tag;
+  });
+  const PREINFUSION = { zh: '预浸泡…', en: 'pre-infusion…' };
+  const showShots = (s: RushState) => {
+    for (const gi of [0, 1] as const) {
+      const run = s.m.groups[gi];
+      const tag = readouts[gi]!;
+      const stream = streams[gi]!;
+      tag.mesh.setEnabled(!!run);
+      if (run) tag.set(run.yieldG > 0 ? `${run.yieldG.toFixed(1)} g · 1:${(run.yieldG / SHOT_FLOW.doseG).toFixed(1)}` : opts.tr(PREINFUSION));
+      const flowing = !!run && run.yieldG > 0;
+      stream.setEnabled(flowing);
+      if (!flowing) continue;
+      const slot = gi === 0 ? 'group1' : 'group2';
+      const p = TARGET_POS[slot];
+      const top = p[1] + (ITEM_Y[slot] ?? 0); // portafilter bottom
+      const cupId = s.slots[gi === 0 ? 'tray1' : 'tray2'];
+      const fill = cupId ? rigs.get(cupId)?.fill : undefined;
+      const bottom = (ITEM_Y.tray1 ?? 0) + (fill?.isEnabled() ? fill.position.y + fill.scaling.y / 2 : 0);
+      stream.scaling.y = Math.max(0.01, top - bottom);
+      stream.position.set(p[0], (top + bottom) / 2, p[2]);
+    }
+  };
+
   // ── recipe wall (back wall panel) ──
   // Left of the room's shelf, just in front of the back wall (front face at z ≈ 0.595).
   const wallPanel: Panel = createPanel(scene, 'rush-wall', 0.72, 0.5, 1024, root);
@@ -270,10 +340,11 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     }
     if (it.kind === 'portafilter') {
       own(MeshBuilder.CreateCylinder('pf', { diameter: 0.07, height: 0.03, tessellation: 18 }, scene), 'steel').position.y = 0.015;
-      const h = own(MeshBuilder.CreateBox('pfh', { width: 0.025, height: 0.02, depth: 0.12 }, scene), 'rubber');
-      h.position.set(0, 0.015, -0.09);
+      const h = own(MeshBuilder.CreateBox('pfh', { width: 0.025, height: 0.02, depth: 0.1 }, scene), 'rubber');
+      h.position.set(0, 0.015, -0.08); // handle toward the barista (−z), 13 cm reach
+
       const load = own(MeshBuilder.CreateCylinder('pfl', { diameter: 0.058, height: 0.006, tessellation: 18 }, scene), 'grounds');
-      load.position.y = 0.031;
+      load.position.y = 0.026; // coffee bed sits just below the basket rim
       return { node, load, kind: 'portafilter' };
     }
     if (it.kind === 'pitcher') {
@@ -297,6 +368,76 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     return { node, load, kind: 'doser' };
   };
 
+  const placeRig = (node: TransformNode, slot: SlotId | null) => {
+    const p: V3 = slot ? TARGET_POS[slot] : HAND_POS;
+    node.position.set(p[0], p[1] + (slot ? (ITEM_Y[slot] ?? 0) : 0), p[2]);
+    node.rotation.y = 0; // handles and spouts face the barista everywhere (a 180° turn put the portafilter handle inside the machine)
+  };
+
+  /** Counter-local box of everything drawn under a node (enabled meshes only). */
+  const localBox = (node: TransformNode): { min: [number, number, number]; max: [number, number, number] } => {
+    const inv = root.computeWorldMatrix(true).clone().invert();
+    const min: [number, number, number] = [Infinity, Infinity, Infinity];
+    const max: [number, number, number] = [-Infinity, -Infinity, -Infinity];
+    node.computeWorldMatrix(true);
+    for (const m of node.getChildMeshes()) {
+      if (!m.isEnabled()) continue;
+      m.computeWorldMatrix(true);
+      for (const c of m.getBoundingInfo().boundingBox.vectorsWorld) {
+        const l = Vector3.TransformCoordinates(c, inv);
+        [l.x, l.y, l.z].forEach((x, i) => {
+          min[i] = Math.min(min[i]!, x);
+          max[i] = Math.max(max[i]!, x);
+        });
+      }
+    }
+    return { min, max };
+  };
+
+  /** Contacts that are meant to interpenetrate: the steam wand reaches into the pitcher through its opening. */
+  const INTENDED_CONTACT = new Set(['wand|pitcher@wand']);
+  /** Which item kinds can sit at which slots (for the audit). */
+  const AUDIT_PLACES: Array<{ item: Item; slots: readonly SlotId[] }> = [
+    { item: { kind: 'portafilter', id: 'audit-pf', load: 'ground' } as Item, slots: ['grinder', 'group1', 'group2', ...COUNTERS] },
+    ...(['demitasse', 'small', 'medium', 'large'] as CupSize[]).map((size) => ({
+      item: { kind: 'cup', id: `audit-cup-${size}`, size, adds: [] } as unknown as Item,
+      slots: ['tray1', 'tray2', 'hotwater', 'dripper', 'phin', ...COUNTERS] as SlotId[],
+    })),
+    { item: { kind: 'pitcher', id: 'audit-pitcher', milk: null } as unknown as Item, slots: ['wand', ...COUNTERS] },
+    { item: { kind: 'kettle', id: 'audit-kettle', hot: false, pours: 0 } as unknown as Item, slots: ['kettleBase', ...COUNTERS] },
+    { item: { kind: 'doser', id: 'audit-doser', filled: false } as unknown as Item, slots: ['grinder', ...COUNTERS] },
+  ];
+
+  const audit = () => {
+    const boxes: AuditBox[] = [...staticBoxes];
+    for (const { item, slots } of AUDIT_PLACES) {
+      const rig = makeRig(item);
+      rig.fill?.setEnabled(false); // an unsized fill is a 1 m placeholder until sync() scales it
+      for (const slot of slots) {
+        placeRig(rig.node, slot);
+        boxes.push({ owner: `${item.id.replace('audit-', '')}@${slot}`, ...localBox(rig.node) });
+      }
+      rig.node.dispose();
+    }
+    const out: Array<{ a: string; b: string; depthMm: number }> = [];
+    const slotOf = (o: string) => o.split('@')[1];
+    for (let i = 0; i < boxes.length; i++) {
+      for (let j = i + 1; j < boxes.length; j++) {
+        const A = boxes[i]!;
+        const B = boxes[j]!;
+        if (A.owner === B.owner) continue;
+        const sa = slotOf(A.owner);
+        const sb = slotOf(B.owner);
+        if (sa && sb && sa === sb) continue; // two different items never share one slot
+        if (INTENDED_CONTACT.has(`${A.owner}|${B.owner}`) || INTENDED_CONTACT.has(`${B.owner}|${A.owner}`)) continue;
+        let depth = Infinity;
+        for (let k = 0; k < 3; k++) depth = Math.min(depth, Math.min(A.max[k]!, B.max[k]!) - Math.max(A.min[k]!, B.min[k]!));
+        if (depth > 0.003) out.push({ a: A.owner, b: B.owner, depthMm: Math.round(depth * 1000) });
+      }
+    }
+    return out.sort((x, y) => y.depthMm - x.depthMm);
+  };
+
   const liquidMat = (s: ReturnType<typeof summarize>): StandardMaterial | null => {
     if (s.milk !== 'none' && s.milk !== 'cold') return mats.ceramic;
     if (s.milk === 'cold') return mats.paper;
@@ -318,15 +459,16 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
         rigs.set(it.id, rig);
       }
       const slot = SLOTS.find((k) => s.slots[k] === it.id) ?? null;
-      const p: V3 = slot ? TARGET_POS[slot] : HAND_POS;
-      rig.node.position.set(p[0], p[1] + (slot ? (ITEM_Y[slot] ?? 0) : 0), slot === 'group1' || slot === 'group2' ? p[2] + 0.02 : p[2]);
-      rig.node.rotation.y = slot === 'group1' || slot === 'group2' ? Math.PI : 0;
+      placeRig(rig.node, slot);
       if (it.kind === 'cup' && rig.fill) {
         const sum = summarize(it);
-        const vol = it.adds.reduce((n, a) => n + (a.k === 'shot' ? 36 : a.k === 'brew' ? 200 : a.k === 'water' || a.k === 'milk' ? a.ml : a.k === 'ice' ? 80 : 20), 0);
+        const running = slot === 'tray1' || slot === 'tray2' ? s.m.groups[slot === 'tray1' ? 0 : 1] : null;
+        const vol =
+          it.adds.reduce((n, a) => n + (a.k === 'shot' ? (a.yieldG ?? SHOT_YIELD_ML[a.style]) : a.k === 'brew' ? 200 : a.k === 'water' || a.k === 'milk' ? a.ml : a.k === 'ice' ? 80 : 20), 0) +
+          (running?.yieldG ?? 0);
         const frac = Math.min(1, vol / CUP_CAPACITY_ML[it.size]);
         const d = CUP_DIM[it.size];
-        const mat = liquidMat(sum);
+        const mat = liquidMat(sum) ?? (running && running.yieldG > 0 ? mats.espresso : null);
         rig.fill.setEnabled(!!mat && frac > 0);
         if (mat) rig.fill.material = mat;
         rig.fill.scaling.y = Math.max(0.002, d.h * 0.92 * frac);
@@ -395,13 +537,17 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
   camera.wheelDeltaPercentage = 0.01;
   camera.panningSensibility = 0;
   camera.attachControl(canvas, true);
+  // Landscape framing: the whole 1.6 m counter fills most of the view whatever its shape (vertical FOV 0.8 →
+  // visible width ≈ 0.8456 · radius · aspect), so a wide desktop stage shows a big counter, not empty side walls.
+  const autoRadius = (aspect: number) => (aspect < 1 ? 1.9 : Math.min(1.75, Math.max(1.15, 2.75 / aspect)));
+  let lastAutoRadius = 0;
   const resetView = () => {
     const aspect = engine.getAspectRatio(camera);
     camera.fovMode = aspect < 1 ? ArcRotateCamera.FOVMODE_HORIZONTAL_FIXED : ArcRotateCamera.FOVMODE_VERTICAL_FIXED;
     camera.fov = aspect < 1 ? 1.15 : 0.8;
     camera.alpha = -Math.PI / 2;
     camera.beta = aspect < 1 ? 0.95 : 1.12;
-    camera.radius = aspect < 1 ? 1.9 : 1.75;
+    camera.radius = lastAutoRadius = autoRadius(aspect);
     camera.setTarget(v(0, counterH + 0.24, 0.1));
   };
   resetView();
@@ -490,6 +636,7 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
       paintPads();
       lastInputAt = time;
     }
+    showShots(s);
     for (const [slot, bar] of bars) {
       const p = processProgress(s, slot);
       bar.setEnabled(p !== null);
@@ -504,7 +651,12 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
     if (inXR || time - lastInputAt < 1.5 || frameNo % 2 === 0) scene.render();
     if (frameNo % 30 === 0) canvas.dataset.drawCalls = String(instrumentation.drawCallsCounter.current);
   });
-  const resize = () => engine.resize();
+  const resize = () => {
+    engine.resize();
+    // keep the framing when the stage changes shape (e.g. the ticket strip grows), unless the player zoomed
+    if (xr?.inXR() || Math.abs(camera.radius - lastAutoRadius) > 0.005) return;
+    camera.radius = lastAutoRadius = autoRadius(engine.getAspectRatio(camera));
+  };
   const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(resize) : null;
   ro?.observe(canvas);
   window.addEventListener('resize', resize);
@@ -538,6 +690,7 @@ export async function createRushScene(opts: RushSceneOptions): Promise<RushScene
       const sy = rect.height / engine.getRenderHeight();
       return { x: rect.left + sp.x * sx, y: rect.top + sp.y * sy };
     },
+    audit,
     vrTest: () => (xr ? { ...xr.debug, emulate: (on: boolean) => xr?.emulate(on) } : null),
     stats: () => ({ meshes: scene.meshes.length, drawCalls: instrumentation.drawCallsCounter.current, fps: Math.round(engine.getFps()) }),
     dispose() {

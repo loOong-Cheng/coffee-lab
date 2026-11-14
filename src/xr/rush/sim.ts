@@ -13,7 +13,8 @@
 import type { Guidance, LocalizedText } from '../../domain/contracts';
 import type { CupSize, Extra, MilkMl, ShotStyle, WaterMl } from '../../features/cafe/model';
 import { CUSTOMERS } from '../../features/cafe/specs';
-import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, listCostSec, patienceMultFor, type RushInput, type RushLevelNo } from './config';
+import { FIXED_STEP_MS, LEVELS, PROCESS, RELAXED, SCORING, SHOT_FLOW, listCostSec, patienceMultFor, shotYieldAt, styleForYield, type RushInput, type RushLevelNo } from './config';
+import { SHOT_YIELD_ML } from '../../features/cafe/model';
 import { basePoints, drinkName, hotWaterSec, steamSec, workEstimateSec, type Brewer } from './drinks';
 import { explain, judge, judgementSummary, type Addition, type Explanation, type RushDiff } from './judge';
 import { rngNext } from './rng';
@@ -69,9 +70,20 @@ export interface BrewerState {
   bloomed: boolean;
 }
 
+/**
+ * A running espresso shot. `style` is what the barista aimed for (its target yield is on the wall); `yieldG` grows
+ * with the flow (SHOT_FLOW) and the shot ends at `stopAtG` or when the barista stops it (`stopShot`).
+ */
+export interface ShotRun {
+  style: ShotStyle;
+  elapsedMs: number;
+  yieldG: number;
+  stopAtG: number;
+}
+
 export interface Machines {
   grinderMs: number;
-  groups: [{ style: ShotStyle; remainingMs: number } | null, { style: ShotStyle; remainingMs: number } | null];
+  groups: [ShotRun | null, ShotRun | null];
   /** Non-null while a pitcher is on the wand being / having been steamed. */
   wand: { texture: SteamTexture; remainingMs: number; readyMs: number } | null;
   hotwater: { ml: number; remainingMs: number } | null;
@@ -146,6 +158,7 @@ export interface RushState {
   /** 3D / XR or action list: sets the patience of new orders (`patienceMultFor`). */
   input: RushInput;
   guidance: Guidance;
+  shotControl: ShotControl;
   seed: number;
   attempt: number;
   rng: number;
@@ -177,6 +190,7 @@ export type RushAction =
   | { type: 'grind' }
   | { type: 'knock' }
   | { type: 'startShot'; group: GroupNo; style: ShotStyle }
+  | { type: 'stopShot'; group: GroupNo }
   | { type: 'fillMilk'; ml: MilkMl }
   | { type: 'steam'; texture: SteamTexture }
   | { type: 'dispenseWater'; ml: WaterMl }
@@ -204,7 +218,14 @@ export interface ShiftOptions {
   input?: RushInput;
   guidance?: Guidance;
   attempt?: number;
+  /**
+   * Who stops a shot. `auto` (default; bots, tuning and tests): the machine stops at the target, like a programmed
+   * volumetric button. `manual` (the game UI): the player stops it; Guided gets a small grace stop past the target,
+   * Assisted / Independent run on to SHOT_FLOW.maxG.
+   */
+  shotControl?: ShotControl;
 }
+export type ShotControl = 'auto' | 'manual';
 
 const FEEDBACK_KEEP = 12;
 const sec = (s: number) => Math.round(s * 1000);
@@ -233,6 +254,7 @@ export function createShift(o: ShiftOptions): RushState {
     mode,
     input: o.input ?? 'direct',
     guidance: o.guidance ?? 'guided',
+    shotControl: o.shotControl ?? 'auto',
     seed: o.seed,
     attempt: o.attempt ?? 1,
     rng: o.seed >>> 0,
@@ -371,6 +393,7 @@ const MSG = {
   alreadyGround: L('已经有咖啡粉了。', 'Already filled with grounds.'),
   grinderEmpty: L('磨豆机下面没有手柄或粉杯。', 'Put a portafilter or the dosing cup under the grinder.'),
   groupBusy: L('这个冲煮头正在萃取。', 'That group is already pulling a shot.'),
+  noShot: L('这个冲煮头没有在萃取。', 'That group is not pulling a shot.'),
   notPf: L('只能敲手柄。', 'Only a portafilter can be knocked out.'),
   nothingToKnock: L('手柄是空的。', 'The basket is already empty.'),
   notPitcher: L('先拿起一个奶缸。', 'Pick up a milk pitcher first.'),
@@ -419,7 +442,6 @@ function addTo(d: RushState, cupId: string, a: Addition) {
   const c = d.items[cupId] as CupItem;
   d.items[cupId] = { ...c, adds: [...c.adds, a] };
 }
-const shotMs = (style: ShotStyle) => sec(PROCESS.shot[style].sec);
 
 // ───────────────────────────── player actions ─────────────────────────────
 function apply(d: RushState, a: PlayerAction): Res {
@@ -477,9 +499,17 @@ function apply(d: RushState, a: PlayerAction): Res {
       if (d.m.groups[gi]) return fail('group-busy', MSG.groupBusy);
       if (pf.load === 'empty') return fail('no-coffee', MSG.noCoffee);
       if (pf.load === 'puck') return fail('used-puck', MSG.usedPuck);
-      d.m.groups[gi] = { style: a.style, remainingMs: shotMs(a.style) };
+      const target = SHOT_YIELD_ML[a.style];
+      const stopAtG = d.shotControl === 'auto' ? target : d.guidance === 'guided' ? target + SHOT_FLOW.guidedGraceG : SHOT_FLOW.maxG;
+      d.m.groups[gi] = { style: a.style, elapsedMs: 0, yieldG: 0, stopAtG };
       fx(d, 'shot-start');
       return ok('shot-started');
+    }
+    case 'stopShot': {
+      const gi = a.group - 1;
+      if (!d.m.groups[gi]) return fail('no-shot', MSG.noShot);
+      finishShot(d, gi as 0 | 1, false);
+      return ok('shot-stopped');
     }
     case 'fillMilk': {
       if (!h || h.kind !== 'pitcher') return fail('not-pitcher', MSG.notPitcher);
@@ -587,13 +617,53 @@ function pour(d: RushState, h: Item | null, slot: SlotId): Res {
   return fail('cannot-pour', MSG.cannotPour);
 }
 
+const g1 = (n: number) => Math.round(n * 10) / 10;
+
+/** End a shot: what reached the cup decides the style (styleForYield). `byMachine`: the stop point was reached. */
+function finishShot(d: RushState, gi: 0 | 1, byMachine: boolean): void {
+  const g = d.m.groups[gi]!;
+  d.m.groups[gi] = null;
+  const pf = itemIn(d, gi === 0 ? 'group1' : 'group2');
+  if (g.yieldG < 1) {
+    // stopped during pre-infusion: nothing reached the cup and the coffee stays in the portafilter
+    say(d, 'info', 'shot-cancelled', L(`${gi + 1} 号冲煮头：咖啡还没流出来就停了。`, `Group ${gi + 1}: stopped before any coffee came out.`));
+    return;
+  }
+  if (pf?.kind === 'portafilter') d.items[pf.id] = { ...pf, load: 'puck' };
+  const cup = itemIn(d, gi === 0 ? 'tray1' : 'tray2');
+  const yieldG = g1(g.yieldG);
+  if (cup?.kind === 'cup') {
+    addTo(d, cup.id, { k: 'shot', style: styleForYield(yieldG), yieldG });
+    fx(d, 'shot-done');
+    if (byMachine && d.shotControl === 'manual' && g.stopAtG >= SHOT_FLOW.maxG) {
+      say(d, 'info', 'shot-max', L(`${gi + 1} 号冲煮头自己停在了 ${yieldG} 克——一份很长的萃取。下次看着克数，到目标就停。`, `Group ${gi + 1} stopped itself at ${yieldG} g — a very long shot. Next time watch the grams and stop at the target.`));
+    }
+  } else {
+    d.stats.wasted += 1;
+    say(d, 'mistake', 'shot-wasted', L(`${gi + 1} 号冲煮头下面没有杯子——这份浓缩流进了滴水盘。`, `No cup under group ${gi + 1} — that shot went into the drip tray.`));
+  }
+}
+
+/** "(you stopped at 31.5 g ≈ 1:1.8)" for a shot-style difference. */
+function gramsNote(cup: Item): LocalizedText | null {
+  if (cup.kind !== 'cup') return null;
+  const shot = cup.adds.find((x): x is Extract<Addition, { k: 'shot' }> => x.k === 'shot' && x.yieldG !== undefined);
+  if (!shot?.yieldG) return null;
+  const ratio = (shot.yieldG / SHOT_FLOW.doseG).toFixed(1);
+  return L(`（你停在 ${shot.yieldG} 克 ≈ 1:${ratio}）`, ` (you stopped at ${shot.yieldG} g ≈ 1:${ratio})`);
+}
+
 function serve(d: RushState, h: Item | null, orderId: string): Res {
   if (!h || h.kind !== 'cup') return fail('not-cup', MSG.notCup);
   const idx = d.orders.findIndex((o) => o.id === orderId);
   if (idx < 0) return fail('no-order', MSG.noOrder);
   const o = d.orders[idx]!;
   const j = judge(h, o.drinkId);
-  const details = j.diffs.map((x) => explain(o.drinkId, x));
+  const grams = gramsNote(h);
+  const details = j.diffs.map((x) => {
+    const e = explain(o.drinkId, x);
+    return x.component === 'shotStyle' && grams ? { ...e, what: L(e.what.zh + grams.zh, e.what.en + grams.en) } : e;
+  });
   const summary = judgementSummary(j);
   if (j.status === 'incorrect') {
     d.stats.wrongServes += 1;
@@ -730,19 +800,9 @@ function step(d: RushState) {
   for (const gi of [0, 1] as const) {
     const g = m.groups[gi];
     if (!g) continue;
-    g.remainingMs -= dt;
-    if (g.remainingMs > 0) continue;
-    m.groups[gi] = null;
-    const pf = itemIn(d, gi === 0 ? 'group1' : 'group2');
-    if (pf?.kind === 'portafilter') d.items[pf.id] = { ...pf, load: 'puck' };
-    const cup = itemIn(d, gi === 0 ? 'tray1' : 'tray2');
-    if (cup?.kind === 'cup') {
-      addTo(d, cup.id, { k: 'shot', style: g.style });
-      fx(d, 'shot-done');
-    } else {
-      d.stats.wasted += 1;
-      say(d, 'mistake', 'shot-wasted', L(`${gi + 1} 号冲煮头下面没有杯子——这份浓缩流进了滴水盘。`, `No cup under group ${gi + 1} — that shot went into the drip tray.`));
-    }
+    g.elapsedMs += dt;
+    g.yieldG = Math.min(g.stopAtG, shotYieldAt(g.elapsedMs / 1000));
+    if (g.yieldG >= g.stopAtG) finishShot(d, gi, true);
   }
 
   if (m.wand) {
@@ -866,7 +926,7 @@ export function reduce(s: RushState, a: RushAction): RushState {
       if (s.status !== 'paused') return s;
       return { ...s, status: 'playing', effects: ['resume'] };
     case 'reset':
-      return createShift({ level: s.level, seed: s.seed + 1, mode: s.mode, input: s.input, guidance: s.guidance, attempt: s.attempt + 1 });
+      return createShift({ level: s.level, seed: s.seed + 1, mode: s.mode, input: s.input, guidance: s.guidance, shotControl: s.shotControl, attempt: s.attempt + 1 });
     case 'setInput':
       return s.input === a.input ? s : { ...s, input: a.input, effects: [] };
     case 'endShift': {

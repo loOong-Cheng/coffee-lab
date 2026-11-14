@@ -394,8 +394,11 @@ test('Relaxed: no countdowns / patience bars / tips; finishing unlocks L2; best 
     } else await page.waitForTimeout(100);
     // tips must stay 0 and no ticket may ever show seconds
     if (i % 25 === 0) {
-      await expect(page.locator('.rush-stats div').nth(1).locator('dd')).toHaveText('0');
-      await expect(page.getByTestId('rush-tickets')).not.toContainText(/\d+ s\b/);
+      // read without waiting: the shift may have just ended and the HUD been replaced by the results (race)
+      const tips = await page.locator('.rush-stats div').nth(1).locator('dd').allTextContents();
+      if (tips.length) expect(tips[0]).toBe('0');
+      const tickets = await page.getByTestId('rush-tickets').allTextContents();
+      for (const text of tickets) expect(text).not.toMatch(/\d+ s\b/);
     }
   }
   const results = page.getByTestId('rush-results');

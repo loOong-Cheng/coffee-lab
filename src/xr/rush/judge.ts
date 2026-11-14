@@ -31,7 +31,7 @@ import { getFilterSpec } from './filterSpecs';
 const L = (zh: string, en: string): LocalizedText => ({ zh, en });
 
 export type Addition =
-  | { k: 'shot'; style: ShotStyle }
+  | { k: 'shot'; style: ShotStyle; /** grams that reached the cup (game UI shots) */ yieldG?: number }
   | { k: 'brew'; brewer: Brewer; bloomed: boolean }
   | { k: 'water'; ml: number }
   | { k: 'milk'; texture: Exclude<MilkTexture, 'none'>; ml: number; overheated: boolean }

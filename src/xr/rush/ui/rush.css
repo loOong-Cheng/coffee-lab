@@ -115,6 +115,34 @@
   grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
   align-items: start;
 }
+/* Desktop 3D (user report: "on desktop the screen is too small for viewing"): break out of the 1200 px page column
+   up to 1680 px and give the counter two thirds of the width (≈ 815 × 458 px at 1280 × 800, was 617 × 347). */
+@media (min-width: 1000px) {
+  .rush[data-mode='3d'] {
+    max-width: none; /* the 80rem cap of the lobby / list layout */
+    margin-inline: calc(50% - min(50vw - 24px, 840px));
+  }
+  /* The play area exactly fills the screen under the sticky ticket strip and each column scrolls inside itself, so
+     clicking down the action list never scrolls the page — the 3D counter stays at the top of its column. */
+  .rush[data-mode='3d'] .rush-main {
+    grid-template-columns: minmax(0, 2fr) minmax(18rem, 1fr);
+    /* from where the play area starts down to the bottom of the screen: no page scroll needed to play */
+    height: max(28rem, calc(100vh - var(--rush-main-top, 20rem) - var(--space-3)));
+    align-items: stretch;
+  }
+  .rush[data-mode='3d'] .rush-main > .rush-col {
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    align-content: start;
+    padding-inline-end: var(--space-1);
+  }
+  .rush[data-mode='3d'] .rush-main > .rush-col .rush-shots {
+    top: 0;
+  }
+  .rush[data-mode='3d'] .rush-stage {
+    max-height: calc(100vh - var(--rush-main-top, 20rem) - var(--space-3));
+  }
+}
 @media (max-width: 760px) {
   .rush-main {
     grid-template-columns: minmax(0, 1fr);
@@ -388,4 +416,63 @@
 .rush-scene {
   display: grid;
   gap: var(--space-2);
+}
+
+/* ── live shot meter (grams in the cup, target mark, Stop) ── */
+.rush-shots {
+  position: sticky; /* stays in view under the ticket strip while a shot runs */
+  top: calc(var(--rush-live-h, 0px) + var(--space-2));
+  z-index: 5;
+  display: grid;
+  gap: var(--space-2);
+  padding: var(--space-3);
+  border: 1.5px solid var(--color-accent);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.rush-shot {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: var(--space-1) var(--space-3);
+}
+.rush-shot__head,
+.rush-shot__num {
+  grid-column: 1;
+  margin: 0;
+  font-size: var(--text-sm);
+}
+.rush-shot__num {
+  font-variant-numeric: tabular-nums;
+  font-weight: var(--weight-bold);
+  font-size: var(--text-base);
+}
+.rush-shot__bar {
+  grid-column: 1;
+  position: relative;
+  height: 0.75rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-sunken);
+  border: 1px solid var(--color-border);
+  overflow: hidden;
+}
+.rush-shot__fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: color-mix(in srgb, var(--color-accent) 70%, #5a3418);
+}
+.rush-shot__fill[data-near] {
+  background: var(--color-success);
+}
+.rush-shot__target {
+  position: absolute;
+  top: -2px;
+  bottom: -2px;
+  width: 3px;
+  margin-left: -1px;
+  background: var(--color-text);
+}
+.rush-shot > .cl-btn {
+  grid-column: 2;
+  grid-row: 1 / span 3;
 }

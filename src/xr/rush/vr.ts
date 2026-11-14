@@ -16,24 +16,24 @@ export type V3 = readonly [number, number, number];
 
 /** Station-local anchor of every target (y 0 = counter top; the user stands at −z). Every one is within ±0.75 m. */
 export const TARGET_POS: Record<Target, V3> = {
-  grinder: [-0.62, 0, 0.22],
-  group1: [-0.34, 0.25, 0.25],
-  group2: [-0.12, 0.25, 0.25],
-  tray1: [-0.34, 0, 0.17],
-  tray2: [-0.12, 0, 0.17],
-  wand: [0.1, 0, 0.17],
-  hotwater: [0.26, 0, 0.17],
+  grinder: [-0.62, 0, 0.18],
+  group1: [-0.34, 0.25, 0.2],
+  group2: [-0.12, 0.25, 0.2],
+  tray1: [-0.34, 0, 0.2],
+  tray2: [-0.12, 0, 0.2],
+  wand: [0.1, 0, 0.2],
+  hotwater: [0.26, 0, 0.2],
   kettleBase: [0.45, 0, 0.26],
   dripper: [0.64, 0, 0.27],
   phin: [0.64, 0, 0.06],
-  counter1: [-0.42, 0, -0.17],
-  counter2: [-0.24, 0, -0.17],
-  counter3: [-0.06, 0, -0.17],
-  counter4: [0.12, 0, -0.17],
-  counter5: [-0.42, 0, -0.01],
-  counter6: [-0.24, 0, -0.01],
-  counter7: [-0.06, 0, -0.01],
-  counter8: [0.12, 0, -0.01],
+  counter1: [-0.42, 0, -0.2],
+  counter2: [-0.24, 0, -0.2],
+  counter3: [-0.06, 0, -0.2],
+  counter4: [0.12, 0, -0.2],
+  counter5: [-0.42, 0, 0],
+  counter6: [-0.24, 0, 0],
+  counter7: [-0.06, 0, 0],
+  counter8: [0.12, 0, 0],
   shelf: [-0.66, 0, -0.16],
   knock: [-0.64, 0, 0.0],
   ice: [0.32, 0, -0.18],
@@ -43,10 +43,10 @@ export const TARGET_POS: Record<Target, V3> = {
   pass: [0.47, 0, 0.06],
 };
 
-/** Where a held item's centre sits at a slot (portafilters hang under the group head). */
+/** Where a held item's centre sits at a slot (portafilters lock in just under the group head). */
 export function grabPoint(t: Target): V3 {
   const p = TARGET_POS[t];
-  return t === 'group1' || t === 'group2' ? [p[0], p[1] - 0.06, p[2]] : [p[0], p[1] + 0.06, p[2]];
+  return t === 'group1' || t === 'group2' ? [p[0], p[1] + 0.045, p[2]] : [p[0], p[1] + 0.06, p[2]];
 }
 
 /** Release snap radius (m) by guidance tier: guided is generous, independent asks for a precise drop. */

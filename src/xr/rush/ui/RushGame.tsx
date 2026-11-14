@@ -14,7 +14,9 @@ import { Callout } from '../../../ui/primitives/Callout';
 import { GuidanceSelector } from '../../../ui/primitives/Guidance';
 import { announce } from '../../../ui/primitives/announcer';
 import { shallowEqual } from '../../ui/useMission';
-import { LEVELS, RELAXED, RUSH_LEVELS, listCostSec, type RushLevelNo } from '../config';
+import { LEVELS, RELAXED, RUSH_LEVELS, SHOT_FLOW, listCostSec, type RushLevelNo } from '../config';
+import { SHOT_STYLE_TEXT } from '../../../features/cafe/strings';
+import { SHOT_YIELD_ML } from '../../../features/cafe/model';
 import { drinkName, processTimings, recipeWall, wallEntry, wallFacts } from '../drinks';
 import { explain } from '../judge';
 import {
@@ -30,10 +32,11 @@ import {
   processReal,
   rushAnnouncements,
   whileBrewsHint,
+  STOP_CUE_G,
   type RushStore,
 } from '../play';
 import { bestStarsFromEvents, rushCompletionEvent, rushResult, unlockedLevels, type RushResult } from '../record';
-import { createShift, itemIn, listAct, reduce, slotLocked, tick, type PlayerAction, type RushState, type SlotId } from '../sim';
+import { createShift, itemIn, listAct, reduce, slotLocked, tick, type GroupNo, type PlayerAction, type RushState, type SlotId } from '../sim';
 import { R, SLOT_TEXT, customerName, fmtR, itemText } from '../strings';
 import './rush.css';
 
@@ -243,7 +246,7 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
   const store = useMemo(
     () =>
       createRushStore(
-        createShift({ level: setup.level, seed, mode: setup.relaxed ? 'relaxed' : 'standard', input: setup.mode === 'list' ? 'list' : 'direct', guidance: setup.guidance }),
+        createShift({ level: setup.level, seed, mode: setup.relaxed ? 'relaxed' : 'standard', input: setup.mode === 'list' ? 'list' : 'direct', guidance: setup.guidance, shotControl: 'manual' }),
       ),
     [setup, seed],
   );
@@ -354,11 +357,35 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
 
   const act = (a: PlayerAction, viaList: boolean) => store.set(viaList ? listAct(store.get(), a) : reduce(store.get(), a));
 
+  // The sticky ticket strip's height (--rush-live-h: the shot meter sits just below it) and where the play area starts
+  // on the page (--rush-main-top: desktop 3D sizes the play area to end at the bottom of the screen), so acting never
+  // scrolls the 3D counter or the grams out of view.
+  const sectionRef = useRef<HTMLElement>(null);
+  const liveRef = useRef<HTMLDivElement>(null);
+  useEffect(() => {
+    const live = liveRef.current;
+    const section = sectionRef.current;
+    if (!live || !section || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      section.style.setProperty('--rush-live-h', `${Math.ceil(live.getBoundingClientRect().height)}px`);
+      const main = section.querySelector('.rush-main');
+      if (main) section.style.setProperty('--rush-main-top', `${Math.ceil(main.getBoundingClientRect().top + window.scrollY)}px`);
+    };
+    const ro = new ResizeObserver(measure);
+    ro.observe(live);
+    ro.observe(section);
+    window.addEventListener('resize', measure);
+    return () => {
+      ro.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [result, inXr]);
+
   // In VR the results stay on an in-headset panel (Play again / Back to lobby) until the session ends.
   if (result && !inXr) return <Results store={store} result={result} setup={setup} onAgain={() => onNext(setup.level)} onNext={onNext} onExit={onExit} />;
 
   return (
-    <section className="rush" data-testid="rush-player" data-mode={mode} data-vr={canVR || undefined} data-status={status} aria-label={t(R.title)}>
+    <section ref={sectionRef} className="rush" data-testid="rush-player" data-mode={mode} data-vr={canVR || undefined} data-status={status} aria-label={t(R.title)}>
       <Hud store={store} onExit={onExit} headingRef={hudHeading} />
       {status === 'paused' ? (
         <div className="rush-paused" role="dialog" aria-labelledby="rush-paused-h">
@@ -372,7 +399,7 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
         </div>
       ) : null}
       {/* Tickets + clock: one strip that stays on screen while you act (sticky on phones, QA-R02). */}
-      <div className="rush-live" data-testid="rush-live">
+      <div ref={liveRef} className="rush-live" data-testid="rush-live">
         <LiveClock store={store} />
         <Tickets store={store} guidance={setup.guidance} />
       </div>
@@ -408,6 +435,7 @@ function RushPlayer({ setup, seed, canVR, mobile, onExit, onNext }: { setup: Rus
           <Feedback store={store} />
         </div>
         <aside className="rush-col">
+          <ShotMeters store={store} onStop={(group) => act({ type: 'stopShot', group }, mode !== '3d')} />
           <ActionList store={store} coach={setup.guidance === 'guided' ? coach : null} onAct={(a) => act(a, true)} />
           <Wall level={setup.level} defaultOpen={!mobile && wideScreen()} />
         </aside>
@@ -422,6 +450,60 @@ function wideScreen(): boolean {
   } catch {
     return false;
   }
+}
+
+/**
+ * Live espresso readout (user report: "I don't see how much comes from the machine and when to stop"): grams in the
+ * cup, ratio, the target mark and a Stop button per running group. Updates every frame while a shot runs.
+ */
+function ShotMeters({ store, onStop }: { store: RushStore; onStop(group: GroupNo): void }) {
+  const { t } = useI18n();
+  const v = useRush(
+    store,
+    (s) => ({
+      guided: s.shotControl === 'manual' && s.guidance === 'guided',
+      shots: s.m.groups.map((g) => (g ? { style: g.style, yieldG: Math.round(g.yieldG * 10) / 10 } : null)),
+    }),
+    (a, b) => JSON.stringify(a) === JSON.stringify(b),
+  );
+  if (!v.shots.some(Boolean)) return null;
+  return (
+    <section className="rush-shots" aria-label={t(R.shotsTitle)} data-testid="rush-shots">
+      <h2 className="xr-side__h">{t(R.shotsTitle)}</h2>
+      {v.shots.map((g, i) => {
+        if (!g) return null;
+        const n = i + 1;
+        const target = SHOT_YIELD_ML[g.style];
+        const near = g.yieldG >= target - STOP_CUE_G;
+        return (
+          <div key={n} className="rush-shot" data-testid={`rush-shot-${n}`} data-yield={g.yieldG}>
+            <p className="rush-shot__head">
+              <strong>{t(fmtR(R.shotGroup, { n }))}</strong> · {t(fmtR(R.shotTarget, { style: t(SHOT_STYLE_TEXT[g.style].label), g: target }))}
+            </p>
+            <div
+              className="rush-shot__bar"
+              role="meter"
+              aria-label={t(fmtR(R.shotMeterLabel, { n }))}
+              aria-valuemin={0}
+              aria-valuemax={SHOT_FLOW.maxG}
+              aria-valuenow={g.yieldG}
+              aria-valuetext={`${g.yieldG} g`}
+            >
+              <span className="rush-shot__fill" style={{ width: `${(100 * g.yieldG) / SHOT_FLOW.maxG}%` }} data-near={near || undefined} />
+              <span className="rush-shot__target" style={{ left: `${(100 * target) / SHOT_FLOW.maxG}%` }} aria-hidden="true" />
+            </div>
+            <p className="rush-shot__num" aria-hidden="true">
+              {g.yieldG === 0 ? t(R.shotPreinfusion) : t(fmtR(R.shotNow, { g: g.yieldG.toFixed(1), r: (g.yieldG / SHOT_FLOW.doseG).toFixed(1) }))}
+            </p>
+            <Button size="sm" variant={near ? 'primary' : 'secondary'} onClick={() => onStop(n as GroupNo)} data-testid={`rush-stop-${n}`}>
+              {t(fmtR(R.shotStop, { n }))}
+            </Button>
+          </div>
+        );
+      })}
+      <p className="xr-small xr-muted">{t(v.guided ? R.shotGuidedNote : R.shotManualNote)}</p>
+    </section>
+  );
 }
 
 const clockText = (left: number) => `${Math.floor(left / 60)}:${String(left % 60).padStart(2, '0')}`;

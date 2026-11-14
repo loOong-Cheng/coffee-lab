@@ -6,7 +6,7 @@
  *  - store: a tiny external store for React / the 3D scene
  */
 import type { LocalizedText } from '../../domain/contracts';
-import { CUPS, MILK_ML, SHOT_STYLES, WATER_ML, type Extra } from '../../features/cafe/model';
+import { CUPS, MILK_ML, SHOT_STYLES, SHOT_YIELD_ML, WATER_ML, type Extra } from '../../features/cafe/model';
 import { createBot, decide, type Bot } from './bots';
 import { PROCESS, type BotProfile, type RushLevelNo } from './config';
 import { drinkName, hotWaterSec, steamSec } from './drinks';
@@ -37,6 +37,8 @@ export function actionId(a: PlayerAction): string {
       return a.slot.startsWith('counter') ? 'place:counter' : `place:${a.slot}`;
     case 'startShot':
       return `startShot:${a.group}:${a.style}`;
+    case 'stopShot':
+      return `stopShot:${a.group}`;
     case 'fillMilk':
     case 'dispenseWater':
       return `${a.type}:${a.ml}`;
@@ -70,7 +72,10 @@ function candidates(s: RushState): Array<[ActionGroup, PlayerAction]> {
     for (const size of CUPS) out.push(['pick', { type: 'takeCup', size }]);
   }
   out.push(['station', { type: 'grind' }]);
-  for (const group of [1, 2] as const) for (const style of SHOT_STYLES) out.push(['station', { type: 'startShot', group, style }]);
+  for (const group of [1, 2] as const) {
+    out.push(['station', { type: 'stopShot', group }]);
+    for (const style of SHOT_STYLES) out.push(['station', { type: 'startShot', group, style }]);
+  }
   for (const texture of TEXTURES) out.push(['station', { type: 'steam', texture }]);
   for (const ml of WATER_ML) out.push(['station', { type: 'dispenseWater', ml }]);
   out.push(['station', { type: 'heatKettle' }]);
@@ -98,7 +103,9 @@ export function listKey(s: RushState): string {
     .map((it) => (it.kind === 'cup' ? `${it.id}${it.adds.length}` : JSON.stringify(it)))
     .join();
   const m = s.m;
-  const busy = [m.grinderMs > 0, !!m.groups[0], !!m.groups[1], m.wand ? m.wand.remainingMs > 0 : 'n', !!m.hotwater, m.kettleMs > 0, m.brewers.pourover.stage, m.brewers.phin.stage].join();
+  // a running shot changes the key when it reaches the coach's "stop now" point, so the suggestion refreshes
+  const shot = (g: (typeof m.groups)[number]) => (g ? (g.yieldG >= SHOT_YIELD_ML[g.style] - STOP_CUE_G ? 'cue' : 'run') : '-');
+  const busy = [m.grinderMs > 0, shot(m.groups[0]), shot(m.groups[1]), m.wand ? m.wand.remainingMs > 0 : 'n', !!m.hotwater, m.kettleMs > 0, m.brewers.pourover.stage, m.brewers.phin.stage].join();
   return [s.status, s.hand, Object.values(s.slots).join(), items, busy, s.orders.map((o) => o.id).join()].join('|');
 }
 
@@ -107,8 +114,18 @@ const COACH: BotProfile = { id: 'expert', latencySec: 1, latencyJitter: 0, error
 export type Coach = Bot;
 export const createCoach = (level: RushLevelNo): Coach => createBot(COACH, 1, level);
 
+/** The coach says "stop now" this many grams before the target (about a third of a second at full flow). */
+export const STOP_CUE_G = 3;
+
 export function coachSuggest(coach: Coach, s: RushState): PlayerAction | null {
   if (s.status !== 'playing') return null;
+  // A shot the player has to stop comes first: suggest Stop as it nears its target.
+  if (s.shotControl === 'manual') {
+    for (const group of [1, 2] as const) {
+      const run = s.m.groups[group - 1];
+      if (run && run.yieldG >= SHOT_YIELD_ML[run.style] - STOP_CUE_G) return { type: 'stopShot', group };
+    }
+  }
   const a = decide(coach, s);
   if (!a || a.type === 'tick' || a.type === 'pause' || a.type === 'resume' || a.type === 'reset' || a.type === 'setInput' || a.type === 'endShift') return null;
   return reduce(s, a).lastResult.ok ? a : null;
@@ -176,6 +193,7 @@ export function slotsOf(a: PlayerAction | null): SlotId[] {
     case 'grind':
       return ['grinder'];
     case 'startShot':
+    case 'stopShot':
       return [a.group === 1 ? 'group1' : 'group2'];
     case 'steam':
       return ['wand'];
@@ -203,6 +221,7 @@ export function targetOf(a: PlayerAction): Target {
     case 'grind':
       return 'grinder';
     case 'startShot':
+    case 'stopShot':
       return a.group === 1 ? 'group1' : 'group2';
     case 'steam':
       return 'wand';
@@ -247,7 +266,7 @@ export function processProgress(s: RushState, slot: SlotId): number | null {
     case 'group1':
     case 'group2': {
       const g = m.groups[slot === 'group1' ? 0 : 1];
-      return g ? f(g.remainingMs, PROCESS.shot[g.style].sec) : null;
+      return g ? Math.max(0, Math.min(1, g.yieldG / SHOT_YIELD_ML[g.style])) : null;
     }
     case 'wand': {
       const p = itemIn(s, 'wand');
