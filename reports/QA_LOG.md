@@ -339,3 +339,12 @@ Not bugs (checked):
 - Lead re-run on merged main `bcde8ed`: typecheck ✓ · unit **612/612** · full e2e **344 passed / 42 viewport skips / 0 failed**.
 - Open (follow-up): list mode L3–L5 still hard at human pace (human-list ≥1★ 28/20/3%); real-speed L2 e2e uses a random seed; desktop tickets scroll away during long action lists.
 - Follow-up `5dd55f8`: list-mode fairness (above), fixed real-speed L2 seed 21015 (the median tuning seed, not cherry-picked), sticky tickets on desktop. Lead re-run on merged main: typecheck ✓ · unit **616/616** · full e2e **345 passed / 43 viewport skips / 0 failed**. The first full run had 1 failure: `xr-rush.spec.ts:154` on mobile, a 3D tap not registered under 6-worker CPU-WebGL load. That spec passed 3/3 in isolation and the whole suite passed on rerun. Logged as a load flake; candidate hardening: wait for scene-ready before tapping.
+
+## Café Rush user report: shot control, visibility, geometry, desktop size (2026-11-14)
+- User report: "extra is uncontrolled", "I don't see how much water comes from the machine and when to stop", "on desktop the screen is too small", "mesh overlap in extra". Fixed by a debugging fork in `194630c`:
+  - **Shots flow and the player stops them:** `SHOT_FLOW` 3 s pre-infusion, then 9 g/s game time. The stop yield decides ristretto, normal or lungo, and feedback shows the yield and ratio. Bots and tuning use `'auto'`, so the tuning holds.
+  - **Visibility:** a live grams/ratio meter with a Stop button, a stream and cup fill in 3D, and click the group to stop.
+  - **Geometry:** a mesh-overlap audit (0 overlaps) fixes the portafilter in the machine, the bottle in the fridge, the wand through the pitcher and items sunk into stations.
+  - **Desktop:** the 3D view gets more space (1280×800: about 793×450, was 617×347) with internal column scroll.
+- Lead re-run on merged main: typecheck ✓ · unit **626/626** · full e2e **351 passed / 45 viewport skips / 0 failed**.
+- Not covered: on a phone in 3D the meter sits below the counter (the in-scene readout and tap-to-stop work). VR is hardware-unverified.
